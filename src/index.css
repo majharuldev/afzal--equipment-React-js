@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@theme {
+  --color-primary: #11375b;
+  --color-secondary: #181f38;
+}
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
+body {
+  /* font-family: "Roboto", sans-serif; */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide default calendar icon in Chrome, Safari, Edge */
+input[type="date"].remove-date-icon::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+
+/* Hide icon in Firefox */
+input[type="date"].remove-date-icon::-moz-focus-inner {
+  border: 0;
+}
+input[type="date"].remove-date-icon::-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #000;
+}
