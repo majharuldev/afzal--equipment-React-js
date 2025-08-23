@@ -4,7 +4,7 @@ import avatar from "../../assets/laksham-admin.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../providers/AuthProvider";
 
-import { LogOut, ChevronDown, ChevronUp, User, Mail, Phone, Menu } from "lucide-react";
+import { LogOut,  User, Mail, Phone, Menu } from "lucide-react";
 
 const Header = ({ setMobileSidebarOpen }) => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
