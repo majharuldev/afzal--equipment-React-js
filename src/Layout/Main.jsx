@@ -72,7 +72,6 @@
 
 // export default Main;
 
-
 import React, { useEffect, useRef, useState } from "react";
 import { Layout } from "antd";
 import { Outlet, useLocation } from "react-router-dom";
@@ -122,7 +121,7 @@ const Main = () => {
         className="bg-white shadow-md"
         style={{ height: "100vh", overflow: "auto", position: "sticky", top: 0 }}
       > */}
-        <Sidebar />
+      <Sidebar />
       {/* </Sider> */}
 
       {/* Main Layout */}
@@ -133,8 +132,14 @@ const Main = () => {
         </div>
 
         {/* Content */}
-        <Content className="bg-white px-2 sm:px-4  py-4 hide-scrollbar" style={{ flex: 1, overflowY: "auto", // Ensure content is scrollable
-    maxHeight: "100vh", }}>
+        <Content
+          className="bg-white px-2 sm:px-4  py-4 hide-scrollbar"
+          style={{
+            flex: 1,
+            overflowY: "auto", // Ensure content is scrollable
+            maxHeight: "100vh",
+          }}
+        >
           <Outlet />
         </Content>
 

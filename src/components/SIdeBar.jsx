@@ -1,518 +1,4 @@
 
-
-// import React, { useState } from "react";
-// import {
-//   MenuFoldOutlined,
-//   MenuUnfoldOutlined,
-//   DashboardOutlined,
-//   CarOutlined,
-//   UserOutlined,
-//   TeamOutlined,
-//   ShoppingCartOutlined,
-//   FileTextOutlined,
-//   ToolOutlined,
-//   DollarOutlined,
-//   ShopOutlined,
-//   SolutionOutlined,
-//   ContainerOutlined,
-//   FileDoneOutlined,
-//   SettingOutlined
-// } from "@ant-design/icons";
-// import { Layout, Menu, Avatar, Typography, theme } from "antd";
-// import { Link, useLocation } from "react-router-dom";
-// import useAdmin from "../hooks/useAdmin";
-// import logo from "../assets/tramessy.png";
-// import avatar from "../assets/avatar.png";
-
-// const { Sider } = Layout;
-// const { Text } = Typography;
-
-// const Sidebar = ({ collapsed, onCollapse }) => {
-//   const location = useLocation();
-//   const isAdmin = useAdmin();
-//   const [openKeys, setOpenKeys] = useState([]);
-//   const {
-//     token: { colorBgContainer },
-//   } = theme.useToken();
-
-//   const onOpenChange = (keys) => {
-//     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
-//     setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
-//   };
-
-//   const isActive = (path) => location.pathname === path;
-
-//   // Menu items configuration
-  // const menuItems = [
-  //   {
-  //     key: "dashboard",
-  //     icon: <DashboardOutlined />,
-  //     label: <Link to="/tramessy">Dashboard</Link>,
-  //     className: isActive("/tramessy") ? "ant-menu-item-selected" : "",
-  //   },
-  //   ...(isAdmin
-  //     ? [
-  //         // Fleet Management
-  //         {
-  //           key: "fleet",
-  //           icon: <CarOutlined />,
-  //           label: "Fleet Management",
-  //           children: [
-  //             {
-  //               key: "vehicles",
-  //               label: <Link to="/tramessy/vehicel">Vehicles</Link>,
-  //               className: isActive("/tramessy/vehicel")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "trips",
-  //               label: <Link to="/tramessy/TripList">Trips</Link>,
-  //               className: isActive("/tramessy/TripList")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "parts",
-  //               label: <Link to="/tramessy/Parts">Spare & Parts List</Link>,
-  //               className: isActive("/tramessy/Parts")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // Vendor Management
-  //         {
-  //           key: "vendor",
-  //           icon: <TeamOutlined />,
-  //           label: "Vendor Management",
-  //           children: [
-  //             {
-  //               key: "all-vendors",
-  //               label: <Link to="/tramessy/VendorList">All Vendor</Link>,
-  //               className: isActive("/tramessy/VendorList")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // Rent Vehicle
-  //         {
-  //           key: "rent-vehicle",
-  //           icon: <ShopOutlined />,
-  //           label: "Rent Vehicle",
-  //           children: [
-  //             {
-  //               key: "rent-list",
-  //               label: <Link to="/tramessy/RentList">Rent Vehicle</Link>,
-  //               className: isActive("/tramessy/RentList")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // HR Management
-  //         {
-  //           key: "hr",
-  //           icon: <SolutionOutlined />,
-  //           label: "HR",
-  //           children: [
-  //             {
-  //               key: "hrm",
-  //               label: "HRM",
-  //               children: [
-  //                 {
-  //                   key: "employee",
-  //                   label: (
-  //                     <Link to="/tramessy/HR/HRM/employee-list">Employee</Link>
-  //                   ),
-  //                   className: isActive("/tramessy/HR/HRM/employee-list")
-  //                     ? "ant-menu-item-selected"
-  //                     : "",
-  //                 },
-  //                 {
-  //                   key: "driver",
-  //                   label: <Link to="/tramessy/DriverList">Driver</Link>,
-  //                   className: isActive("/tramessy/DriverList")
-  //                     ? "ant-menu-item-selected"
-  //                     : "",
-  //                 },
-  //                 {
-  //                   key: "office",
-  //                   label: <Link to="/tramessy/HR/HRM/Office">Office</Link>,
-  //                   className: isActive("/tramessy/HR/HRM/Office")
-  //                     ? "ant-menu-item-selected"
-  //                     : "",
-  //                 },
-  //                 {
-  //                   key: "salary-expense",
-  //                   label: (
-  //                     <Link to="/tramessy/HR/HRM/daily-expense">
-  //                       Salary Expense
-  //                     </Link>
-  //                   ),
-  //                   className: isActive("/tramessy/daily-expense")
-  //                     ? "ant-menu-item-selected"
-  //                     : "",
-  //                 },
-  //               ],
-  //             },
-  //           ],
-  //         },
-  //         // Purchase
-  //         {
-  //           key: "purchase",
-  //           icon: <ShoppingCartOutlined />,
-  //           label: "Purchase",
-  //           children: [
-  //             {
-  //               key: "purchase-list",
-  //               label: <Link to="/tramessy/Purchase/PurchaseList">Purchase</Link>,
-  //               className: isActive("/tramessy/Purchase/PurchaseList")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "supplier-list",
-  //               label: <Link to="/tramessy/Purchase/SupplierList">Supplier</Link>,
-  //               className: isActive("/tramessy/Purchase/SupplierList")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // Customer
-  //         {
-  //           key: "customer",
-  //           icon: <UserOutlined />,
-  //           label: "Customer",
-  //           children: [
-  //             {
-  //               key: "customer-list",
-  //               label: <Link to="/tramessy/Customer">Customer</Link>,
-  //               className: isActive("/tramessy/Customer")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // Business Model
-  //         {
-  //           key: "business",
-  //           icon: <FileTextOutlined />,
-  //           label: "Business Model",
-  //           children: [
-  //             {
-  //               key: "daily-income",
-  //               label: <Link to="/tramessy/DailyIncome">Daily Income</Link>,
-  //               className: isActive("/tramessy/DailyIncome")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "daily-trip-expense",
-  //               label: (
-  //                 <Link to="/tramessy/daily-trip-expense">
-  //                   Daily Trip Expense
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/daily-trip-expense")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "monthly-statement",
-  //               label: (
-  //                 <Link to="/tramessy/monthly-statement">
-  //                   Monthly Statement
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/monthly-statement")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // Reports
-  //         {
-  //           key: "reports",
-  //           icon: <FileDoneOutlined />,
-  //           label: "Reports",
-  //           children: [
-  //             {
-  //               key: "driver-report",
-  //               label: (
-  //                 <Link to="/tramessy/Reports/Driver-Report">Driver Report</Link>
-  //               ),
-  //               className: isActive("/tramessy/Reports/Driver-Report")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "trip-report",
-  //               label: (
-  //                 <Link to="/tramessy/Reports/Trip-Report">Trip Report</Link>
-  //               ),
-  //               className: isActive("/tramessy/Reports/Trip-Report")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "vehicle-report",
-  //               label: (
-  //                 <Link to="/tramessy/Reports/vehicle-report">
-  //                   Vehicle Report
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/Reports/vehicle-report")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // Accounts
-  //         {
-  //           key: "accounts",
-  //           icon: <DollarOutlined />,
-  //           label: "Accounts",
-  //           children: [
-  //             {
-  //               key: "official-expense",
-  //               label: (
-  //                 <Link to="/tramessy/account/official-expense">
-  //                   Official Expense
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/official-expense")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "payment-list",
-  //               label: (
-  //                 <Link to="/tramessy/account/PaymentList">Payment</Link>
-  //               ),
-  //               className: isActive("/tramessy/account/PaymentList")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "payment-receive",
-  //               label: (
-  //                 <Link to="/tramessy/account/PaymentReceive">
-  //                   Payment Receive
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/account/PaymentReceive")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "vendor-payment",
-  //               label: (
-  //                 <Link to="/tramessy/account/VendorPayment">
-  //                   Vendor Payment
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/account/VendorPayment")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "supplier-ledger",
-  //               label: (
-  //                 <Link to="/tramessy/account/SupplierLedger">
-  //                   Supplier Ledger
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/account/SupplierLedger")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "driver-ledger",
-  //               label: (
-  //                 <Link to="/tramessy/account/DriverLedger">
-  //                   Driver Ledger
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/account/DriverLedger")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "customer-ledger",
-  //               label: (
-  //                 <Link to="/tramessy/account/CustomerLedger">
-  //                   Customer Ledger
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/account/CustomerLedger")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "vendor-ledger",
-  //               label: (
-  //                 <Link to="/tramessy/account/vendor-ledger">
-  //                   Vendor Ledger
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/account/vendor-ledger")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "office-ledger",
-  //               label: (
-  //                 <Link to="/tramessy/account/OfficeLedger">
-  //                   Office Ledger
-  //                 </Link>
-  //               ),
-  //               className: isActive("/tramessy/account/OfficeLedger")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // Billing
-  //         {
-  //           key: "billing",
-  //           icon: <ContainerOutlined />,
-  //           label: "Billing",
-  //           children: [
-  //             {
-  //               key: "bill",
-  //               label: <Link to="/tramessy/billing">Bill</Link>,
-  //               className: isActive("/tramessy/billing")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         // User Control
-  //         {
-  //           key: "user-control",
-  //           icon: <SettingOutlined />,
-  //           label: "Users Control",
-  //           children: [
-  //             {
-  //               key: "all-users",
-  //               label: <Link to="/tramessy/AllUsers">All Users</Link>,
-  //               className: isActive("/tramessy/AllUsers")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //       ]
-  //     : [
-  //         // Non-admin menu items
-  //         {
-  //           key: "fleet",
-  //           icon: <CarOutlined />,
-  //           label: "ফ্লীট ম্যানেজমেন্ট",
-  //           children: [
-  //             {
-  //               key: "car-list",
-  //               label: <Link to="/CarList">গাড়ি তালিকা</Link>,
-  //               className: isActive("/CarList") ? "ant-menu-item-selected" : "",
-  //             },
-  //             {
-  //               key: "driver-list",
-  //               label: <Link to="/DriverList">ড্রাইভার তালিকা</Link>,
-  //               className: isActive("/DriverList")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //             {
-  //               key: "trip-list",
-  //               label: <Link to="/TripList">ট্রিপ হিসাব</Link>,
-  //               className: isActive("/TripList") ? "ant-menu-item-selected" : "",
-  //             },
-  //             {
-  //               key: "parts",
-  //               label: <Link to="/Parts">পার্টস এন্ড স্পায়ারস</Link>,
-  //               className: isActive("/Parts") ? "ant-menu-item-selected" : "",
-  //             },
-  //             {
-  //               key: "maintenance",
-  //               label: <Link to="/Maintenance">মেইনটেনেন্স</Link>,
-  //               className: isActive("/Maintenance")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //         {
-  //           key: "business",
-  //           icon: <FileTextOutlined />,
-  //           label: "বিজনেসের বিবরণ",
-  //           children: [
-  //             {
-  //               key: "daily-expense",
-  //               label: <Link to="/DailyExpense">দৈনিক ব্যয়</Link>,
-  //               className: isActive("/DailyExpense")
-  //                 ? "ant-menu-item-selected"
-  //                 : "",
-  //             },
-  //           ],
-  //         },
-  //       ]),
-  // ];
-
-//   return (
-//     <Sider
-//       trigger={null}
-//       collapsible
-//       collapsed={collapsed}
-//       onCollapse={onCollapse}
-//       width={250}
-//       style={{
-//         background: colorBgContainer,
-//         overflow: "auto",
-//         height: "100vh",
-//         position: "fixed",
-//         left: 0,
-//         top: 0,
-//         bottom: 0,
-//         borderRight: "1px solid #f0f0f0",
-//       }}
-//     >
-//       {/* Logo Section */}
-//       <div className="flex items-center justify-center p-4 border-b border-gray-200">
-//         <Link to="/tramessy">
-//           <div className="flex items-center">
-//             <div className="w-14 h-14 rounded-full border border-primary flex flex-col items-center justify-center shadow-md bg-white">
-//               <p className="text-xs text-gray-400 -mb-1">L</p>
-//               <p className="text-xl font-semibold text-primary">LPS</p>
-//               <p className="text-xs text-gray-400 -mt-1">S</p>
-//             </div>
-//             {!collapsed && (
-//               <Text strong className="ml-2 text-lg">
-//                 LPS System
-//               </Text>
-//             )}
-//           </div>
-//         </Link>
-//       </div>
-
-//       {/* Menu Section */}
-//       <Menu
-//         mode="inline"
-//         defaultSelectedKeys={["dashboard"]}
-//         openKeys={openKeys}
-//         onOpenChange={onOpenChange}
-//         style={{ borderRight: 0 }}
-//         items={menuItems}
-//       />
-//     </Sider>
-//   );
-// };
-
-// export default Sidebar;
-
-
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -547,10 +33,7 @@ const Sidebar = () => {
   const [openKeys, setOpenKeys] = useState([]);
   const isActive = (path) => location.pathname === path;
 
-  // Get current selected key from pathname
-  // const getSelectedKey = () => {
-  //   return location.pathname === "/" ? "dashboard" : location.pathname.replace("/", "")
-  // }
+ 
 const handleOpenChange = (keys) => {
   setOpenKeys(keys.length > 0 ? [keys[keys.length - 1]] : []);
 };
@@ -560,7 +43,7 @@ const handleOpenChange = (keys) => {
     {
       key: "dashboard",
       icon: <DashboardOutlined />,
-      label: <Link to="/tramessy">Dashboard</Link>,
+      label: <Link to="/tramessy">ড্যাশবোর্ড</Link>,
       className: isActive("/tramessy") ? "ant-menu-item-selected" : "",
     },
     // ...(isAdmin
@@ -570,25 +53,25 @@ const handleOpenChange = (keys) => {
           {
             key: "fleet",
             icon: <CarOutlined />,
-            label: "Fleet Management",
+            label: "ফ্লিট ম্যানেজমেন্ট",
             children: [
               {
                 key: "vehicles",
-                label: <Link to="/tramessy/vehicel">Vehicles</Link>,
+                label: <Link to="/tramessy/vehicel">গাড়ি</Link>,
                 className: isActive("/tramessy/vehicel")
                   ? "ant-menu-item-selected"
                   : "",
               },
               {
                 key: "trips",
-                label: <Link to="/tramessy/TripList">Trips</Link>,
+                label: <Link to="/tramessy/TripList">ট্রিপ</Link>,
                 className: isActive("/tramessy/TripList")
                   ? "ant-menu-item-selected"
                   : "",
               },
               {
                 key: "parts",
-                label: <Link to="/tramessy/Parts">Spare & Parts List</Link>,
+                label: <Link to="/tramessy/Parts">স্পেয়ার ও পার্টস লিস্ট</Link>,
                 className: isActive("/tramessy/Parts")
                   ? "ant-menu-item-selected"
                   : "",
@@ -599,11 +82,11 @@ const handleOpenChange = (keys) => {
           {
             key: "vendor",
             icon: <TeamOutlined />,
-            label: "Vendor Management",
+            label: "ভেন্ডর ম্যানেজমেন্ট",
             children: [
               {
                 key: "all-vendors",
-                label: <Link to="/tramessy/VendorList">All Vendor</Link>,
+                label: <Link to="/tramessy/VendorList"> সকল ভেন্ডর </Link>,
                 className: isActive("/tramessy/VendorList")
                   ? "ant-menu-item-selected"
                   : "",
@@ -614,11 +97,11 @@ const handleOpenChange = (keys) => {
           {
             key: "rent-vehicle",
             icon: <ShopOutlined />,
-            label: "Rent Vehicle",
+            label: "ভাড়ার গাড়ি",
             children: [
               {
                 key: "rent-list",
-                label: <Link to="/tramessy/RentList">Rent Vehicle</Link>,
+                label: <Link to="/tramessy/RentList">ভাড়ার গাড়ি</Link>,
                 className: isActive("/tramessy/RentList")
                   ? "ant-menu-item-selected"
                   : "",
@@ -629,16 +112,13 @@ const handleOpenChange = (keys) => {
           {
             key: "hr",
             icon: <SolutionOutlined />,
-            label: "HR",
+            label: "এইচআর",
             children: [
-              {
-                key: "hrm",
-                label: "HRM",
-                children: [
+              
                   {
                     key: "employee",
                     label: (
-                      <Link to="/tramessy/HR/HRM/employee-list">Employee</Link>
+                      <Link to="/tramessy/HR/HRM/employee-list">কর্মচারী</Link>
                     ),
                     className: isActive("/tramessy/HR/HRM/employee-list")
                       ? "ant-menu-item-selected"
@@ -646,14 +126,14 @@ const handleOpenChange = (keys) => {
                   },
                   {
                     key: "driver",
-                    label: <Link to="/tramessy/DriverList">Driver</Link>,
+                    label: <Link to="/tramessy/DriverList">ড্রাইভার</Link>,
                     className: isActive("/tramessy/DriverList")
                       ? "ant-menu-item-selected"
                       : "",
                   },
                   {
                     key: "office",
-                    label: <Link to="/tramessy/HR/HRM/Office">Office</Link>,
+                    label: <Link to="/tramessy/HR/HRM/Office">অফিস</Link>,
                     className: isActive("/tramessy/HR/HRM/Office")
                       ? "ant-menu-item-selected"
                       : "",
@@ -662,48 +142,55 @@ const handleOpenChange = (keys) => {
                     key: "salary-expense",
                     label: (
                       <Link to="/tramessy/HR/HRM/daily-expense">
-                        Salary Expense
+                      বেতন খরচ
                       </Link>
                     ),
                     className: isActive("/tramessy/daily-expense")
                       ? "ant-menu-item-selected"
                       : "",
                   },
-                ],
-              },
+                
+              
             ],
           },
+
+          
           // Purchase
-          {
-            key: "purchase",
-            icon: <ShoppingCartOutlined />,
-            label: "Purchase",
-            children: [
-              {
-                key: "purchase-list",
-                label: <Link to="/tramessy/Purchase/PurchaseList">Purchase</Link>,
-                className: isActive("/tramessy/Purchase/PurchaseList")
-                  ? "ant-menu-item-selected"
-                  : "",
-              },
-              {
-                key: "supplier-list",
-                label: <Link to="/tramessy/Purchase/SupplierList">Supplier</Link>,
-                className: isActive("/tramessy/Purchase/SupplierList")
-                  ? "ant-menu-item-selected"
-                  : "",
-              },
-            ],
-          },
+         {
+  key: "purchase",
+  icon: <ShoppingCartOutlined />,
+  label: "পারচেজ", // Purchase → ক্রয়
+  children: [
+    {
+      key: "purchase-list",
+      label: (
+        <Link to="/tramessy/Purchase/PurchaseList">পারচেজ</Link>
+      ),
+      className: isActive("/tramessy/Purchase/PurchaseList")
+        ? "ant-menu-item-selected"
+        : "",
+    },
+    {
+      key: "supplier-list",
+      label: (
+        <Link to="/tramessy/Purchase/SupplierList">সরবরাহকারী</Link>
+      ),
+      className: isActive("/tramessy/Purchase/SupplierList")
+        ? "ant-menu-item-selected"
+        : "",
+    },
+  ],
+},
+
           // Customer
           {
             key: "customer",
             icon: <UserOutlined />,
-            label: "Customer",
+            label: "কাস্টমার",
             children: [
               {
                 key: "customer-list",
-                label: <Link to="/tramessy/Customer">Customer</Link>,
+                label: <Link to="/tramessy/Customer"> কাস্টমার তালিকা    </Link>,
                 className: isActive("/tramessy/Customer")
                   ? "ant-menu-item-selected"
                   : "",
@@ -714,11 +201,11 @@ const handleOpenChange = (keys) => {
           {
             key: "business",
             icon: <FileTextOutlined />,
-            label: "Business Model",
+            label: "ফাইন্যান্সিয়াল স্টেটমেন্ট",
             children: [
               {
                 key: "daily-income",
-                label: <Link to="/tramessy/DailyIncome">Daily Income</Link>,
+                label: <Link to="/tramessy/DailyIncome">দৈনিক আয়</Link>,
                 className: isActive("/tramessy/DailyIncome")
                   ? "ant-menu-item-selected"
                   : "",
@@ -727,7 +214,7 @@ const handleOpenChange = (keys) => {
                 key: "daily-trip-expense",
                 label: (
                   <Link to="/tramessy/daily-trip-expense">
-                    Daily Trip Expense
+                   দৈনিক ট্রিপ খরচ
                   </Link>
                 ),
                 className: isActive("/tramessy/daily-trip-expense")
@@ -738,7 +225,7 @@ const handleOpenChange = (keys) => {
                 key: "monthly-statement",
                 label: (
                   <Link to="/tramessy/monthly-statement">
-                    Monthly Statement
+               মাসিক লাভ/ক্ষতি
                   </Link>
                 ),
                 className: isActive("/tramessy/monthly-statement")
@@ -751,12 +238,12 @@ const handleOpenChange = (keys) => {
           {
             key: "reports",
             icon: <FileDoneOutlined />,
-            label: "Reports",
+            label: "রিপোর্টস",
             children: [
               {
                 key: "driver-report",
                 label: (
-                  <Link to="/tramessy/Reports/Driver-Report">Driver Report</Link>
+                  <Link to="/tramessy/Reports/Driver-Report"> ড্রাইভার রিপোর্ট </Link>
                 ),
                 className: isActive("/tramessy/Reports/Driver-Report")
                   ? "ant-menu-item-selected"
@@ -765,7 +252,7 @@ const handleOpenChange = (keys) => {
               {
                 key: "trip-report",
                 label: (
-                  <Link to="/tramessy/Reports/Trip-Report">Trip Report</Link>
+                  <Link to="/tramessy/Reports/Trip-Report">ট্রিপ রিপোর্ট</Link>
                 ),
                 className: isActive("/tramessy/Reports/Trip-Report")
                   ? "ant-menu-item-selected"
@@ -775,7 +262,7 @@ const handleOpenChange = (keys) => {
                 key: "vehicle-report",
                 label: (
                   <Link to="/tramessy/Reports/vehicle-report">
-                    Vehicle Report
+                   গাড়ির পারফরম্যান্স রিপোর্ট
                   </Link>
                 ),
                 className: isActive("/tramessy/Reports/vehicle-report")
@@ -788,13 +275,13 @@ const handleOpenChange = (keys) => {
           {
             key: "accounts",
             icon: <DollarOutlined />,
-            label: "Accounts",
+            label: "একাউন্টস",
             children: [
               {
                 key: "official-expense",
                 label: (
                   <Link to="/tramessy/account/official-expense">
-                    Official Expense
+                  অফিস খরচ
                   </Link>
                 ),
                 className: isActive("/tramessy/official-expense")
@@ -804,7 +291,7 @@ const handleOpenChange = (keys) => {
               {
                 key: "payment-list",
                 label: (
-                  <Link to="/tramessy/account/PaymentList">Payment</Link>
+                  <Link to="/tramessy/account/PaymentList"> পেমেন্ট </Link>
                 ),
                 className: isActive("/tramessy/account/PaymentList")
                   ? "ant-menu-item-selected"
@@ -814,7 +301,7 @@ const handleOpenChange = (keys) => {
                 key: "payment-receive",
                 label: (
                   <Link to="/tramessy/account/PaymentReceive">
-                    Payment Receive
+                   পেমেন্ট রিসিভ
                   </Link>
                 ),
                 className: isActive("/tramessy/account/PaymentReceive")
@@ -825,7 +312,7 @@ const handleOpenChange = (keys) => {
                 key: "vendor-payment",
                 label: (
                   <Link to="/tramessy/account/VendorPayment">
-                    Vendor Payment
+                  ভেন্ডর পেমেন্ট
                   </Link>
                 ),
                 className: isActive("/tramessy/account/VendorPayment")
@@ -836,7 +323,7 @@ const handleOpenChange = (keys) => {
                 key: "supplier-ledger",
                 label: (
                   <Link to="/tramessy/account/SupplierLedger">
-                    Supplier Ledger
+                 সাপ্লায়ার লেজার
                   </Link>
                 ),
                 className: isActive("/tramessy/account/SupplierLedger")
@@ -847,7 +334,7 @@ const handleOpenChange = (keys) => {
                 key: "driver-ledger",
                 label: (
                   <Link to="/tramessy/account/DriverLedger">
-                    Driver Ledger
+                    ড্রাইভার লেজার
                   </Link>
                 ),
                 className: isActive("/tramessy/account/DriverLedger")
@@ -858,7 +345,7 @@ const handleOpenChange = (keys) => {
                 key: "customer-ledger",
                 label: (
                   <Link to="/tramessy/account/CustomerLedger">
-                    Customer Ledger
+         কাস্টমার লেজার
                   </Link>
                 ),
                 className: isActive("/tramessy/account/CustomerLedger")
@@ -869,7 +356,7 @@ const handleOpenChange = (keys) => {
                 key: "vendor-ledger",
                 label: (
                   <Link to="/tramessy/account/vendor-ledger">
-                    Vendor Ledger
+              ভেন্ডর লেজার
                   </Link>
                 ),
                 className: isActive("/tramessy/account/vendor-ledger")
@@ -880,7 +367,7 @@ const handleOpenChange = (keys) => {
                 key: "office-ledger",
                 label: (
                   <Link to="/tramessy/account/OfficeLedger">
-                    Office Ledger
+             অফিস লেজার
                   </Link>
                 ),
                 className: isActive("/tramessy/account/OfficeLedger")
@@ -893,7 +380,7 @@ const handleOpenChange = (keys) => {
           {
             key: "billing",
             icon: <ContainerOutlined />,
-            label: "Billing",
+            label: "বিলিং",
             children: [
               {
                 key: "bill",
@@ -908,11 +395,11 @@ const handleOpenChange = (keys) => {
           {
             key: "user-control",
             icon: <SettingOutlined />,
-            label: "Users Control",
+            label: " ইউজারস কন্ট্রোল",
             children: [
               {
                 key: "all-users",
-                label: <Link to="/tramessy/AllUsers">All Users</Link>,
+                label: <Link to="/tramessy/AllUsers"> সকল ইউজার </Link>,
                 className: isActive("/tramessy/AllUsers")
                   ? "ant-menu-item-selected"
                   : "",
@@ -920,59 +407,7 @@ const handleOpenChange = (keys) => {
             ],
           },
         
-      // : [
-      //     // Non-admin menu items
-      //     {
-      //       key: "fleet",
-      //       icon: <CarOutlined />,
-      //       label: "ফ্লীট ম্যানেজমেন্ট",
-      //       children: [
-      //         {
-      //           key: "car-list",
-      //           label: <Link to="/CarList">গাড়ি তালিকা</Link>,
-      //           className: isActive("/CarList") ? "ant-menu-item-selected" : "",
-      //         },
-      //         {
-      //           key: "driver-list",
-      //           label: <Link to="/DriverList">ড্রাইভার তালিকা</Link>,
-      //           className: isActive("/DriverList")
-      //             ? "ant-menu-item-selected"
-      //             : "",
-      //         },
-      //         {
-      //           key: "trip-list",
-      //           label: <Link to="/TripList">ট্রিপ হিসাব</Link>,
-      //           className: isActive("/TripList") ? "ant-menu-item-selected" : "",
-      //         },
-      //         {
-      //           key: "parts",
-      //           label: <Link to="/Parts">পার্টস এন্ড স্পায়ারস</Link>,
-      //           className: isActive("/Parts") ? "ant-menu-item-selected" : "",
-      //         },
-      //         {
-      //           key: "maintenance",
-      //           label: <Link to="/Maintenance">মেইনটেনেন্স</Link>,
-      //           className: isActive("/Maintenance")
-      //             ? "ant-menu-item-selected"
-      //             : "",
-      //         },
-      //       ],
-      //     },
-      //     {
-      //       key: "business",
-      //       icon: <FileTextOutlined />,
-      //       label: "বিজনেসের বিবরণ",
-      //       children: [
-      //         {
-      //           key: "daily-expense",
-      //           label: <Link to="/DailyExpense">দৈনিক ব্যয়</Link>,
-      //           className: isActive("/DailyExpense")
-      //             ? "ant-menu-item-selected"
-      //             : "",
-      //         },
-      //       ],
-      //     },
-      //   ]),
+      
   ];
   const getSelectedKey = () => {
   const match = menuItems

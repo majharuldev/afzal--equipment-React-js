@@ -48,7 +48,7 @@ const MonthlyCustomerPieChart = () => {
   return (
     <div className="bg-white rounded-xl shadow-md px-5 mr-5 border border-gray-200 cursor-pointer w-full">
       <h3 className="text-lg font-bold text-primary text-center border-b border-gray-200 md:p-3 ">
-        Monthly Trip Chart By Customer
+    গ্রাহক অনুযায়ী মাসিক ট্রিপ চার্ট
       </h3>
       <PieChart width={500} height={300}>
         <Pie

@@ -257,7 +257,7 @@ const DailyCardOverview = () => {
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ">
           {/* Daily Sales */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Daily Sales</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">দৈনিক বিক্রয়</h3>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Total Sale</span>
@@ -269,22 +269,22 @@ const DailyCardOverview = () => {
 
           {/* Daily Expense */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Daily Expense</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">দৈনিক খরচ</h3>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Trip Cost</span>
+                <span className="text-sm text-gray-600">ট্রিপ খরচ</span>
                 <span className="text-sm font-semibold text-gray-900">-</span>
                 <span className="text-sm font-medium text-black">{tripCost.toFixed(2)} TK</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Others Expense</span>
+                <span className="text-sm text-gray-600">অন্যান্য খরচ</span>
                 <span className="text-sm font-semibold text-gray-900">-</span>
                 <span className="text-sm font-medium text-black">
                   {otherExpense.toFixed(2)} TK
                 </span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                <span className="text-sm font-semibold text-gray-700">Total Expense</span>
+                <span className="text-sm font-semibold text-gray-700">মোট খরচ</span>
                 <span className="text-sm font-semibold text-gray-900">-</span>
                 <span className="text-sm font-medium text-black">{totalTodayExpense.toFixed(2)} TK</span>
               </div>
@@ -293,10 +293,10 @@ const DailyCardOverview = () => {
 
           {/* Daily Trip */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Daily Trip</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">দৈনিক ট্রিপ</h3>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Today Trip</span>
+                <span className="text-sm text-gray-600">আজকের ট্রিপ</span>
                 <span className="text-sm font-semibold text-gray-900">-</span>
                 <span className="text-sm font-bold text-green-600"> {todayTripCount}</span>
               </div>

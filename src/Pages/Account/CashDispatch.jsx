@@ -26,15 +26,15 @@ const CashDispatch = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-[#11375B] text-white capitalize text-sm">
               <tr>
-                <th className="px-2 py-3">SL</th>
-                <th className="px-2 py-3">Date</th>
-                <th className="px-2 py-3">Branch</th>
-                <th className="px-2 py-3">PersonName</th>
-                <th className="px-2 py-3">Type</th>
-                <th className="px-2 py-3">Amount</th>
-                <th className="px-2 py-3">Bank Name</th>
-                <th className="px-2 py-3">Ref</th>
-                <th className="px-2 py-3">Action</th>
+                <th className="px-2 py-3">ক্রমিক নং</th>
+                <th className="px-2 py-3">তারিখ</th>
+                <th className="px-2 py-3">শাখা</th>
+                <th className="px-2 py-3">ব্যক্তির নাম</th>
+                <th className="px-2 py-3">ধরন</th>
+                <th className="px-2 py-3">পরিমাণ</th>
+                <th className="px-2 py-3">ব্যাংকের নাম</th>
+                <th className="px-2 py-3">রেফারেন্স</th>
+                <th className="px-2 py-3">অ্যাকশন</th>
               </tr>
             </thead>
             <tbody className="text-[#11375B] font-semibold bg-gray-100">
