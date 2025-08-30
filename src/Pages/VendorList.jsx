@@ -245,19 +245,19 @@ const VendorList = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
             <FaUsers className="text-[#11375B] text-2xl" />
-            All vender information
+             ভেন্ডর  তালিকা
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/AddVendorForm">
               <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Add 
+                <FaPlus /> যোগ 
               </button>
             </Link>
             <button
               onClick={() => setShowFilter((prev) => !prev)} // Toggle filter
               className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> ফিল্টার
             </button>
           </div>
         </div>
@@ -269,28 +269,22 @@ const VendorList = () => {
                className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
              >
                <FaFileExcel className="" />
-               Excel
+               এক্সেল
              </button>
            
-             <button
-               onClick={exportPDF}
-               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-             >
-               <FaFilePdf className="" />
-               PDF
-             </button>
+            
            
              <button
                onClick={printTable}
                className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
              >
                <FaPrint className="" />
-               Print
+               প্রিন্ট
              </button>
           </div>
           {/*  */}
           <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
+            <span className="text-primary font-semibold pr-3"> সার্চ: </span>
             <input
               type="text"
               value={searchTerm}
@@ -298,7 +292,7 @@ const VendorList = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search..."
+              placeholder="খুজন..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
           </div>
@@ -341,13 +335,13 @@ const VendorList = () => {
             <thead className="bg-[#11375B] text-white capitalize text-xs">
               <tr>
                 <th className="px-2 py-3">#</th>
-                <th className="px-2 py-3">Date</th>
-                <th className="px-2 py-3">Name</th>
-                <th className="px-2 py-3">Mobile</th>
-                <th className="px-2 py-3">RentCate</th>
-                <th className="px-2 py-3">Work Area</th>
-                <th className="px-2 py-3">Status</th>
-                <th className="px-2 py-3 action_column">Action</th>
+                <th className="px-2 py-3">তারিখ</th>
+                <th className="px-2 py-3">নাম</th>
+                <th className="px-2 py-3">মোবাইল</th>
+                <th className="px-2 py-3">ভাড়া শ্রেণী</th>
+                <th className="px-2 py-3">কাজের এলাকা</th>
+                <th className="px-2 py-3">অবস্থা</th>
+                <th className="px-2 py-3 action_column">একশন</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">

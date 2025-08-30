@@ -384,7 +384,7 @@ const handleOpenChange = (keys) => {
             children: [
               {
                 key: "bill",
-                label: <Link to="/tramessy/billing">Bill</Link>,
+                label: <Link to="/tramessy/billing"> বিল  </Link>,
                 className: isActive("/tramessy/billing")
                   ? "ant-menu-item-selected"
                   : "",
@@ -436,7 +436,7 @@ const handleOpenChange = (keys) => {
       }}
     >
       {/* Logo Section */}
-      <div className="flex justify-center items-center px-4 py-4 lg:py-0  border-b border-gray-200">
+      <div className="flex justify-center items-center px-4 py-4 lg:py-0  border-b border-gray-200" hidden>
         <Link to="/">
           <p className="font-bold text-2xl text-primary">Afzal constraction </p>
         </Link>

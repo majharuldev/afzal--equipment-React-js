@@ -4,13 +4,13 @@ import avatar from "../../assets/laksham-admin.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../providers/AuthProvider";
 
-import { LogOut,  User, Mail, Phone, Menu } from "lucide-react";
+import { LogOut, User, Mail, Phone, Menu } from "lucide-react";
 
 const Header = ({ setMobileSidebarOpen }) => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-    const dropdownRef = useRef(null)
+  const dropdownRef = useRef(null);
 
   // handle signout
   const handleSignout = () => {
@@ -35,10 +35,13 @@ const Header = ({ setMobileSidebarOpen }) => {
             Home
           </Link> */}
           <div className="flex-1">
-  <h1 className="text-sm md:text-lg font-bold text-primary">Transport Management Software</h1>
-  <p className="text-[8px] md:text-xs text-gray-500">Smart solutions in a dynamic world</p>
-</div>
-
+            <h1 className="text-sm md:text-lg font-bold text-primary">
+              আফজাল কনস্ট্রাকশন{" "}
+            </h1>
+            <p className="text-[8px] md:text-xs text-gray-500">
+              পরিবর্তনশীল বিশ্বে স্মার্ট সমাধান
+            </p>
+          </div>
         </div>
 
         {/* Search */}
@@ -88,14 +91,18 @@ const Header = ({ setMobileSidebarOpen }) => {
             </div>
           )}
         </div> */}
-         {/* Admin Dropdown */}
+        {/* Admin Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <div
             className="flex cursor-pointer items-center gap-2 rounded-md bg-white p-2"
             onClick={() => setIsAdminOpen(!isAdminOpen)}
           >
             {/* Using a placeholder image for avatar */}
-            <img src={avatar} alt="Admin" className="h-8 w-8 rounded-full drop-shadow" />
+            <img
+              src={avatar}
+              alt="Admin"
+              className="h-8 w-8 rounded-full drop-shadow"
+            />
             {/* <h3 className="font-semibold text-blue-700">{user?.data?.user?.role}</h3> */}
             {/* {isAdminOpen ? (
               <ChevronUp className="h-4 w-4 text-gray-600 transition-transform duration-200" />
@@ -107,7 +114,9 @@ const Header = ({ setMobileSidebarOpen }) => {
           {/* Dropdown Content */}
           <div
             className={`absolute right-0 top-14 w-56 rounded-md bg-white p-3 shadow-lg transition-all duration-300 ease-in-out ${
-              isAdminOpen ? "visible opacity-100 scale-y-100" : "invisible opacity-0 scale-y-95"
+              isAdminOpen
+                ? "visible opacity-100 scale-y-100"
+                : "invisible opacity-0 scale-y-95"
             } origin-top`}
           >
             <div className="mb-2 border-b border-gray-200 pb-2 space-y-2">

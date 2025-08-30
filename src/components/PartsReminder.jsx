@@ -120,7 +120,7 @@ const PartsReminder = () => {
         <div className="flex items-center justify-between bg-gray-50 border-b border-gray-200 px-3 py-2 text-sm font-semibold text-gray-800">
           <div className="flex items-center gap-2">
             <BsTools className="text-red-600" />
-            <span>Parts & Spares Alert</span>
+            <span>মেইনটেনেন্স এলার্ট</span>
           </div>
           {totalCount > 0 && <div className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{totalCount}</div>}
         </div>
@@ -161,20 +161,20 @@ const PartsReminder = () => {
       </div>
       {/* Daily Expense */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Daily Expense</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">দৈনিক খরচ</h3>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Trip Cost</span>
+            <span className="text-sm text-gray-600">ট্রিপের খরচ</span>
             <span className="text-sm font-semibold text-gray-900">-</span>
             <span className="text-sm font-medium text-black">{tripCost.toFixed(2)} TK</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Others Expense</span>
+            <span className="text-sm text-gray-600">অন্যান্য খরচ</span>
             <span className="text-sm font-semibold text-gray-900">-</span>
             <span className="text-sm font-medium text-black">{otherExpense.toFixed(2)} TK</span>
           </div>
           <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-            <span className="text-sm font-semibold text-gray-700">Total Expense</span>
+            <span className="text-sm font-semibold text-gray-700">মোট ব্যয়</span>
             <span className="text-sm font-semibold text-gray-900">-</span>
             <span className="text-sm font-medium text-black">{totalTodayExpense.toFixed(2)} TK</span>
           </div>

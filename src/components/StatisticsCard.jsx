@@ -166,7 +166,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Daily Income</p>
+              <p className="text-gray-600 text-sm">দৈনিক আয়</p>
               <p className="text-2xl font-bold text-gray-900">
                 {(typeof dailySales === "number" ? dailySales : dailySales?.amount || 0).toLocaleString()} TK
               </p>
@@ -183,7 +183,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Daily Trip</p>
+              <p className="text-gray-600 text-sm">দৈনিক ট্রিপ</p>
               <p className="text-2xl font-bold text-gray-900">{stats.todayTrips.toFixed(0)}</p>
             </div>
             <div className="p-3 bg-yellow-100 rounded-full">
@@ -196,7 +196,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Average Trip Value</p>
+              <p className="text-gray-600 text-sm">গড় ট্রিপের মান</p>
               <p className="text-2xl font-bold text-gray-900">{stats.avgTripValue.toFixed(0)} TK</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-full">
@@ -209,7 +209,7 @@ const StatisticsCard = () => {
         <div onClick={handleActiveVehicleClick} className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Active Vehicles</p>
+              <p className="text-gray-600 text-sm">সক্রিয় গাড়ি</p>
               <p className="text-2xl font-bold text-gray-900">{stats.activeVehicles}</p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
@@ -231,7 +231,7 @@ const StatisticsCard = () => {
               >
                 &times;
               </button>
-              <h2 className="text-xl font-semibold mb-4">Active Vehicles</h2>
+              <h2 className="text-xl font-semibold mb-4">সক্রিয় গাড়ি</h2>
               {activeVehicleList.length > 0 ? (
                 <ul className="list-disc list-inside text-gray-800 space-y-1 max-h-60 overflow-y-auto">
                   {activeVehicleList.map((vehicle, idx) => (

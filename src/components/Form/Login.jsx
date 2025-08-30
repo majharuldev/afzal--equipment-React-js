@@ -10,9 +10,9 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import login1 from "../../assets/bannerImg.jpeg"
-import login2 from "../../assets/login-.jpeg"
-import login3 from "../../assets/truck-log.jpeg"
+import login1 from "../../assets/afzal.png";
+import login2 from "../../assets/login-.jpeg";
+import login3 from "../../assets/truck-log.jpeg";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -29,15 +29,11 @@ const Login = () => {
     }
   };
 
-  const loginImages = [
-  login1,
-  login2,
-  login3,
-];
+  const loginImages = [login1];
 
   return (
     <div className="md:px-20 h-screen flex items-center justify-center overflow-x-auto">
-      <div className="md:border-2 border-primary rounded-xl md:flex justify-between">
+      <div className="md:border-1 border-white  md:flex justify-between">
         {/* img */}
         <div className="hidden lg:block lg:w-1/2 mt-10 md:mt-0">
           {/* <img
@@ -54,14 +50,14 @@ const Login = () => {
             loop={true}
             // pagination={{ clickable: true }}
             navigation={false}
-            className="w-[300px] h-[300px] lg:w-[500px] lg:h-[400px] rounded-xl"
+            className="w-[300px] h-[300px] lg:w-[500px] lg:h-[400px] "
           >
             {loginImages.map((img, index) => (
               <SwiperSlide key={index}>
                 <img
                   src={img}
                   alt={`Login Slide ${index + 1}`}
-                  className="w-full h-full object-fill rounded-xl"
+                  className="w-full h-full object-fill "
                 />
               </SwiperSlide>
             ))}
@@ -72,7 +68,9 @@ const Login = () => {
           <div className="bg-white shadow-lg p-5 md:p-7 rounded-md border md:border-none border-gray-200">
             <h2 className="text-3xl font-extrabold text-center text-[#11375B] mt-5 mb-10">
               {/* Admin{" "} */}
-              <span className="font-semibold text-primary ">Laksham Poribohon </span>
+              <span className="font-semibold text-primary ">
+              আফজাল কনস্ট্রাকশন{" "}
+              </span>
             </h2>
             {/* <p className="text-sm text-center text-primary mb-6">
               Please Login!
@@ -83,7 +81,7 @@ const Login = () => {
                 <input
                   type="text"
                   name="email"
-                  placeholder="Email"
+                  placeholder="ইমেইল"
                   className="w-full md:w-80 text-sm px-4 py-2 border border-gray-300 rounded-md outline-none"
                   required
                 />
@@ -95,7 +93,7 @@ const Login = () => {
                 <input
                   type="password"
                   name="password"
-                  placeholder="Password"
+                  placeholder="পাসওয়ার্ড"
                   className="w-full md:w-80 text-sm px-4 py-2 border border-gray-300 rounded-md outline-none"
                   required
                 />
@@ -108,7 +106,7 @@ const Login = () => {
             <div className="mt-4 text-center">
               <Link to="/tramessy/ResetPass">
                 <span className="text-sm text-[#11375B] underline hover:text-red-500 transition-all duration-700">
-                  Forget password?
+                পাসওয়ার্ড ভুলে গেছেন?
                 </span>
               </Link>
             </div>

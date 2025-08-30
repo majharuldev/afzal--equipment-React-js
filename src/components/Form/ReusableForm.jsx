@@ -181,7 +181,7 @@ const ReusableForm = ({ children, onSubmit }) => {
           type="submit"
           className="font-semibold uppercase text-sm bg-primary text-white px-16 py-2 rounded hover:bg-secondary cursor-pointer transition-all duration-700"
         >
-          Login
+          লগইন
         </button>
       </div>
     </form>

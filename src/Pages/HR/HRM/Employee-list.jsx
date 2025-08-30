@@ -58,24 +58,24 @@ const EmployeeList = () => {
     }
   };
 
-   // pagination
-   const [currentPage, setCurrentPage] = useState([1])
-  const itemsPerPage = 10
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentEmployee = employee.slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(employee.length / itemsPerPage)
-
+  // pagination
+  const [currentPage, setCurrentPage] = useState([1]);
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentEmployee = employee.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(employee.length / itemsPerPage);
 
   const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1)
-  }
+    if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
+  };
   const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((currentPage) => currentPage + 1)
-  }
+    if (currentPage < totalPages)
+      setCurrentPage((currentPage) => currentPage + 1);
+  };
   const handlePageClick = (number) => {
-    setCurrentPage(number)
-  }
+    setCurrentPage(number);
+  };
   if (loading) return <p className="text-center mt-16">Loading employee...</p>;
   return (
     <div className=" md:p-4">
@@ -99,120 +99,135 @@ const EmployeeList = () => {
             <thead className="bg-[#11375B] text-white capitalize text-xs">
               <tr>
                 <th className="px-2 py-1">SL.</th>
-                <th className="px-2 py-1">Image</th>
-                <th className="px-2 py-1">FullName</th>
-                <th className="px-2 py-1">Email</th>
-                <th className="px-2 py-1">JoinDate</th>
-                <th className="px-2 py-1">Designation</th>
-                <th className="px-2 py-1">Mobile</th>
-                <th className="px-2 py-1">Status</th>
+                <th className="px-2 py-1">ছবি</th>
+                <th className="px-2 py-1">পূর্ণ নাম</th>
+                <th className="px-2 py-1">ইমেইল</th>
+                <th className="px-2 py-1">যোগদানের তারিখ</th>
+                <th className="px-2 py-1">পদবী</th>
+                <th className="px-2 py-1">মোবাইল</th>
+                <th className="px-2 py-1">অবস্থা</th>
               </tr>
             </thead>
             <tbody className="text-gray-700  ">
-              {
-                currentEmployee.length === 0 ? (
-              <tr>
-                <td colSpan="8" className="text-center py-10 text-gray-500 italic">
-                  <div className="flex flex-col items-center">
-                    <svg className="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    No Employee data found.
-                  </div>
-                </td>
-              </tr>
-            ) :
-              (currentEmployee?.map((dt, index) => {
-                return (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-50 transition-all border-b border-gray-200"
+              {currentEmployee.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="8"
+                    className="text-center py-10 text-gray-500 italic"
                   >
-                    <td className="px-2 py-1 font-bold">{index + 1}.</td>
-                    <td className="px-2 py-1">
-                      <img
-                        src={`${import.meta.env.VITE_BASE_URL}/public/uploads/employee/${dt.image}`}
-                        alt=""
-                        className="w-16 h-16 rounded-full"
-                      />
-                    </td>
-                    <td className="px-2 py-1">{dt.full_name}</td>
-                    <td className="px-2 py-1">{dt.email}</td>
-                    <td className="px-2 py-1">{dt.join_date}</td>
-                    <td className="px-2 py-1">{dt.designation}</td>
-                    <td className="px-2 py-1">{dt.mobile}</td>
-                    <td className="px-2 action_column">
-                      <div className="flex gap-1">
-                        <Link to={`/tramessy/UpdateEmployeeForm/${dt.id}`}>
-                          <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                            <FaPen className="text-[12px]" />
+                    <div className="flex flex-col items-center">
+                      <svg
+                        className="w-12 h-12 text-gray-300 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      No Employee data found.
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                currentEmployee?.map((dt, index) => {
+                  return (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 transition-all border-b border-gray-200"
+                    >
+                      <td className="px-2 py-1 font-bold">{index + 1}.</td>
+                      <td className="px-2 py-1">
+                        <img
+                          src={`${
+                            import.meta.env.VITE_BASE_URL
+                          }/public/uploads/employee/${dt.image}`}
+                          alt=""
+                          className="w-16 h-16 rounded-full"
+                        />
+                      </td>
+                      <td className="px-2 py-1">{dt.full_name}</td>
+                      <td className="px-2 py-1">{dt.email}</td>
+                      <td className="px-2 py-1">{dt.join_date}</td>
+                      <td className="px-2 py-1">{dt.designation}</td>
+                      <td className="px-2 py-1">{dt.mobile}</td>
+                      <td className="px-2 action_column">
+                        <div className="flex gap-1">
+                          <Link to={`/tramessy/UpdateEmployeeForm/${dt.id}`}>
+                            <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                              <FaPen className="text-[12px]" />
+                            </button>
+                          </Link>
+                          <button
+                            // onClick={() => handleView(driver.id)}
+                            className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaEye className="text-[12px]" />
                           </button>
-                        </Link>
-                        <button
-                          // onClick={() => handleView(driver.id)}
-                          className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                        >
-                          <FaEye className="text-[12px]" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedEmployeeId(dt.id);
-                            setIsOpen(true);
-                          }}
-                          className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                        >
-                          <FaTrashAlt className="text-[12px]" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              }))
-              }
+                          <button
+                            onClick={() => {
+                              setSelectedEmployeeId(dt.id);
+                              setIsOpen(true);
+                            }}
+                            className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaTrashAlt className="text-[12px]" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
         {/* pagination */}
-              {currentEmployee.length === 0 ? (
-                ""
-              ) : (
-                <div className="mt-10 flex justify-center">
-                  <div className="space-x-2 flex items-center">
-                    <button
-                      onClick={handlePrevPage}
-                      className={`p-2 ${currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"} rounded-sm`}
-                      disabled={currentPage === 1}
-                    >
-                      <GrFormPrevious />
-                    </button>
-                    {[...Array(totalPages).keys()].map((number) => (
-                      <button
-                        key={number + 1}
-                        onClick={() => handlePageClick(number + 1)}
-                        className={`px-3 py-1 rounded-sm ${
-                          currentPage === number + 1
-                            ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
-                            : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-                        }`}
-                      >
-                        {number + 1}
-                      </button>
-                    ))}
-                    <button
-                      onClick={handleNextPage}
-                      className={`p-2 ${currentPage === totalPages ? "bg-gray-300" : "bg-primary text-white"} rounded-sm`}
-                      disabled={currentPage === totalPages}
-                    >
-                      <GrFormNext />
-                    </button>
-                  </div>
-                </div>
-              )}
+        {currentEmployee.length === 0 ? (
+          ""
+        ) : (
+          <div className="mt-10 flex justify-center">
+            <div className="space-x-2 flex items-center">
+              <button
+                onClick={handlePrevPage}
+                className={`p-2 ${
+                  currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
+                } rounded-sm`}
+                disabled={currentPage === 1}
+              >
+                <GrFormPrevious />
+              </button>
+              {[...Array(totalPages).keys()].map((number) => (
+                <button
+                  key={number + 1}
+                  onClick={() => handlePageClick(number + 1)}
+                  className={`px-3 py-1 rounded-sm ${
+                    currentPage === number + 1
+                      ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
+                      : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
+                  }`}
+                >
+                  {number + 1}
+                </button>
+              ))}
+              <button
+                onClick={handleNextPage}
+                className={`p-2 ${
+                  currentPage === totalPages
+                    ? "bg-gray-300"
+                    : "bg-primary text-white"
+                } rounded-sm`}
+                disabled={currentPage === totalPages}
+              >
+                <GrFormNext />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       {/* Delete modal */}
       <div className="flex justify-center items-center">

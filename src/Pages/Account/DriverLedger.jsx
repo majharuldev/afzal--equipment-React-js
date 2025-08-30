@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { MdOutlineArrowDropDown } from "react-icons/md";
@@ -13,30 +12,32 @@ const DriverLedger = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDriver, setSelectedDriver] = useState("");
   const [driverOpeningBalances, setDriverOpeningBalances] = useState({});
-  const openingBalance = selectedDriver ? (driverOpeningBalances[selectedDriver] || 0) : 0;
+  const openingBalance = selectedDriver
+    ? driverOpeningBalances[selectedDriver] || 0
+    : 0;
   const TADA_RATE = 300;
   const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 10;
+  const itemsPerPage = 10;
 
-  // driver 
+  // driver
   useEffect(() => {
-  axios
-    .get(`${import.meta.env.VITE_BASE_URL}/api/driver/list`)
-    .then((res) => {
-      if (res.data.status === "Success") {
-        const driverList = res.data.data;
-        // Store opening balances by driver name
-        const openingBalances = {};
-        driverList.forEach(driver => {
-          openingBalances[driver.driver_name] = Number(driver.opening_balance) || 0;
-        });
-        setDriverOpeningBalances(openingBalances);
-      }
-    })
-    .catch((err) => console.error("Error fetching driver list:", err));
-}, []);
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/api/driver/list`)
+      .then((res) => {
+        if (res.data.status === "Success") {
+          const driverList = res.data.data;
+          // Store opening balances by driver name
+          const openingBalances = {};
+          driverList.forEach((driver) => {
+            openingBalances[driver.driver_name] =
+              Number(driver.opening_balance) || 0;
+          });
+          setDriverOpeningBalances(openingBalances);
+        }
+      })
+      .catch((err) => console.error("Error fetching driver list:", err));
+  }, []);
 
-  
   // Month filter state
   const [selectedMonth, setSelectedMonth] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -62,16 +63,26 @@ const DriverLedger = () => {
   const driverNames = [...new Set(driver.map((d) => d.driver_name))];
 
   // Get unique months from data for dropdown
-  const availableMonths = [...new Set(driver.map(item => {
-    const date = new Date(item.date);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  }))].sort();
+  const availableMonths = [
+    ...new Set(
+      driver.map((item) => {
+        const date = new Date(item.date);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}`;
+      })
+    ),
+  ].sort();
 
   // Filter by driver and month
   const filteredDriver = driver.filter((d) => {
-    const matchesDriver = selectedDriver ? d.driver_name === selectedDriver : true;
-    const matchesMonth = selectedMonth ? 
-      new Date(d.date).toISOString().slice(0, 7) === selectedMonth : true;
+    const matchesDriver = selectedDriver
+      ? d.driver_name === selectedDriver
+      : true;
+    const matchesMonth = selectedMonth
+      ? new Date(d.date).toISOString().slice(0, 7) === selectedMonth
+      : true;
     return matchesDriver && matchesMonth;
   });
 
@@ -87,24 +98,24 @@ const DriverLedger = () => {
   // Calculate TADA (300 BDT per day) for each unique date per driver
   const calculateTADA = () => {
     const tadaData = {};
-    
-    filteredDriver.forEach(item => {
+
+    filteredDriver.forEach((item) => {
       if (!tadaData[item.driver_name]) {
         tadaData[item.driver_name] = new Set();
       }
       // Extract just the date part (YYYY-MM-DD) without time
-      const dateOnly = item.date.split('T')[0];
+      const dateOnly = item.date.split("T")[0];
       tadaData[item.driver_name].add(dateOnly);
     });
-    
+
     const result = {};
-    Object.keys(tadaData).forEach(driver => {
+    Object.keys(tadaData).forEach((driver) => {
       result[driver] = {
         days: tadaData[driver].size,
-        amount: tadaData[driver].size * TADA_RATE
+        amount: tadaData[driver].size * TADA_RATE,
       };
     });
-    
+
     return result;
   };
 
@@ -112,7 +123,7 @@ const DriverLedger = () => {
 
   // Calculate running balance and totals (without TADA)
   let runningBalance = openingBalance;
-  const rowsWithBalance = filteredDriver.map(item => {
+  const rowsWithBalance = filteredDriver.map((item) => {
     const {
       labor = 0,
       parking_cost = 0,
@@ -138,7 +149,7 @@ const DriverLedger = () => {
     return {
       ...item,
       totalExpense,
-      balance: runningBalance
+      balance: runningBalance,
     };
   });
 
@@ -156,7 +167,7 @@ const DriverLedger = () => {
         commission: 0,
         advance: 0,
         totalExpense: 0,
-        balance: openingBalance
+        balance: openingBalance,
       }
     );
   };
@@ -164,18 +175,18 @@ const DriverLedger = () => {
   const footerTotals = calculateFooterTotals();
 
   // Calculate final balance including TADA if applicable
-const getFinalBalance = () => {
-  let balance = footerTotals.balance;
+  const getFinalBalance = () => {
+    let balance = footerTotals.balance;
 
-  if (selectedDriver && tadaAmounts[selectedDriver]) {
-    balance -= tadaAmounts[selectedDriver].amount;
-  }
+    if (selectedDriver && tadaAmounts[selectedDriver]) {
+      balance -= tadaAmounts[selectedDriver].amount;
+    }
 
-  // Deduct driver commission as well
-  balance -= footerTotals.commission;
+    // Deduct driver commission as well
+    balance -= footerTotals.commission;
 
-  return balance;
-}
+    return balance;
+  };
   const finalBalance = getFinalBalance();
 
   // Excel export
@@ -195,7 +206,7 @@ const getFinalBalance = () => {
       Police: item.police_cost,
       Chada: item.chada,
       Total_Expense: item.totalExpense,
-      Balance: item.balance
+      Balance: item.balance,
     }));
 
     // Add TADA row if a specific driver is selected
@@ -215,7 +226,7 @@ const getFinalBalance = () => {
         Police: "",
         Chada: "",
         Total_Expense: tadaAmounts[selectedDriver].amount,
-        Balance: finalBalance
+        Balance: finalBalance,
       });
     }
 
@@ -228,7 +239,10 @@ const getFinalBalance = () => {
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, `Driver_Ledger_${selectedDriver || "All"}_${selectedMonth || "All"}.xlsx`);
+    saveAs(
+      data,
+      `Driver_Ledger_${selectedDriver || "All"}_${selectedMonth || "All"}.xlsx`
+    );
   };
 
   // PDF export
@@ -295,7 +309,7 @@ const getFinalBalance = () => {
         "",
         "",
         tadaAmounts[selectedDriver].amount,
-        finalBalance < 0 ? `(${Math.abs(finalBalance)})` : finalBalance
+        finalBalance < 0 ? `(${Math.abs(finalBalance)})` : finalBalance,
       ]);
     }
 
@@ -321,7 +335,9 @@ const getFinalBalance = () => {
       theme: "grid",
     });
 
-    doc.save(`Driver_Ledger_${selectedDriver || "All"}_${selectedMonth || "All"}.pdf`);
+    doc.save(
+      `Driver_Ledger_${selectedDriver || "All"}_${selectedMonth || "All"}.pdf`
+    );
   };
 
   // Print function
@@ -363,14 +379,15 @@ const getFinalBalance = () => {
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-[#11375B] capitalize flex items-center gap-3">
-            Driver ledger : {selectedDriver || "All Drivers"} {selectedMonth && `(${selectedMonth})`}
+            ড্রাইভার লেজার : {selectedDriver || "All Drivers"}{" "}
+            {selectedMonth && `(${selectedMonth})`}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
               className="text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> ফিল্টার
             </button>
           </div>
         </div>
@@ -383,21 +400,15 @@ const getFinalBalance = () => {
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFileExcel className="" />
-              Excel
+              এক্সেল
             </button>
-            <button
-              onClick={exportDriversToPDF}
-              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-            >
-              <FaFilePdf className="" />
-              PDF
-            </button>
+
             <button
               onClick={printDriversTable}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaPrint className="" />
-              Print
+              প্রিন্ট
             </button>
           </div>
         </div>
@@ -407,10 +418,13 @@ const getFinalBalance = () => {
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
             <div className="w-[50%]">
               <div className="relative w-full">
-                <label className="text-primary text-sm font-semibold">Select Month</label>
+                <label className="text-primary text-sm font-semibold">
+                  মাস বাছাই
+                </label>
                 <select
                   value={selectedMonth}
-                  onChange={(e) => {setSelectedMonth(e.target.value)
+                  onChange={(e) => {
+                    setSelectedMonth(e.target.value);
                     // setCurrentPage(0);
                   }}
                   className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
@@ -422,16 +436,17 @@ const getFinalBalance = () => {
   </option>
 ))} */}
                   {availableMonths.map((month, idx) => {
-  const [year, monthNum] = month.split("-");
-  const date = new Date(`${month}-01`);
-  const monthName = date.toLocaleString("default", { month: "long" }); // e.g., July
-  return (
-    <option key={idx} value={month}>
-      {`${monthName}-${year}`}
-    </option>
-  );
-})}
-
+                    const [year, monthNum] = month.split("-");
+                    const date = new Date(`${month}-01`);
+                    const monthName = date.toLocaleString("default", {
+                      month: "long",
+                    }); // e.g., July
+                    return (
+                      <option key={idx} value={month}>
+                        {`${monthName}-${year}`}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -439,7 +454,7 @@ const getFinalBalance = () => {
             <div className="w-[50%]">
               <div className="relative w-full">
                 <label className="text-primary text-sm font-semibold">
-                  Select Driver
+                  ড্রাইভার নির্বাচন করুন
                 </label>
                 <select
                   value={selectedDriver}
@@ -462,9 +477,14 @@ const getFinalBalance = () => {
         {/* TADA Summary */}
         {selectedDriver && tadaAmounts[selectedDriver] && (
           <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <h3 className="font-semibold text-primary">TADA Summary for {selectedDriver}</h3>
-            <p>Total Days Present: {tadaAmounts[selectedDriver].days}</p>
-            <p>Total TADA Amount: {tadaAmounts[selectedDriver].amount} BDT (300 BDT per day)</p>
+            <h3 className="font-semibold text-primary">
+              {selectedDriver}-এর টিএডিএ সংক্ষিপ্তসার
+            </h3>
+            <p>মোট উপস্থিত দিনের সংখ্যা: {tadaAmounts[selectedDriver].days}</p>
+            <p>
+              মোট টিএডিএ পরিমাণ: {tadaAmounts[selectedDriver].amount} BDT (প্রতি
+              দিন 300 BDT)
+            </p>
           </div>
         )}
 
@@ -472,49 +492,54 @@ const getFinalBalance = () => {
         <div id="driver-ledger-table" className="overflow-x-auto">
           <table className="min-w-full text-sm text-left text-gray-900">
             <thead>
-               <tr className="font-bold bg-gray-100">
-                    <td colSpan={14} className="border px-2 py-1">
-                      <div className="flex justify-between">
-                        <span>Final Balance (After TADA Deduction):</span>
-                        <span>
-                          {finalBalance < 0 ? `(${Math.abs(finalBalance)})` : finalBalance}  BDT
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
+              <tr className="font-bold bg-gray-100">
+                <td colSpan={14} className="border px-2 py-1">
+                  <div className="flex justify-between">
+                    <span>Final Balance (After TADA Deduction):</span>
+                    <span>
+                      {finalBalance < 0
+                        ? `(${Math.abs(finalBalance)})`
+                        : finalBalance}{" "}
+                      BDT
+                    </span>
+                  </div>
+                </td>
+              </tr>
               <tr>
                 <th rowSpan="2" className="border px-2 py-1">
-                  Date
+                  তারিখ
                 </th>
                 <th colSpan="3" className="border py-1">
-                  Particulars
+                  বিবরণ
                 </th>
                 <th rowSpan="2" className="border px-2 py-1">
-                  Advance
+                  অগ্রিম
                 </th>
                 <th colSpan="8" className="border px-2 py-1">
-                  Expense
+                  খরচ
                 </th>
                 <th rowSpan="2" className="border py-1">
                   <p className="border-b">
-  Opening Balance: {selectedDriver ? driverOpeningBalances[selectedDriver] || 0 : 0}
-</p>
-Balance
-
+                    শুরুর ব্যালেন্স:{" "}
+                    {selectedDriver
+                      ? driverOpeningBalances[selectedDriver] || 0
+                      : 0}
+                  </p>
+                  অবশিষ্ট ব্যালেন্স
                 </th>
               </tr>
               <tr>
-                <th className="border px-2 py-1">Load</th>
-                <th className="border px-2 py-1">Unload</th>
-                <th className="border px-2 py-1">Commission</th>
-                <th className="border px-2 py-1">Labor</th>
-                <th className="border px-2 py-1">Parking</th>
-                <th className="border px-2 py-1">Night</th>
-                <th className="border px-2 py-1">Toll</th>
-                <th className="border px-2 py-1">Ferry</th>
-                <th className="border px-2 py-1">Police</th>
-                <th className="border px-2 py-1">Chada</th>
-                <th className="border px-2 py-1">Total</th>
+                <th className="border px-2 py-1">লোড</th>
+                <th className="border px-2 py-1">আনলোড</th>
+                <th className="border px-2 py-1">কমিশন</th>
+                <th className="border px-2 py-1">শ্রম</th>
+                <th className="border px-2 py-1">পার্কিং</th>
+                <th className="border px-2 py-1">নাইট চার্জ</th>
+                <th className="border px-2 py-1">টোল</th>
+                <th className="border px-2 py-1">ফেরি</th>
+                <th className="border px-2 py-1">পুলিশ</th>
+                <th className="border px-2 py-1">চাডা</th>
+                <th className="border px-2 py-1">মোট</th>
               </tr>
             </thead>
             <tbody className="overflow-x-auto">
@@ -534,7 +559,9 @@ Balance
                   <td className="border px-2 py-1">{item.chada}</td>
                   <td className="border px-2 py-1">{item.totalExpense}</td>
                   <td className="border px-2 py-1">
-                    {item.balance < 0 ? `(${Math.abs(item.balance)})` : item.balance}
+                    {item.balance < 0
+                      ? `(${Math.abs(item.balance)})`
+                      : item.balance}
                   </td>
                 </tr>
               ))}
@@ -552,10 +579,12 @@ Balance
                   {footerTotals.totalExpense}
                 </td>
                 <td className="border px-2 py-1">
-                  {footerTotals.balance < 0 ? `(${Math.abs(footerTotals.balance)})` : footerTotals.balance}
+                  {footerTotals.balance < 0
+                    ? `(${Math.abs(footerTotals.balance)})`
+                    : footerTotals.balance}
                 </td>
               </tr>
-              
+
               {/* TADA Calculation in Footer */}
               {selectedDriver && tadaAmounts[selectedDriver] && (
                 <>
@@ -564,9 +593,10 @@ Balance
                       <div className="flex justify-between">
                         <span>Balance:</span>
                         <span>
-                          {footerTotals.balance < 0 
-                            ? `(${Math.abs(footerTotals.balance)})` 
-                            : footerTotals.balance} BDT
+                          {footerTotals.balance < 0
+                            ? `(${Math.abs(footerTotals.balance)})`
+                            : footerTotals.balance}{" "}
+                          BDT
                         </span>
                       </div>
                     </td>
@@ -574,9 +604,10 @@ Balance
                   <tr className="font-bold bg-gray-100">
                     <td colSpan={14} className="border px-2 py-1">
                       <div className="flex justify-between">
-                        <span>TADA Calculation:</span>
+                        <span> খোরাকি:</span>
                         <span>
-                          {tadaAmounts[selectedDriver].days} days × 300 = {tadaAmounts[selectedDriver].amount} BDT
+                          {tadaAmounts[selectedDriver].days} days × 300 ={" "}
+                          {tadaAmounts[selectedDriver].amount} BDT
                         </span>
                       </div>
                     </td>
@@ -584,26 +615,27 @@ Balance
                   <tr className="font-bold bg-gray-100">
                     <td colSpan={14} className="border px-2 py-1">
                       <div className="flex justify-between">
-                        <span>Driver Commission:</span>
-                        <span>
-                          {footerTotals.commission} BDT
-                        </span>
+                        <span>ড্রাইভারের কমিশন:</span>
+                        <span>{footerTotals.commission} BDT</span>
                       </div>
                     </td>
                   </tr>
                   <tr className="font-bold bg-gray-100">
                     <td colSpan={14} className="border px-2 py-1">
                       <div className="flex justify-between">
-                        <span>Final Balance (After TADA Deduction):</span>
+                        <span>চূড়ান্ত ব্যালেন্স (টিএডিএ কেটে নেওয়ার পরে)</span>
                         <span>
-                          {finalBalance < 0 ? `(${Math.abs(finalBalance)})` : finalBalance}  BDT
+                          {finalBalance < 0
+                            ? `(${Math.abs(finalBalance)})`
+                            : finalBalance}{" "}
+                          BDT
                         </span>
                       </div>
                     </td>
                   </tr>
                 </>
               )}
-              
+
               {/* Final Balance Row when no driver is selected */}
               {!selectedDriver && (
                 <tr className="font-bold bg-gray-100">
@@ -611,14 +643,16 @@ Balance
                     Final Balance:
                   </td>
                   <td colSpan={11} className="border px-8 py-1 text-right">
-                    {footerTotals.balance < 0 ? `(${Math.abs(footerTotals.balance)})` : footerTotals.balance}
+                    {footerTotals.balance < 0
+                      ? `(${Math.abs(footerTotals.balance)})`
+                      : footerTotals.balance}
                   </td>
                 </tr>
               )}
             </tfoot>
           </table>
         </div>
-         {/* Pagination */}
+        {/* Pagination */}
         {/* {pageCount > 1 && (
           <div className="mt-4 flex justify-center">
             <ReactPaginate
