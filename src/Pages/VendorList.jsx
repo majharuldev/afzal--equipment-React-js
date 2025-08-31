@@ -243,8 +243,8 @@ const VendorList = () => {
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-4 border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-            <FaUsers className="text-[#11375B] text-2xl" />
+          <h1 className="text-xl font-extrabold text-lite flex items-center gap-3">
+            <FaUsers className="text-secondary text-2xl" />
              ভেন্ডর  তালিকা
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
@@ -332,7 +332,7 @@ const VendorList = () => {
         {/* Table */}
         <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-xs">
+            <thead className="bg-primary text-white capitalize text-xs">
               <tr>
                 <th className="px-2 py-3">#</th>
                 <th className="px-2 py-3">তারিখ</th>

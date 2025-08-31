@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @theme {
-  --color-primary: #941E20;
-  --color-secondary: #181f38;
+  --color-primary: #1072b7;
+  --color-secondary: #085a94;
+  --color-light: #5aa8e0;
 }
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 
@@ -107,14 +108,14 @@ input[type="date"].remove-date-icon::-moz-focusring {
 
 /* select menu hover bg color */
 .ant-menu-item-selected {
-  background-color: #11375b !important;
+  background-color: #E7E7E7 !important;
   color: white !important;
 }
 
 /* icon & text hover color */
 .ant-menu-item-selected,
 .ant-menu-item-selected .ant-menu-title-content {
-  color: white !important;
+  color: black !important;
 }
 
 .ant-menu-item-selected .anticon,
@@ -171,8 +172,8 @@ input[type="date"].remove-date-icon::-moz-focusring {
 }
 
 .ant-pagination .ant-pagination-item-active {
-  background-color: #11375b !important;
-  border-color: #11375b !important;
+  background-color: #1072b7 !important;
+  border-color: #1072b7 !important;
 }
 
 .ant-pagination .ant-pagination-item-active a {
@@ -184,23 +185,23 @@ input[type="date"].remove-date-icon::-moz-focusring {
 }
 
 .ant-pagination .ant-pagination-item:hover a {
-  color: #11375b !important;
+  color: #1072b7 !important;
 }
 
 .ant-pagination .ant-pagination-prev:hover,
 .ant-pagination .ant-pagination-next:hover {
-  color: #11375b !important;
-  border-color: #11375b !important;
+  color: #1072b7 !important;
+  border-color: #1072b7 !important;
 }
 
 .ant-pagination .ant-pagination-jump-prev:hover,
 .ant-pagination .ant-pagination-jump-next:hover {
-  color: #11375b !important;
+  color: #1072b7 !important;
 }
 
 /* Ant Design Loading Spinner Primary Color */
 .ant-spin .ant-spin-dot-item {
-  background-color: #11375b !important;
+  background-color: #1072b7 !important;
 }
 
 /* Ant Design Select Primary Color */
@@ -215,21 +216,33 @@ input[type="date"].remove-date-icon::-moz-focusring {
 
 /* Ant Design Input Primary Color */
 .ant-input:hover {
-  border-color: #11375b !important;
+  border-color: #1072b7 !important;
 }
 
 .ant-input:focus {
-  border-color: #11375b !important;
+  border-color: #1072b7 !important;
   box-shadow: 0 0 0 2px rgba(17, 55, 91, 0.2) !important;
 }
 
 /* Ant Design DatePicker Primary Color */
 .ant-picker:hover {
-  border-color: #11375b !important;
+  border-color: #1072b7 !important;
 }
 
+/* 
+Black → #000000
+
+Red → #e71e26
+
+Blue → #1072b7
+
+Yellow → #efe833
+
+Dark Brown → #4e362c */
+
+
 .ant-picker-focused {
-  border-color: #11375b !important;
+  border-color: #1072b7 !important;
   box-shadow: 0 0 0 2px rgba(17, 55, 91, 0.2) !important;
 }
 
@@ -237,13 +250,13 @@ input[type="date"].remove-date-icon::-moz-focusring {
 /* Focused or Opened Ant Design Select input field */
 .ant-select-focused .ant-select-selector,
 .ant-select-open .ant-select-selector {
-  border-color: #11375b !important;
+  border-color: #1072b7 !important;
   /* box-shadow: 0 0 0 2px rgba(17, 55, 91, 0.2) !important; */
 }
 
 /* Default hover effect for consistency */
 .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
-  border-color: #11375b !important;
+  border-color: #1072b7 !important;
 }
 
 /* antD table */

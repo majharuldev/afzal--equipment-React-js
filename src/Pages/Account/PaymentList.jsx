@@ -464,7 +464,7 @@ const PaymentList = () => {
 
         <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-xs">
+            <thead className="bg-primary text-white capitalize text-xs">
               <tr>
                 <th className="px-1 py-2">ক্রমিক নং</th>
                 <th className="px-1 py-2">তারিখ</th>

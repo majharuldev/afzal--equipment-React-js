@@ -184,40 +184,24 @@ const AllUsers = () => {
         {/* Export */}
         <div className="md:flex justify-between items-center">
           <div className="flex flex-wrap md:flex-row gap-1 md:gap-3 text-primary font-semibold rounded-md">
-           <CSVLink
-                         data={csvData}
-                         headers={headers}
-                         filename={"user_data.csv"}
-                         className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-cyan-200hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                       >
-                         CSV
-                       </CSVLink>
-                       <button
-                           onClick={exportExcel}
-                           className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                         >
-                           <FaFileExcel className="" />
-                           Excel
-                         </button>
-                       
-                         <button
-                           onClick={exportPDF}
-                           className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                         >
-                           <FaFilePdf className="" />
-                           PDF
-                         </button>
-                       
-                         <button
-                           onClick={printTable}
-                           className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                         >
-                           <FaPrint className="" />
-                           Print
-                         </button>
+            <button
+              onClick={exportExcel}
+              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+            >
+              <FaFileExcel className="" />
+              এক্সেল
+            </button>
+
+            <button
+              onClick={printTable}
+              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+            >
+              <FaPrint className="" />
+              প্রিন্ট
+            </button>
           </div>
           <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
+            <span className="text-primary font-semibold pr-3">সার্চ: </span>
             <input
               type="text"
               value={searchTerm}
@@ -233,117 +217,119 @@ const AllUsers = () => {
         {/* Table */}
         <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-xs">
+            <thead className="bg-primary text-white capitalize text-xs">
               <tr>
-                <th className="px-4 py-3">#</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Mobile</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 action_column">Action</th>
+                <th className="px-4 py-3">ক্রমিক</th>
+                <th className="px-4 py-3">নাম</th>
+                <th className="px-4 py-3">মোবাইল</th>
+                <th className="px-4 py-3">ইমেইল</th>
+                <th className="px-4 py-3">ভূমিকা</th>
+                <th className="px-4 py-3">অবস্থা</th>
+                <th className="px-4 py-3 action_column"> একশন </th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {
-                 currentUsers.length === 0 ? (
-    <tr>
-      <td colSpan="8" className="text-center py-10 text-gray-500 italic">
-        <div className="flex flex-col items-center">
-          <svg
-            className="w-12 h-12 text-gray-300 mb-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          No vehicle data found.
-        </div>
-      </td>
-    </tr>
-  )  
-              :(currentUsers?.map((user, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition-all">
-                  <td className="px-4 py-4 font-bold">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="p-2">{user.name}</td>
-                  <td className="p-2">{user.phone}</td>
-                  <td className="p-2">{user.email}</td>
-                  <td className="p-2">{user.role}</td>
-                  <td className="p-2">{user.status}</td>
-                  <td className="action_column">
-                    <div className="flex gap-1 justify-center">
-                      <Link to={`/tramessy/UserForm/edit/${user.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setSelectedUserId(user.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+              {currentUsers.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="8"
+                    className="text-center py-10 text-gray-500 italic"
+                  >
+                    <div className="flex flex-col items-center">
+                      <svg
+                        className="w-12 h-12 text-gray-300 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      No vehicle data found.
                     </div>
                   </td>
                 </tr>
-              )))
-              }
+              ) : (
+                currentUsers?.map((user, index) => (
+                  <tr key={index} className="hover:bg-gray-50 transition-all">
+                    <td className="px-4 py-4 font-bold">
+                      {indexOfFirstItem + index + 1}
+                    </td>
+                    <td className="p-2">{user.name}</td>
+                    <td className="p-2">{user.phone}</td>
+                    <td className="p-2">{user.email}</td>
+                    <td className="p-2">{user.role}</td>
+                    <td className="p-2">{user.status}</td>
+                    <td className="action_column">
+                      <div className="flex gap-1 justify-center">
+                        <Link to={`/tramessy/UserForm/edit/${user.id}`}>
+                          <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                            <FaPen className="text-[12px]" />
+                          </button>
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setSelectedUserId(user.id);
+                            setIsOpen(true);
+                          }}
+                          className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaTrashAlt className="text-[12px]" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
         {/* Pagination */}
-      {
-        currentUsers.length === 0 ? (
+        {currentUsers.length === 0 ? (
           ""
-        )
-      :(<div className="mt-10 flex justify-center">
-        <div className="space-x-2 flex items-center">
-          <button
-            onClick={handlePrevPage}
-            className={`p-2 ${
-              currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
-            } rounded-sm`}
-            disabled={currentPage === 1}
-          >
-            <GrFormPrevious />
-          </button>
-          {[...Array(totalPages).keys()].map((number) => (
-            <button
-              key={number + 1}
-              onClick={() => handlePageClick(number + 1)}
-              className={`px-3 py-1 rounded-sm ${
-                currentPage === number + 1
-                  ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
-                  : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-              }`}
-            >
-              {number + 1}
-            </button>
-          ))}
-          <button
-            onClick={handleNextPage}
-            className={`p-2 ${
-              currentPage === totalPages
-                ? "bg-gray-300"
-                : "bg-primary text-white"
-            } rounded-sm`}
-            disabled={currentPage === totalPages}
-          >
-            <GrFormNext />
-          </button>
-        </div>
-      </div>)}
+        ) : (
+          <div className="mt-10 flex justify-center">
+            <div className="space-x-2 flex items-center">
+              <button
+                onClick={handlePrevPage}
+                className={`p-2 ${
+                  currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
+                } rounded-sm`}
+                disabled={currentPage === 1}
+              >
+                <GrFormPrevious />
+              </button>
+              {[...Array(totalPages).keys()].map((number) => (
+                <button
+                  key={number + 1}
+                  onClick={() => handlePageClick(number + 1)}
+                  className={`px-3 py-1 rounded-sm ${
+                    currentPage === number + 1
+                      ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
+                      : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
+                  }`}
+                >
+                  {number + 1}
+                </button>
+              ))}
+              <button
+                onClick={handleNextPage}
+                className={`p-2 ${
+                  currentPage === totalPages
+                    ? "bg-gray-300"
+                    : "bg-primary text-white"
+                } rounded-sm`}
+                disabled={currentPage === totalPages}
+              >
+                <GrFormNext />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       {/* Delete Modal */}
       <div className="flex justify-center items-center">
