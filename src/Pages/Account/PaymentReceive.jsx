@@ -47,14 +47,14 @@ const PaymentReceive = () => {
     <div className=" ">
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-primary flex items-center gap-2 ">
-            <MdOutlineAirplaneTicket className="text-[#11375B] text-2xl" />
-            Payment Receive
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2 ">
+            <MdOutlineAirplaneTicket className=" text-2xl" />
+            পেমেন্ট রিসিভ
           </h2>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/account/PaymentReceiveForm">
               <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Add
+                <FaPlus />যোগ করুন
               </button>
             </Link>
           </div>

@@ -112,6 +112,13 @@ input[type="date"].remove-date-icon::-moz-focusring {
   color: white !important;
 }
 
+/* Selected Menu Item Background & Text/Icon Color */
+.ant-menu-light .ant-menu-item-selected {
+  background-color: #e0e1e2 !important;
+  color: #11375b !important;
+}
+
+
 /* icon & text hover color */
 .ant-menu-item-selected,
 .ant-menu-item-selected .ant-menu-title-content {
@@ -120,14 +127,14 @@ input[type="date"].remove-date-icon::-moz-focusring {
 
 .ant-menu-item-selected .anticon,
 .ant-menu-item-selected .anticon svg {
-  color: white !important;
-  fill: white !important;
+  color: black !important;
+  fill: black !important;
 }
 
 /* Selected item */
-.custom-menu .ant-menu-item-selected {
-  /* background-color: #11375b !important; */
-  color: #fff !important;
+/* Selected Link Text Color */
+.ant-menu-item-selected a {
+  color: black !important;
 }
 
 
@@ -148,6 +155,14 @@ input[type="date"].remove-date-icon::-moz-focusring {
   line-height: 1.5;
 }
 
+/* Ant Design Table Header global style */
+.ant-table-thead > tr > th {
+  background-color: #e5e7eb !important; /* bg-gray-200 */
+  font-size: 13px !important;          /* text-sm */
+  font-weight: 600 !important;         /* font-semibold */
+  color: #1f2937 !important;           /* text-gray-800 */
+  text-align: left;
+}
 /* table header*/
 :where(.ant-table) th {
   font-weight: 500 !important; /* medium */

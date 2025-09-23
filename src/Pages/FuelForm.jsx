@@ -1,290 +1,221 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
-import { FiCalendar } from "react-icons/fi";
-import { MdOutlineArrowDropDown } from "react-icons/md";
-import Select from "react-select";
 import BtnSubmit from "../components/Button/BtnSubmit";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { InputField, SelectField } from "../components/Form/FormFields";
 
 const FuelForm = () => {
-  const navigate = useNavigate()
-  const fuelDateRef = useRef(null);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    control,
-    formState: { errors },
-  } = useForm();
+  const navigate = useNavigate();
+  const { id } = useParams(); // fuel update id
+
+  const methods = useForm();
+  const { handleSubmit, watch, reset, control } = methods;
+
   const quantity = parseFloat(watch("quantity") || 0);
-  const price = parseFloat(watch("price") || 0);
+  const price = parseFloat(watch("price_per_liter") || 0);
   const total = quantity * price;
 
-  const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
+  const [drivers, setDrivers] = useState([]);
 
+  // Vehicles fetch
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BASE_URL}/api/vehicle/list`)
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => setVehicles(data.data))
-      .catch((error) => console.error("Error fetching driver data:", error));
+      .catch((err) => console.error("গাড়ির ডেটা লোড করতে সমস্যা:", err));
   }, []);
 
-  const vehicleOptions = vehicles.map((vehicle) => ({
-    value: vehicle.registration_number,
-    label: vehicle.registration_number,
-  }));
-
+  // Drivers fetch
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BASE_URL}/api/driver/list`)
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => setDrivers(data.data))
-      .catch((error) => console.error("Error fetching driver data:", error));
+      .catch((err) => console.error("ড্রাইভার ডেটা লোড করতে সমস্যা:", err));
   }, []);
 
-  const driverOptions = drivers.map((driver) => ({
-    value: driver.driver_name,
-    label: driver.driver_name,
-  }));
+  const vehicleOptions = vehicles.map((v) => ({ value: v.registration_number, label: v.registration_number }));
+  const driverOptions = drivers.map((d) => ({ value: d.driver_name, label: d.driver_name }));
+
+  // Fetch fuel data if updating
+  useEffect(() => {
+    if (!id) return;
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/api/purchase/${id}`)
+      .then((res) => {
+        if (res.data.status === "Success") {
+          const fuel = res.data.data;
+          reset({
+            fueling_date: fuel.fueling_date,
+            vehicle_number: fuel.vehicle_number,
+            driver_name: fuel.driver_name,
+            trip_id_invoice_no: fuel.trip_id_invoice_no,
+            pump_name_address: fuel.pump_name_address,
+            fuel_capacity: fuel.fuel_capacity,
+            fuel_type: fuel.fuel_type,
+            quantity: fuel.quantity,
+            price_per_liter: fuel.price_per_liter,
+            total_amount: fuel.total_amount,
+          });
+        }
+      })
+      .catch(() => toast.error("ফুয়েল ডেটা লোড করতে সমস্যা হয়েছে"));
+  }, [id, reset]);
 
   const onSubmit = async (data) => {
-    // console.log("add fuel data", data);
-    data.total_price = total;
+    data.total_amount = total;
     try {
       const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-      const response = await axios.post(
-        "${import.meta.env.VITE_BASE_URL}/api/fuel",
-        formData
-      );
-      const resData = response.data;
+      Object.keys(data).forEach((key) => formData.append(key, data[key]));
 
-      if (resData.status === "Success") {
-        toast.success("Fuel saved successfully!", {
-          position: "top-right",
-        });
-        reset();
-        navigate("/tramessy/Fuel")
+      const url = id
+        ? `${import.meta.env.VITE_BASE_URL}/api/purchase/update/${id}`
+        : `${import.meta.env.VITE_BASE_URL}/api/purchase/create`;
+
+      const response = await axios.post(url, formData);
+
+      if (response.data.status === "Success") {
+        toast.success(`জ্বালানি ${id ? "আপডেট" : "সংরক্ষণ"} সফল হয়েছে!`, { position: "top-right" });
+        navigate("/tramessy/Fuel");
       } else {
-        toast.error("Server Error: " + (resData.message || "Unknown issue"));
+        toast.error("সার্ভার ত্রুটি: " + (response.data.message || "অজানা সমস্যা"));
       }
     } catch (error) {
-      console.error(error);
-      const errorMessage =
-        error.response?.data?.message || error.message || "Unknown error";
-      toast.error("Server Error: " + errorMessage);
+      const errorMessage = error.response?.data?.message || error.message || "অজানা ত্রুটি";
+      toast.error("সার্ভার ত্রুটি: " + errorMessage);
     }
   };
 
   return (
     <div className="mt-10">
-      <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
-        Fuel Form
+      
+      <div className="mx-auto p-6 rounded-b-md rounded-t-md shadow border border-gray-200">
+        <h3 className=" pb-4 text-primary font-semibold ">
+        জ্বালানি ফর্ম ({id ? "আপডেট" : "নতুন"})
       </h3>
-      <div className="mx-auto p-6 rounded-b-md shadow border border-gray-200">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Toaster position="top-center" reverseOrder={false} />
-          {/*  */}
-          <div className="md:flex justify-between gap-3">
-            <div className="w-full">
-              <label className="text-primary text-sm font-semibold">
-                Fueling Date
-              </label>
-              <div className="relative">
-                <input
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Toaster position="top-center" reverseOrder={false} />
+
+            {/* Fueling Date & Vehicle */}
+            <div className="md:flex justify-between gap-3">
+              <div className="w-full">
+                <InputField
+                  name="fueling_date"
+                  label="জ্বালানি দেওয়ার তারিখ"
                   type="date"
-                  {...register("fueling_date", { required: true })}
-                  ref={(e) => {
-                    register("fueling_date").ref(e);
-                    fuelDateRef.current = e;
-                  }}
-                  className="remove-date-icon mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none pr-10"
+                  required
                 />
-                {errors.fueling_date && (
-                  <span className="text-red-600 text-sm">Required</span>
-                )}
-                <span className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r">
-                  <FiCalendar
-                    className="text-white cursor-pointer"
-                    onClick={() => fuelDateRef.current?.showPicker?.()}
-                  />
-                </span>
+              </div>
+              <div className="w-full">
+                <SelectField
+                  name="vehicle_number"
+                  label="গাড়ির নম্বর"
+                  options={vehicleOptions}
+                  required
+                  placeholder="গাড়ির নম্বর নির্বাচন করুন..."
+                />
               </div>
             </div>
-            <div className="w-full relative">
-              <label className="text-primary text-sm font-semibold">
-                Vehicle Number
-              </label>
-              <Controller
-                name="vehicle_number"
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { onChange, value, ref } }) => (
-                  <Select
-                    inputRef={ref}
-                    value={
-                      vehicleOptions.find((c) => c.value === value) || null
-                    }
-                    onChange={(val) => onChange(val ? val.value : "")}
-                    options={vehicleOptions}
-                    placeholder="Select vehicle number..."
-                    className="mt-1 text-sm"
-                    classNamePrefix="react-select"
-                    isClearable
-                  />
-                )}
-              />
-              {errors.vehicle_number && (
-                <span className="text-red-600 text-sm">Required</span>
-              )}
+
+            {/* Driver & Trip ID */}
+            <div className="md:flex justify-between gap-3">
+              <div className="w-full">
+                <SelectField
+                  name="driver_name"
+                  label="ড্রাইভারের নাম"
+                  options={driverOptions}
+                  required
+                  placeholder="ড্রাইভারের নাম নির্বাচন করুন..."
+                />
+              </div>
+              <div className="w-full">
+                <InputField
+                  name="trip_id_invoice_no"
+                  label="ট্রিপ আইডি / ইনভয়েস নম্বর"
+                  type="text"
+                  placeholder="ট্রিপ আইডি / ইনভয়েস নম্বর..."
+                />
+              </div>
             </div>
-          </div>
-          {/*  */}
-          <div className="mt-1 md:flex justify-between gap-3">
-            <div className="mt-3 md:mt-0 w-full relative">
-              <label className="text-primary text-sm font-semibold">
-                Driver Name
-              </label>
-              <Controller
-                name="driver_name"
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { onChange, value, ref } }) => (
-                  <Select
-                    inputRef={ref}
-                    value={driverOptions.find((c) => c.value === value) || null}
-                    onChange={(val) => onChange(val ? val.value : "")}
-                    options={driverOptions}
-                    placeholder="Select driver name..."
-                    className="mt-1 text-sm"
-                    classNamePrefix="react-select"
-                    isClearable
-                  />
-                )}
-              />
-              {errors.driver_name && (
-                <span className="text-red-600 text-sm">Required</span>
-              )}
-            </div>
-            <div className="mt-3 md:mt-0 w-full relative">
-              <label className="text-primary text-sm font-semibold">
-                Trip ID / Invoice Number
-              </label>
-              <input
-                {...register("trip_id_invoice_no")}
-                type="text"
-                placeholder="Trip ID / Invoice Number..."
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-          </div>
-          {/*  */}
-          <div className="mt-1 md:flex justify-between gap-3">
-            <div className="mt-3 md:mt-0 w-full relative">
-              <label className="text-primary text-sm font-semibold">
-                Pump Name & Address
-              </label>
-              <input
-                {...register("pump_name_address", { required: true })}
-                type="text"
-                placeholder="Pump name and address..."
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-              {errors.pump_name_address && (
-                <span className="text-red-600 text-sm">Required</span>
-              )}
-            </div>
-            <div className="w-full relative">
-              <label className="text-primary text-sm font-semibold">
-                Fuel Capacity
-              </label>
-              <input
-                {...register("fuel_capacity")}
-                type="number"
-                placeholder="Fuel capacity..."
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-          </div>
-          {/*  */}
-          <div className="mt-1 md:flex justify-between gap-3">
-            <div className="relative mt-3 md:mt-0 w-full">
-              <label className="text-primary text-sm font-semibold">
-                Fuel Type
-              </label>
-              <select
-                {...register("fuel_type", { required: true })}
-                className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
-              >
-                <option value="">Select fuel type</option>
-                <option value="Octen">Octen</option>
-                <option value="Gas">Gas</option>
-                <option value="Petroll">Petroll</option>
-                <option value="Diesel">Diesel</option>
-              </select>
-              {errors.type && (
-                <span className="text-red-600 text-sm">Required</span>
-              )}
-              <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
-            </div>
-            <div className="w-full">
-              <label className="text-primary text-sm font-semibold">
-                Quantity
-              </label>
-              <div className="relative">
-                <input
-                  {...register("quantity", { required: true })}
+
+            {/* Pump & Fuel Capacity */}
+            <div className="md:flex justify-between gap-3">
+              <div className="w-full">
+                <InputField
+                  name="pump_name_address"
+                  label="পাম্পের নাম ও ঠিকানা"
+                  type="text"
+                  required
+                  placeholder="পাম্পের নাম ও ঠিকানা..."
+                />
+              </div>
+              <div className="w-full">
+                <InputField
+                  name="fuel_capacity"
+                  label="জ্বালানি ধারণক্ষমতা"
                   type="number"
-                  placeholder="Fuel quantity..."
-                  className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+                  placeholder="জ্বালানি ধারণক্ষমতা..."
                 />
-                {errors.quantity && (
-                  <span className="text-red-600 text-sm">Required</span>
-                )}
               </div>
             </div>
-          </div>
-          {/*  */}
-          <div className="mt-1 md:flex justify-between gap-3">
-            <div className="mt-3 md:mt-0 w-full relative">
-              <label className="text-primary text-sm font-semibold">
-                Price per Liter
-              </label>
-              <input
-                {...register("price_per_liter", { required: true })}
-                type="number"
-                placeholder="Price per liter..."
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-              {errors.price && (
-                <span className="text-red-600 text-sm">Required</span>
-              )}
+
+            {/* Fuel Type & Quantity */}
+            <div className="md:flex justify-between gap-3">
+              <div className="w-full">
+                <SelectField
+                  name="fuel_type"
+                  label="জ্বালানির ধরন"
+                  options={[
+                    { value: "Octen", label: "অক্টেন" },
+                    { value: "Gas", label: "গ্যাস" },
+                    { value: "Petrol", label: "পেট্রোল" },
+                    { value: "Diesel", label: "ডিজেল" },
+                  ]}
+                  required
+                  placeholder="জ্বালানির ধরন নির্বাচন করুন..."
+                />
+              </div>
+              <div className="w-full">
+                <InputField
+                  name="quantity"
+                  label="পরিমাণ"
+                  type="number"
+                  placeholder="জ্বালানির পরিমাণ..."
+                  required
+                />
+              </div>
             </div>
-            <div className="w-full relative">
-              <label className="text-primary text-sm font-semibold">
-                Total Amount
-              </label>
-              <input
-                readOnly
-                {...register("total_amount", { required: true })}
-                type="number"
-                defaultValue={total}
-                value={total}
-                placeholder="Total amount..."
-                className="cursor-not-allowed mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-gray-200 outline-none"
-              />
+
+            {/* Price per liter & Total */}
+            <div className="md:flex justify-between gap-3">
+              <div className="w-full">
+                <InputField
+                  name="price_per_liter"
+                  label="লিটার প্রতি মূল্য"
+                  type="number"
+                  placeholder="লিটার প্রতি মূল্য..."
+                  required
+                />
+              </div>
+              <div className="w-full">
+                <InputField
+                  name="total_amount"
+                  label="মোট Amount"
+                  type="number"
+                  value={total}
+                  readOnly
+                />
+              </div>
             </div>
-          </div>
-          {/* Submit Button */}
-          <div className="text-left">
-            <BtnSubmit>Submit</BtnSubmit>
-          </div>
-        </form>
+
+            <div className="text-left mt-4">
+              <BtnSubmit>{id ? "আপডেট করুন" : "জমা দিন"}</BtnSubmit>
+            </div>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );

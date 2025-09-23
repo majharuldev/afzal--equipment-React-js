@@ -1,21 +1,45 @@
 import BtnSubmit from "../../components/Button/BtnSubmit";
-import { MdOutlineArrowDropDown } from "react-icons/md";
 import { FiCalendar } from "react-icons/fi";
 import { FormProvider, useForm } from "react-hook-form";
 import { InputField, SelectField } from "../../components/Form/FormFields";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import useRefId from "../../hooks/useRef";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-const AddCustomer = () => {
-  const [loading, setLoading] = useState(false)
+const CustomerForm = () => {
+  const [loading, setLoading] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
   const dateRef = useRef(null);
   const methods = useForm();
   const navigate = useNavigate();
-  const { handleSubmit, reset, register } = methods;
+  const { id } = useParams(); // Update হলে আইডি আসবে
+  const { handleSubmit, reset, register, setValue } = methods;
   const generateRefId = useRefId();
+
+  // যদি Update মোড হয়, তাহলে ডাটা লোড করবো
+  useEffect(() => {
+    if (id) {
+      setIsEdit(true);
+      axios
+        .get(`${import.meta.env.VITE_BASE_URL}/api/customer/show/${id}`)
+        .then((res) => {
+          if (res.data.status === "Success") {
+            const customer = res.data.data;
+            Object.keys(customer).forEach((key) => {
+              setValue(key, customer[key]);
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          toast.error("গ্রাহকের তথ্য আনা যায়নি");
+        });
+    }
+  }, [id, setValue]);
+
+  // সাবমিট ফাংশন (Add & Update)
   const onSubmit = async (data) => {
     try {
       setLoading(true);
@@ -23,46 +47,53 @@ const AddCustomer = () => {
       for (const key in data) {
         formData.append(key, data[key]);
       }
-      formData.append("ref_id", generateRefId());
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/customer/create`,
-        formData
-      );
+      if (!isEdit) {
+        formData.append("ref_id", generateRefId());
+      }
+
+      const url = isEdit
+        ? `${import.meta.env.VITE_BASE_URL}/api/customer/update/${id}`
+        : `${import.meta.env.VITE_BASE_URL}/api/customer/create`;
+
+      const response = await axios.post(url, formData);
       const resData = response.data;
-      // console.log("resData", resData);
+
       if (resData.status === "Success") {
-        toast.success("Customer data saved successfully!", {
-          position: "top-right",
-        });
+        toast.success(
+          isEdit
+            ? "গ্রাহকের তথ্য সফলভাবে হালনাগাদ হয়েছে!"
+            : "গ্রাহকের তথ্য সফলভাবে সংরক্ষণ করা হয়েছে!"
+        );
         reset();
-        navigate("/tramessy/Customer")
+        navigate("/tramessy/Customer");
       } else {
-        toast.error("Server Error: " + (resData.message || "Unknown issue"));
+        toast.error("সার্ভার সমস্যা: " + (resData.message || "অজানা ত্রুটি"));
       }
     } catch (error) {
       console.error(error);
       const errorMessage =
-        error.response?.data?.message || error.message || "Unknown error";
-      toast.error("Server Error: " + errorMessage);
-    }finally {
-    setLoading(false); 
-  }
+        error.response?.data?.message || error.message || "অজানা ত্রুটি";
+      toast.error("সার্ভার সমস্যা: " + errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="mt-10">
+    <div className="">
       <Toaster />
-      <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
-        Add Customer information
+      
+      <div className="mx-auto p-6 rounded-b-md rounded-t-md shadow border border-gray-300">
+        <h3 className=" pb-4 text-primary font-semibold ">
+        {isEdit ? "গ্রাহকের তথ্য আপডেট করুন" : "নতুন গ্রাহকের তথ্য যোগ করুন"}
       </h3>
-      <div className="mx-auto p-6  rounded-b-md shadow border border-gray-300">
-        <FormProvider {...methods} className="">
+        <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
                 <InputField
                   name="date"
-                  label="Date"
+                  label="তারিখ"
                   type="date"
                   required
                   inputRef={(e) => {
@@ -80,46 +111,44 @@ const AddCustomer = () => {
                 />
               </div>
               <div className="w-full relative">
-                <InputField
-                  name="customer_name"
-                  label="Customer Name"
-                  required
-                />
+                <InputField name="customer_name" label="কাস্টমার নাম" required />
               </div>
             </div>
-            {/*  */}
+
             <div className="mt-1 md:flex justify-between gap-3">
               <div className="mt-3 md:mt-0 w-full relative">
-                <InputField name="mobile" label="Mobile" required />
+                <InputField name="mobile" label="মোবাইল" required />
               </div>
               <div className="mt-3 md:mt-0 w-full relative">
-                <InputField name="email" label="Email" />
+                <InputField name="email" label="ইমেইল" />
               </div>
             </div>
-            {/*  */}
+
             <div className="mt-1 md:flex justify-between gap-3">
               <div className="w-full relative">
-                <InputField name="address" label="Address" required />
+                <InputField name="address" label="ঠিকানা" required />
               </div>
               <div className="w-full relative">
-                <InputField name="due" label="Due Balance" required />
+                <InputField name="due" label="বাকি পরিমাণ" required />
               </div>
               <div className="w-full">
                 <SelectField
                   name="status"
-                  label="Status"
+                  label="অবস্থা"
                   required
                   options={[
-                    { value: "Active", label: "Active" },
-                    { value: "Inactive", label: "Inactive" },
+                    { value: "Active", label: "সক্রিয়" },
+                    { value: "Inactive", label: "নিষ্ক্রিয়" },
                   ]}
                 />
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* সাবমিট বাটন */}
             <div className="text-left">
-              <BtnSubmit loading={loading}>Submit</BtnSubmit>
+              <BtnSubmit loading={loading}>
+                {isEdit ? "আপডেট করুন" : "সংরক্ষণ করুন"}
+              </BtnSubmit>
             </div>
           </form>
         </FormProvider>
@@ -128,4 +157,4 @@ const AddCustomer = () => {
   );
 };
 
-export default AddCustomer;
+export default CustomerForm;

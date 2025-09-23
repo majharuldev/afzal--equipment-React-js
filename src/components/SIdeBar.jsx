@@ -17,10 +17,10 @@ import {
 } from "@ant-design/icons";
 import { useState } from "react";
 import { Layout, Menu, Avatar } from "antd";
-
+import { PiWarehouse } from "react-icons/pi";
 import { Link, useLocation } from "react-router-dom";
 import useAdmin from "../hooks/useAdmin";
-import avatar from "../assets/avatar.png";
+import logo from "../assets/afjal-logo.png";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -46,36 +46,31 @@ const Sidebar = () => {
     },
     // ...(isAdmin
     //   ?
-
-    // Fleet Management
-    {
-      key: "fleet",
-      icon: <CarOutlined />,
-      label: "ফ্লিট ম্যানেজমেন্ট",
-      children: [
-        {
-          key: "vehicles",
-          label: <Link to="/tramessy/vehicel">গাড়ি</Link>,
-          className: isActive("/tramessy/vehicel")
-            ? "ant-menu-item-selected"
-            : "",
-        },
+ 
         {
           key: "trips",
-          label: <Link to="/tramessy/TripList">ট্রিপ</Link>,
+          icon: <CarOutlined />,
+          label: <Link to="/tramessy/TripList">ইকুইপমেন্ট অপারেশন</Link>,
           className: isActive("/tramessy/TripList")
             ? "ant-menu-item-selected"
             : "",
         },
         {
-          key: "parts",
-          label: <Link to="/tramessy/Parts">স্পেয়ার ও পার্টস লিস্ট</Link>,
-          className: isActive("/tramessy/Parts")
+          key: "vehicles",
+          icon: <CarOutlined />,
+          label: <Link to="/tramessy/vehicel">ইকুইপমেন্ট তথ্য</Link>,
+          className: isActive("/tramessy/vehicel")
             ? "ant-menu-item-selected"
             : "",
         },
-      ],
-    },
+    // Fleet Management
+    // {
+    //   key: "fleet",
+    //   icon: <CarOutlined />,
+    //   label: "ফ্লিট ম্যানেজমেন্ট",
+    //   children: [
+    //   ],
+    // },
     // Vendor Management
     {
       key: "vendor",
@@ -129,8 +124,8 @@ const Sidebar = () => {
         },
         {
           key: "driver",
-          label: <Link to="/tramessy/DriverList">ড্রাইভার</Link>,
-          className: isActive("/tramessy/DriverList")
+          label: <Link to="/tramessy/HR/DriverList">অপারেটর/ড্রাইভার</Link>,
+          className: isActive("/tramessy/HR/DriverList")
             ? "ant-menu-item-selected"
             : "",
         },
@@ -155,18 +150,32 @@ const Sidebar = () => {
     {
       key: "purchase",
       icon: <ShoppingCartOutlined />,
-      label: "পারচেজ", // Purchase → ক্রয়
+      label: "ক্রয় ব্যবস্থাপনা", // Purchase → ক্রয়
       children: [
         {
           key: "purchase-list",
-          label: <Link to="/tramessy/Purchase/PurchaseList">পারচেজ</Link>,
+          label: <Link to="/tramessy/Purchase/PurchaseList">মেইনটেনেন্স</Link>,
           className: isActive("/tramessy/Purchase/PurchaseList")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+         {
+          key: "fuel",
+          label: <Link to="/tramessy/Purchase/fuel">ফুয়েল</Link>,
+          className: isActive("/tramessy/Purchase/fuel")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        {
+          key: "official-purchase",
+          label: <Link to="/tramessy/Purchase/official-product">অফিশিয়াল প্রোডাক্টস</Link>,
+          className: isActive("/tramessy/Purchase/official-product")
             ? "ant-menu-item-selected"
             : "",
         },
         {
           key: "supplier-list",
-          label: <Link to="/tramessy/Purchase/SupplierList">সরবরাহকারী</Link>,
+          label: <Link to="/tramessy/Purchase/SupplierList">সাপ্লায়ার</Link>,
           className: isActive("/tramessy/Purchase/SupplierList")
             ? "ant-menu-item-selected"
             : "",
@@ -189,11 +198,41 @@ const Sidebar = () => {
         },
       ],
     },
+    // গ্যারেজ ম্যানেজমেন্ট
+    {
+      key: "house",
+      icon: <PiWarehouse />,
+      label: "গ্যারেজ ম্যানেজমেন্ট",
+      children: [
+        {
+          key: "garage",
+          label: <Link to="/tramessy/garage">গ্যারেজ কাস্টমার</Link>,
+          className: isActive("/tramessy/garage")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        {
+          key: "garage-expense",
+          label: <Link to="/tramessy/garage-expense">গ্যারেজ খরচের হিসাব</Link>,
+          className: isActive("/tramessy/garage-expense")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        {
+          key: "garage-customer-ledger",
+          label: <Link to="/tramessy/garage-customer-ledger">গ্যারেজ কাস্টমার লেজার</Link>,
+          className: isActive("/tramessy/garage-customer-ledger")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        
+      ],
+    },
     // Business Model
     {
       key: "business",
       icon: <FileTextOutlined />,
-      label: "ফাইন্যান্সিয়াল স্টেটমেন্ট",
+      label: "লাভ/ক্ষতি",
       children: [
         {
           key: "daily-income",
@@ -244,7 +283,7 @@ const Sidebar = () => {
           key: "vehicle-report",
           label: (
             <Link to="/tramessy/Reports/vehicle-report">
-              গাড়ির পারফরম্যান্স রিপোর্ট
+              গাড়ির রিপোর্ট
             </Link>
           ),
           className: isActive("/tramessy/Reports/vehicle-report")
@@ -257,7 +296,7 @@ const Sidebar = () => {
     {
       key: "accounts",
       icon: <DollarOutlined />,
-      label: "একাউন্টস",
+      label: "অ্যাকাউন্টস",
       children: [
         {
           key: "official-expense",
@@ -353,7 +392,7 @@ const Sidebar = () => {
     {
       key: "user-control",
       icon: <SettingOutlined />,
-      label: " ইউজারস কন্ট্রোল",
+      label: " ইউজার কন্ট্রোল",
       children: [
         {
           key: "all-users",
@@ -392,10 +431,10 @@ const Sidebar = () => {
       {/* Logo Section */}
       <div
         className="flex justify-center items-center px-4 py-4 lg:py-0  border-b border-gray-200"
-        hidden
+       
       >
-        <Link to="/">
-          <p className="font-bold text-2xl text-primary">Afzal constraction </p>
+        <Link to="/tramessy">
+         <img src={logo} alt="" className="w-[4.3rem]" />
         </Link>
       </div>
 

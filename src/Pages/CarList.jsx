@@ -33,7 +33,7 @@ const CarList = () => {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching driver data:", error);
+        console.error("গাড়ির ডাটা আনতে সমস্যা হয়েছে:", error);
         setLoading(false);
       });
   }, []);
@@ -48,10 +48,10 @@ const CarList = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to delete driver");
+        throw new Error("গাড়ি ডিলিট করতে ব্যর্থ!");
       }
       setVehicle((prev) => prev.filter((driver) => driver.id !== id));
-      toast.success("Vehicle deleted successfully", {
+      toast.success("গাড়ি সফলভাবে ডিলিট হয়েছে!", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -59,15 +59,15 @@ const CarList = () => {
       setIsDeleteModalOpen(false);
       setSelectedDriverId(null);
     } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting!", {
+      console.error("ডিলিট এরর:", error);
+      toast.error("গাড়ি ডিলিট করতে সমস্যা হয়েছে!", {
         position: "top-right",
         autoClose: 3000,
       });
     }
   };
 
-  if (loading) return <p className="text-center mt-16">Loading vehicle...</p>;
+  if (loading) return <p className="text-center mt-16">গাড়ির তথ্য লোড হচ্ছে...</p>;
 
   const csvData = vehicles.map((dt, index) => ({
     index: index + 1,
@@ -139,7 +139,7 @@ const CarList = () => {
   };
 
   const printTable = () => {
-    const printWindow = window.open("", "_blank");
+    const printWindow = window.open("", "");
     const printContent = `
       <html>
         <head>
@@ -202,11 +202,11 @@ const CarList = () => {
         setselectedCar(response.data.data);
         setViewModalOpen(true);
       } else {
-        toast.error("Vehicle information could not be loaded.");
+        toast.error("গাড়ির তথ্য পাওয়া যায়নি!.");
       }
     } catch (error) {
-      console.error("View error:", error);
-      toast.error("Vehicle information could not be loaded.");
+      console.error("ভিউ এরর:", error);
+      toast.error("গাড়ির তথ্য লোড করতে সমস্যা হয়েছে!");
     }
   };
 
@@ -229,45 +229,45 @@ const CarList = () => {
 
   const columns = [
     {
-      title: "#",
+      title: "ক্রমিক",
       dataIndex: "index",
       key: "index",
       render: (text, record, index) => index + 1,
     },
     {
-      title: "Driver Name",
+      title: "নাম",
       dataIndex: "driver_name",
       key: "driver_name",
     },
     {
-      title: "Vehicle Name",
+      title: "ইকুইপমেন্ট নাম",
       dataIndex: "vehicle_name",
       key: "vehicle_name",
     },
     {
-      title: "Vehicle Category",
+      title: "ইকুইপমেন্ট ক্যাটাগরি",
       dataIndex: "vehicle_category",
       key: "vehicle_category",
     },
     {
-      title: "Vehicle Size",
+      title: "ইকুইপমেন্ট সাইজ",
       dataIndex: "vehicle_size",
       key: "vehicle_size",
     },
     {
-      title: "Vehicle No",
+      title: "ইকুইপমেন্ট নম্বর",
       key: "registration",
       render: (record) => (
         `${record.registration_serial}-${record.registration_zone} ${record.registration_number}`
       ),
     },
     {
-      title: "Status",
+      title: "স্ট্যাটাস",
       dataIndex: "status",
       key: "status",
     },
     {
-      title: "Action",
+      title: "অ্যাকশন",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
@@ -295,19 +295,19 @@ const CarList = () => {
   ];
 
   return (
-    <main className="p-4">
+    <main className="p-2">
       <Toaster />
       <Card
         title={
           <div className="flex items-center gap-3">
-            <FaTruck className="text-[#11375B] text-2xl" />
-            <span className="text-[#11375B] font-bold">Vehicle List</span>
+            <FaTruck className="text-primary text-2xl" />
+            <span className="text-primary font-bold">ইকুইপমেন্ট তালিকা</span>
           </div>
         }
         extra={
           <Link to="/tramessy/add-vehicel-form">
-            <Button type="primary" icon={<FaPlus />}>
-              Add Vehicle
+            <Button type="primary" icon={<FaPlus />} className="!bg-primary">
+             ইকুইপমেন্ট 
             </Button>
           </Link>
         }
@@ -339,7 +339,7 @@ const CarList = () => {
           </Space>
           
           <Input.Search
-            placeholder="Search Vehicle..."
+            placeholder="গাড়ি খুঁজুন..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: 250 }}
@@ -372,7 +372,7 @@ const CarList = () => {
                     d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span className="text-gray-500">No vehicle data found</span>
+                <span className="text-gray-500">কোনো ইকুইপমেন্ট তথ্য পাওয়া যায়নি</span>
               </div>
             ),
           }}
@@ -381,7 +381,7 @@ const CarList = () => {
 
       {/* Delete Modal */}
       <Modal
-        title="Confirm Delete"
+        title="ডিলিট নিশ্চিত করুন"
         open={isDeleteModalOpen}
         onOk={() => handleDelete(selectedDriverId)}
         onCancel={() => setIsDeleteModalOpen(false)}
@@ -392,18 +392,18 @@ const CarList = () => {
       >
         <div className="flex flex-col items-center">
           <FaTrashAlt className="text-red-500 text-4xl mb-4" />
-          <p>Do you want to delete this vehicle?</p>
+          <p>আপনি কি এই ইকুইপমেন্ট ডিলিট করতে চান?</p>
         </div>
       </Modal>
 
       {/* View Modal */}
       <Modal
-        title="Vehicle Information"
+        title="ইকুইপমেন্ট বিস্তারিত তথ্য"
         open={viewModalOpen}
         onCancel={() => setViewModalOpen(false)}
         footer={[
           <Button key="close" onClick={() => setViewModalOpen(false)}>
-            Close
+            বন্ধ করুন
           </Button>,
         ]}
         width={900}
@@ -411,51 +411,51 @@ const CarList = () => {
         {selectedCar && (
           <div className="grid grid-cols-2 gap-4">
             <div className="border p-2">
-              <p className="font-semibold">Driver Name:</p>
+              <p className="font-semibold">ড্রাইভারের নাম:</p>
               <p>{selectedCar.driver_name}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Vehicle Name:</p>
+              <p className="font-semibold">ইকুইপমেন্ট নাম:</p>
               <p>{selectedCar.vehicle_name}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Vehicle Category:</p>
+              <p className="font-semibold">গাড়ির ক্যাটাগরি:</p>
               <p>{selectedCar.vehicle_category}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Vehicle Size:</p>
+              <p className="font-semibold">গাড়ির সাইজ:</p>
               <p>{selectedCar.vehicle_size}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Registration Number:</p>
+              <p className="font-semibold">রেজিস্ট্রেশন নাম্বার:</p>
               <p>{selectedCar.registration_number}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Registration Serial:</p>
+              <p className="font-semibold">রেজিস্ট্রেশন সিরিয়াল:</p>
               <p>{selectedCar.registration_serial}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Registration Area:</p>
+              <p className="font-semibold">রেজিস্ট্রেশন Area:</p>
               <p>{selectedCar.registration_zone}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Registration Date:</p>
+              <p className="font-semibold">রেজিস্ট্রেশন তারিখ:</p>
               <p>{selectedCar.registration_date}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Tax Expiry Date:</p>
+              <p className="font-semibold">ট্যাক্সের মেয়াদ তারিখ:</p>
               <p>{selectedCar.text_date || "N/A"}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Road Permit Date:</p>
+              <p className="font-semibold">রোড পারমিট তারিখ:</p>
               <p>{selectedCar.road_permit_date}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Fitness Expiry Date:</p>
+              <p className="font-semibold">ফিটনেস তারিখ:</p>
               <p>{selectedCar.fitness_date}</p>
             </div>
             <div className="border p-2">
-              <p className="font-semibold">Insurance Expiry Date:</p>
+              <p className="font-semibold">ইনস্যুরেন্স তারিখ:</p>
               <p>{selectedCar.insurance_date}</p>
             </div>
           </div>

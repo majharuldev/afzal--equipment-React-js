@@ -388,10 +388,10 @@ const OfficialExpense = () => {
           ref={printRef}
         >
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-primary text-white capitalize text-xs">
+            <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
               <tr className="">
                 <th className="px-3 py-3 text-left text-sm font-semibold w-16">
-                  ক্রমিক 
+                  ক্রমিক
                 </th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">
                   তারিখ
@@ -483,9 +483,8 @@ const OfficialExpense = () => {
             <div className="space-x-2 flex items-center">
               <button
                 onClick={handlePrevPage}
-                className={`p-2 ${
-                  currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
-                } rounded-sm`}
+                className={`p-2 ${currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
+                  } rounded-sm`}
                 disabled={currentPage === 1}
               >
                 <GrFormPrevious />
@@ -494,22 +493,20 @@ const OfficialExpense = () => {
                 <button
                   key={number + 1}
                   onClick={() => handlePageClick(number + 1)}
-                  className={`px-3 py-1 rounded-sm ${
-                    currentPage === number + 1
-                      ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
-                      : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-                  }`}
+                  className={`px-3 py-1 rounded-sm ${currentPage === number + 1
+                    ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
+                    : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
+                    }`}
                 >
                   {number + 1}
                 </button>
               ))}
               <button
                 onClick={handleNextPage}
-                className={`p-2 ${
-                  currentPage === totalPages
-                    ? "bg-gray-300"
-                    : "bg-primary text-white"
-                } rounded-sm`}
+                className={`p-2 ${currentPage === totalPages
+                  ? "bg-gray-300"
+                  : "bg-primary text-white"
+                  } rounded-sm`}
                 disabled={currentPage === totalPages}
               >
                 <GrFormNext />
@@ -629,7 +626,7 @@ const OfficialExpense = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                     শাখার নাম <span className="text-red-500">*</span>
+                      শাখার নাম <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -652,7 +649,7 @@ const OfficialExpense = () => {
 
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                    মন্তব্য
+                      মন্তব্য
                     </label>
                     <input
                       type="text"

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useRef } from "react";
 import { FaBars, FaMagnifyingGlass } from "react-icons/fa6";
-import avatar from "../../assets/laksham-admin.jpg";
+import avatar from "../../assets/Afjal-image.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../providers/AuthProvider";
 

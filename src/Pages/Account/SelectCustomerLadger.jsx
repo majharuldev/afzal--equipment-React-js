@@ -271,20 +271,19 @@ totals.due = totals.rent  - totals.rec_amount;
     </td>
   </tr>
                 <tr>
-                <th className="border px-2 py-1">SL.</th>
-                <th className="border px-2 py-1">Date</th>
-                <th className="border px-2 py-1">Customer</th>
-                <th className="border px-2 py-1">Load</th>
-                <th className="border px-2 py-1">Unload</th>
-                <th className="border px-2 py-1">Vehicle</th>
-                <th className="border px-2 py-1">Driver</th>
-                <th className="border px-2 py-1">Bill Amount</th>
-            
-                <th className="border px-2 py-1">Recieved Amount</th>
+                 <th className="border px-2 py-1">নং.</th>
+    <th className="border px-2 py-1">তারিখ</th>
+    <th className="border px-2 py-1">গ্রাহক</th>
+    <th className="border px-2 py-1">লোড</th>
+    <th className="border px-2 py-1">আনলোড</th>
+    <th className="border px-2 py-1">গাড়ি</th>
+    <th className="border px-2 py-1">ড্রাইভার</th>
+    <th className="border px-2 py-1">বিল অ্যামাউন্ট</th>
+    <th className="border px-2 py-1">রিসিভড অ্যামাউন্ট</th>
                 <th className="border border-gray-700 px-2 py-1">
                     {selectedCustomerName && (
                       <p className="text-sm font-medium text-gray-800">
-                        Opening Amount: ৳{dueAmount?.toFixed(2)}
+                        Opening অ্যামাউন্ট: ৳{dueAmount?.toFixed(2)}
                       </p>
                     )}
                     Due 

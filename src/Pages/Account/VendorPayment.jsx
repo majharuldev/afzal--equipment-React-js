@@ -53,7 +53,7 @@ const VendorPayment = () => {
           </h2>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/account/VendorPaymentForm">
-              <button className="bg-black text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> যোগ
               </button>
             </Link>
@@ -61,7 +61,7 @@ const VendorPayment = () => {
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-primary text-white capitalize text-xs">
+            <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
               <tr>
                 <th className="px-2 py-3">SL.</th>
                 <th className="px-2 py-3">তারিখ</th>

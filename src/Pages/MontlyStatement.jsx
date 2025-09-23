@@ -371,7 +371,7 @@ const MonthlyStatement = () => {
         <>
           <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200 print-table">
             <table className="min-w-full text-sm text-left">
-              <thead className="bg-primary text-white capitalize text-xs">
+              <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
                 <tr>
                   <th className="p-2 border">ক্রমিক</th>
                   <th className="p-2 border">মাস</th>
