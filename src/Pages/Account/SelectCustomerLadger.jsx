@@ -4,8 +4,6 @@ import { FaFileExcel, FaFilePdf, FaFilter, FaPrint } from "react-icons/fa6";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
-import ReactPaginate from "react-paginate";
 
 const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const [startDate, setStartDate] = useState("");
@@ -36,9 +34,9 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
 
   // filter date 
   const filteredLedger = customer.filter((entry) => {
-    const entryDate = new Date(entry.bill_date).setHours(0,0,0,0);
-    const start = startDate ? new Date(startDate).setHours(0,0,0,0) : null;
-    const end = endDate ? new Date(endDate).setHours(0,0,0,0) : null;
+    const entryDate = new Date(entry.bill_date).setHours(0, 0, 0, 0);
+    const start = startDate ? new Date(startDate).setHours(0, 0, 0, 0) : null;
+    const end = endDate ? new Date(endDate).setHours(0, 0, 0, 0) : null;
 
     if (start && !end) {
       return entryDate === start;
@@ -56,12 +54,12 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
       acc.rec_amount += Number(item.rec_amount || 0);
       return acc;
     },
-    { rent: 0,  rec_amount: 0}
+    { rent: 0, rec_amount: 0 }
   );
   // Now calculate due from total trip - advance - pay_amount
-totals.due = totals.rent  - totals.rec_amount;
+  totals.due = totals.rent - totals.rec_amount;
 
-  const grandDue =  totals.due+dueAmount;
+  const grandDue = totals.due + dueAmount;
 
   // Pagination logic
   // const pageCount = Math.ceil(filteredLedger.length / itemsPerPage);
@@ -247,6 +245,19 @@ totals.due = totals.rent  - totals.rec_amount;
                 </button>
               )}
             </div>
+            <div className="w-xs ">
+                              <button
+                                onClick={() => {
+                                  setStartDate("");
+                                  setEndDate(""); 
+                                  setShowFilter(false);
+                                }}
+                                className="bg-gradient-to-r from-primary to-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                              >
+                                <FaFilter />
+                                মুছে ফেলুন
+                              </button>
+                            </div>
           </div>
         )}
 
@@ -257,84 +268,88 @@ totals.due = totals.rent  - totals.rec_amount;
             <table className="min-w-full text-sm text-left text-gray-900">
               <thead className="bg-gray-100 text-gray-800 font-bold">
                 <tr className="font-bold bg-gray-50">
-    <td colSpan={7} className="border border-black px-2 py-1 text-right">
-      Total 
-    </td>
-    <td className="border border-black px-2 py-1 text-right">
-      ৳{totals.rent?.toFixed(2)}
-    </td>
-    <td className="border border-black px-2 py-1 text-right">
-      ৳{totals.rec_amount?.toFixed(2)}
-    </td>
-    <td className="border border-black px-2 py-1 text-right">
-      ৳{totals.due?.toFixed(2)}
-    </td>
-  </tr>
+                  <td colSpan={8} className="border border-black px-2 py-1 text-right">
+                    Total
+                  </td>
+                  <td className="border border-black px-2 py-1 text-right">
+                    ৳{totals.rent?.toFixed(2)}
+                  </td>
+                  <td className="border border-black px-2 py-1 text-right">
+                    ৳{totals.rec_amount?.toFixed(2)}
+                  </td>
+                  <td className="border border-black px-2 py-1 text-right">
+                    ৳{totals.due?.toFixed(2)}
+                  </td>
+                </tr>
                 <tr>
-                 <th className="border px-2 py-1">নং.</th>
-    <th className="border px-2 py-1">তারিখ</th>
-    <th className="border px-2 py-1">গ্রাহক</th>
-    <th className="border px-2 py-1">লোড</th>
-    <th className="border px-2 py-1">আনলোড</th>
-    <th className="border px-2 py-1">গাড়ি</th>
-    <th className="border px-2 py-1">ড্রাইভার</th>
-    <th className="border px-2 py-1">বিল অ্যামাউন্ট</th>
-    <th className="border px-2 py-1">রিসিভড অ্যামাউন্ট</th>
-                <th className="border border-gray-700 px-2 py-1">
+                  <th className="border px-2 py-1">নং.</th>
+                  <th className="border px-2 py-1">তারিখ</th>
+                  <th className="border px-2 py-1">গ্রাহক</th>
+                  <th className="border px-2 py-1">কাজের জায়গা</th>
+                  <th className="border px-2 py-1">লোড</th>
+                  <th className="border px-2 py-1">আনলোড</th>
+                  <th className="border px-2 py-1">ইকুইপমেন্ট</th>
+                  <th className="border px-2 py-1">অপারেটর/ড্রাইভার</th>
+                  <th className="border px-2 py-1">বিল অ্যামাউন্ট</th>
+                  <th className="border px-2 py-1">রিসিভড অ্যামাউন্ট</th>
+                  <th className="border border-gray-700 px-2 py-1">
                     {selectedCustomerName && (
                       <p className="text-sm font-medium text-gray-800">
-                        Opening অ্যামাউন্ট: ৳{dueAmount?.toFixed(2)}
+                        শুরুর ব্যালেন্স: ৳{dueAmount?.toFixed(2)}
                       </p>
                     )}
-                    Due 
+                    অবশিষ্ট ব্যালেন্স
                   </th>
-              </tr>
+                </tr>
               </thead>
               <tbody>
-  {(() => {
-    let cumulativeDue = dueAmount; // Opening balance
-    return filteredLedger.map((item, idx) => {
-      const billAmount = parseFloat(item.bill_amount || 0);
-      const receivedAmount = parseFloat(item.rec_amount || 0);
+                {(() => {
+                  let cumulativeDue = dueAmount; // Opening balance
+                  return filteredLedger.map((item, idx) => {
+                    const billAmount = parseFloat(item.bill_amount || 0);
+                    const receivedAmount = parseFloat(item.rec_amount || 0);
 
-      cumulativeDue += billAmount;
-      cumulativeDue -= receivedAmount;
+                    cumulativeDue += billAmount;
+                    cumulativeDue -= receivedAmount;
 
-      return (
-        <tr key={idx}>
-          <td className="border px-2 py-1">{idx + 1 }</td>
-          <td className="border px-2 py-1">{item.bill_date}</td>
-          <td className="border px-2 py-1">{item.customer_name}</td>
-          <td className="border px-2 py-1">
-            {item.load_point || <span className="flex justify-center items-center">--</span>}
-          </td>
-          <td className="border px-2 py-1">
-            {item.unload_point || <span className="flex justify-center items-center">--</span>}
-          </td>
-          <td className="border px-2 py-1">
-            {item.vehicle_no || <span className="flex justify-center items-center">--</span>}
-          </td>
-          <td className="border px-2 py-1">
-            {item.driver_name || <span className="flex justify-center items-center">--</span>}
-          </td>
-          <td className="border px-2 py-1">
-            {billAmount ? billAmount?.toFixed(2) : "--"}
-          </td>
-          <td className="border px-2 py-1">
-            {receivedAmount ? receivedAmount?.toFixed(2) : "--"}
-          </td>
-          <td className="border px-2 py-1">
-            {cumulativeDue?.toFixed(2)}
-          </td>
-        </tr>
-      );
-    });
-  })()}
-</tbody>
+                    return (
+                      <tr key={idx}>
+                        <td className="border px-2 py-1">{idx + 1}</td>
+                        <td className="border px-2 py-1">{(item.bill_date)}</td>
+                        <td className="border px-2 py-1">{item.customer_name}</td>
+                        <td className="border px-2 py-1">
+                          {item.working_area || <span className="flex justify-center items-center">--</span>}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.load_point || <span className="flex justify-center items-center">--</span>}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.unload_point || <span className="flex justify-center items-center">--</span>}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.vehicle_no || <span className="flex justify-center items-center">--</span>}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {item.driver_name || <span className="flex justify-center items-center">--</span>}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {billAmount ? billAmount?.toFixed(2) : "--"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {receivedAmount ? receivedAmount?.toFixed(2) : "--"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {cumulativeDue?.toFixed(2)}
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
+              </tbody>
 
-             <tfoot>
-  
-  {/* <tr className="font-bold bg-blue-100">
+              <tfoot>
+
+                {/* <tr className="font-bold bg-blue-100">
     <td colSpan={9} className="border border-black px-2 py-1 text-right">
       Final Due (Opening Due +)
     </td>
@@ -342,7 +357,7 @@ totals.due = totals.rent  - totals.rec_amount;
       ৳{grandDue?.toFixed(2)}
     </td>
   </tr> */}
-</tfoot>
+              </tfoot>
 
             </table>
 

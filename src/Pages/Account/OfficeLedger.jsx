@@ -39,7 +39,7 @@
 
 //   const [openingBalance, setOpeningBalance] = useState(0);
 //   let currentBalance = openingBalance;
-  
+
 //   useEffect(() => {
 //     axios
 //       .get(`${import.meta.env.VITE_BASE_URL}/api/office/list`)
@@ -90,7 +90,7 @@
 //   const calculateRunningBalance = () => {
 //     let runningBalance = openingBalance;
 //     // const allItems = filteredBranch.slice(0, offset + currentItems.length);
-    
+
 //     return filteredBranch.reduce((balance, item, idx) => {
 //       const expense = parseFloat(item.trip_expense) || 0;
 //       const cashOut = parseFloat(item.cash_out) || 0;
@@ -267,7 +267,7 @@
 //                 const cashOut = parseFloat(dt.cash_out) || 0;
 //                 const cashIn = parseFloat(dt.cash_in) || 0;
 //                 currentBalance += cashIn - cashOut - expense;
-                
+
 //                 return (
 //                   <tr key={index} className="hover:bg-gray-50 transition-all">
 //                     <td className="border border-gray-700 px-2 py-1 font-bold">
@@ -345,6 +345,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import ReactPaginate from "react-paginate";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const OfficeLedger = () => {
   const [branch, setbranch] = useState([]);
@@ -532,6 +533,20 @@ const OfficeLedger = () => {
                 </button>
               )}
             </div>
+            <div className="w-xs mt-3 md:mt-0 flex gap-2">
+              <button
+                onClick={() => {
+                  setCurrentPage(1)
+                  setShowFilter(false)
+                  setStartDate("")
+                  setEndDate("")
+                }
+                }
+                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <FaFilter /> মুছে ফেলুন
+              </button>
+            </div>
           </div>
         )}
 
@@ -544,8 +559,8 @@ const OfficeLedger = () => {
                   ক্লোজিং ব্যালেন্স:
                 </td>
                 <td className="border border-gray-700 px-2 py-2">
-                  {calculateRunningBalance() < 0 
-                    ? `(${Math.abs(calculateRunningBalance())})` 
+                  {calculateRunningBalance() < 0
+                    ? `(${Math.abs(calculateRunningBalance())})`
                     : calculateRunningBalance()}
                 </td>
               </tr>
@@ -568,11 +583,11 @@ const OfficeLedger = () => {
                 const cashOut = parseFloat(dt.cash_out) || 0;
                 const cashIn = parseFloat(dt.cash_in) || 0;
                 currentBalance += cashIn - cashOut - expense;
-                
+
                 return (
                   <tr key={index} className="hover:bg-gray-50 transition-all">
                     <td className="border border-gray-700 px-2 py-1 font-bold">{index}</td>
-                    <td className="border border-gray-700 px-2 py-1">{dt.date}</td>
+                    <td className="border border-gray-700 px-2 py-1">{tableFormatDate(dt.date)}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.remarks || "--"}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.mode || "--"}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.unload_point || "--"}</td>

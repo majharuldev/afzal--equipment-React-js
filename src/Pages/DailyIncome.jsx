@@ -384,13 +384,14 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaTruck, FaFilter, FaPen, FaFileExcel, FaFilePdf, FaPrint } from "react-icons/fa";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import { Link } from "react-router-dom";
+import { Link, renderMatches } from "react-router-dom";
 import { CSVLink } from "react-csv";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { saveAs } from "file-saver";
 import { Table, Input, Button } from "antd";
+import { tableFormatDate } from "../components/Shared/formatDate";
 
 const DailyIncome = () => {
   const [trips, setTrips] = useState([]);
@@ -502,8 +503,15 @@ const DailyIncome = () => {
 
   const columns = [
     { title: "#", dataIndex: "index", key: "index" },
-    { title: "তারিখ", dataIndex: "date", key: "date" },
-    { title: "গাড়ি", dataIndex: "vehicle_no", key: "vehicle_no" },
+    { title: "তারিখ", dataIndex: "date", key: "date",
+      render: (text) => tableFormatDate(text)
+     },
+    { title: "ইকুইপমেন্ট/গাড়ি", dataIndex: "vehicle_no", key: "vehicle_no" },
+    {
+      title: "কাজের জায়গা",
+      dataIndex: "working_area",
+      key: "working_area",
+    },
     { title: "লোড", dataIndex: "load_point", key: "load_point" },
     { title: "আনলোড", dataIndex: "unload_point", key: "unload_point" },
     { title: "ট্রিপের ভাড়া", dataIndex: "total_rent", key: "total_rent" },

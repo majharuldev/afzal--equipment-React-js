@@ -417,7 +417,7 @@ const DailyTripExpense = () => {
   const headers = [
     { label: "#", key: "index" },
     { label: "তারিখ", key: "date" },
-    { label: "গাড়ি নাম্বার", key: "vehicle_no" },
+    { label: "ইকুইপমেন্ট/গাড়ি", key: "vehicle_no" },
     { label: "ড্রাইভারের নাম", key: "driver_name" },
     { label: "ট্রিপ খরচ", key: "total_rent" },
     { label: "অন্যান্য খরচ", key: "total_exp" },
@@ -611,8 +611,8 @@ const DailyTripExpense = () => {
               <tr>
                 <th className="px-4 py-3">#</th>
                 <th className="px-4 py-3">তারিখ</th>
-                <th className="px-4 py-3">গাড়ি নাম্বার</th>
-                <th className="px-4 py-3">ড্রাইভারের নাম</th>
+                <th className="px-4 py-3">ইকুইপমেন্ট/গাড়ি নং</th>
+                <th className="px-4 py-3">অপারেটর/ড্রাইভার নাম</th>
                 <th className="px-4 py-3">ট্রিপ খরচ</th>
                 <th className="px-4 py-3">অন্যান্য খরচ</th>
                 <th className="px-4 py-3">মোট খরচ</th>

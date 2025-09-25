@@ -15,6 +15,7 @@ import { Link } from "react-router-dom"
 import BtnSubmit from "../components/Button/BtnSubmit"
 import { Button, Form, Input, Modal, Select, Table } from "antd"
 import { RiEditLine } from "react-icons/ri"
+import { tableFormatDate } from "../components/Shared/formatDate"
 
 const DailyExpense = () => {
   const [expenses, setExpenses] = useState([])
@@ -265,6 +266,7 @@ const DailyExpense = () => {
       title: "তারিখ",
       dataIndex: "date",
       key: "date",
+     render: (text) => tableFormatDate(text),
     },
     {
       title: "যাকে প্রদান",

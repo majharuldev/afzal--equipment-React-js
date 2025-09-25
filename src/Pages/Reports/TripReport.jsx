@@ -164,8 +164,8 @@ const TripReport = () => {
             <tr>
               <th className="px-2 py-3">SL</th>
               <th className="px-2 py-3">তারিখ</th>
-              <th className="px-2 py-3">ভ্যান / গাড়ি</th>
-              <th className="px-2 py-3">ড্রাইভার</th>
+              <th className="px-2 py-3">ইকুইপমেন্ট/গাড়ি</th>
+              <th className="px-2 py-3">অপারেটর/ড্রাইভার</th>
               <th className="px-2 py-3">লোড পয়েন্ট</th>
               <th className="px-2 py-3">আনলোড পয়েন্ট</th>
               <th className="px-2 py-3">ভাড়া</th>

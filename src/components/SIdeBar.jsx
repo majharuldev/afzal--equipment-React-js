@@ -219,6 +219,13 @@ const Sidebar = () => {
             : "",
         },
         {
+          key: "garage-recieve-amount",
+          label: <Link to="/tramessy/garage-recieve-amount">ভাড়া উত্তোলন</Link>,
+          className: isActive("/tramessy/garage-recieve-amount")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        {
           key: "garage-customer-ledger",
           label: <Link to="/tramessy/garage-customer-ledger">গ্যারেজ কাস্টমার লেজার</Link>,
           className: isActive("/tramessy/garage-customer-ledger")
@@ -342,7 +349,7 @@ const Sidebar = () => {
         {
           key: "driver-ledger",
           label: (
-            <Link to="/tramessy/account/DriverLedger">ড্রাইভার লেজার</Link>
+            <Link to="/tramessy/account/DriverLedger">অপারেটর লেজার</Link>
           ),
           className: isActive("/tramessy/account/DriverLedger")
             ? "ant-menu-item-selected"

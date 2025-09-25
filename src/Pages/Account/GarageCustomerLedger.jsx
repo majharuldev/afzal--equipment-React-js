@@ -370,7 +370,7 @@ const GarageCustomerLedger = () => {
             {/* Month Filter Section */}
             {showFilter && (
               <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-                <div className="w-[50%]">
+                <div className="w-full">
                   <div className="relative w-full">
                     <label className="text-primary text-sm font-semibold">
                       সিলেক্ট মাস
@@ -397,7 +397,7 @@ const GarageCustomerLedger = () => {
                   </div>
                 </div>
                 {/* select vendor */}
-                <div className="mt-3 md:mt-0 relative w-[50%]">
+                <div className="mt-3 md:mt-0 relative w-full">
                   <label className="text-primary text-sm font-semibold">
                     সিলেক্ট কাস্টমার
                   </label>
@@ -417,16 +417,17 @@ const GarageCustomerLedger = () => {
                   </select>
                   <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
                 </div>
-                <div className=" mt-7">
+                <div className="w-xs mt-6">
                   <button
                     onClick={() => {
                       setSelectedVendor("");
                       setSelectedMonth("");
                       setShowFilter(false);
                     }}
-                    className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                    className="bg-gradient-to-r from-primary to-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                   >
-                    Clear
+                    <FaFilter />
+                    মুছে ফেলুন
                   </button>
                 </div>
               </div>
@@ -459,7 +460,7 @@ const GarageCustomerLedger = () => {
                   <th className="border px-2 py-1">ক্রমিক.</th>
                   <th className="border px-2 py-1">তারিখ</th>
                   <th className="border px-2 py-1">মাস</th>
-                  <th className="border px-2 py-1">Vehicle</th>
+                  <th className="border px-2 py-1">ইকুইপমেন্ট</th>
                   <th className="border px-2 py-1">কাস্টমার</th>
                   <th className="border px-2 py-1">ভাড়া</th>
                   <th className="border px-2 py-1">অগ্রিম</th>

@@ -580,7 +580,7 @@ const DriverReport = () => {
   const columns = [
     { title: "ক্রম", dataIndex: "key", render: (_, __, index) => index + 1 },
     { title: "মাস", dataIndex: "month" },
-    { title: "ড্রাইভার", dataIndex: "name" },
+    { title: "অপারেটর/ড্রাইভার", dataIndex: "name" },
     { title: "মোবাইল", dataIndex: "mobile" },
     { title: "ট্রিপ", dataIndex: "totalTrips" },
     { title: "আয়", dataIndex: "totalRent" },

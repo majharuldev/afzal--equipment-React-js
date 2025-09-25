@@ -8,6 +8,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
 import { RiEditLine, RiHomeOfficeLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
+import { tableFormatDate } from "../../../components/Shared/formatDate";
 
 const Office = () => {
   const [office, setOffice] = useState([]);
@@ -72,6 +73,7 @@ const Office = () => {
     {
       title: "তারিখ",
       dataIndex: "date",
+      render: (text) => tableFormatDate(text),
     },
     {
       title: "শাখা",

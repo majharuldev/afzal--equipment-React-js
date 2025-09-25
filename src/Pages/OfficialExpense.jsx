@@ -560,7 +560,7 @@ const OfficialExpense = () => {
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Paid To"
+                      placeholder="প্রদত্ত ব্যক্তি"
                       value={formData.paid_to}
                       onChange={(e) =>
                         setFormData({ ...formData, paid_to: e.target.value })
@@ -582,7 +582,7 @@ const OfficialExpense = () => {
                     <input
                       type="number"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Amount"
+                      placeholder="পরিমাণ"
                       value={formData.pay_amount}
                       onChange={(e) =>
                         setFormData({ ...formData, pay_amount: e.target.value })
@@ -608,7 +608,7 @@ const OfficialExpense = () => {
                         })
                       }
                     >
-                      <option value="">Select category</option>
+                      <option value="">ক্যাটাগরি নির্বাচন করুন</option>
                       {salaryCategories.map((category) => (
                         <option key={category} value={category}>
                           {category}
@@ -631,7 +631,7 @@ const OfficialExpense = () => {
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Branch Name"
+                      placeholder="শাখার নাম"
                       value={formData.branch_name}
                       onChange={(e) =>
                         setFormData({
@@ -654,7 +654,7 @@ const OfficialExpense = () => {
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Remarks"
+                      placeholder="মন্তব্য"
                       value={formData.remarks}
                       onChange={(e) =>
                         setFormData({ ...formData, remarks: e.target.value })
@@ -671,9 +671,9 @@ const OfficialExpense = () => {
                   onClick={handleCancel}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  বাতিল করুন
                 </button>
-                <BtnSubmit loading={isSubmitting}>Submit</BtnSubmit>
+                <BtnSubmit loading={isSubmitting}>জমা দিন</BtnSubmit>
               </div>
             </form>
           </div>

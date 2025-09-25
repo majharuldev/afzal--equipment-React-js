@@ -6,6 +6,8 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FaFileExcel, FaFilePdf, FaFilter, FaPrint } from "react-icons/fa";
+import { toNumber } from "../../hooks/toNumber";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const DriverLedger = () => {
   const [driver, setDriver] = useState([]);
@@ -30,7 +32,7 @@ const DriverLedger = () => {
           const openingBalances = {};
           driverList.forEach((driver) => {
             openingBalances[driver.driver_name] =
-              Number(driver.opening_balance) || 0;
+              toNumber(driver.opening_balance) || 0;
           });
           setDriverOpeningBalances(openingBalances);
         }
@@ -136,15 +138,15 @@ const DriverLedger = () => {
     } = item;
 
     const totalExpense =
-      Number(labor) +
-      Number(parking_cost) +
-      Number(night_guard) +
-      Number(toll_cost) +
-      Number(feri_cost) +
-      Number(police_cost) +
-      Number(chada);
+      toNumber(labor) +
+      toNumber(parking_cost) +
+      toNumber(night_guard) +
+      toNumber(toll_cost) +
+      toNumber(feri_cost) +
+      toNumber(police_cost) +
+      toNumber(chada);
 
-    runningBalance += Number(driver_adv) - totalExpense;
+    runningBalance += toNumber(driver_adv) - totalExpense;
 
     return {
       ...item,
@@ -379,7 +381,7 @@ const DriverLedger = () => {
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-[#11375B] capitalize flex items-center gap-3">
-            ড্রাইভার লেজার : {selectedDriver || "All Drivers"}{" "}
+            অপারেটর/ড্রাইভার লেজার : {selectedDriver || "অপারেটর/ড্রাইভার"}{" "}
             {selectedMonth && `(${selectedMonth})`}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
@@ -416,7 +418,7 @@ const DriverLedger = () => {
         {/* Month Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="w-[50%]">
+            <div className="w-full">
               <div className="relative w-full">
                 <label className="text-primary text-sm font-semibold">
                   মাস বাছাই
@@ -451,10 +453,10 @@ const DriverLedger = () => {
               </div>
             </div>
             {/* Driver dropdown */}
-            <div className="w-[50%]">
+            <div className="w-full">
               <div className="relative w-full">
                 <label className="text-primary text-sm font-semibold">
-                  ড্রাইভার নির্বাচন করুন
+                  অপারেটর/ড্রাইভার নির্বাচন করুন
                 </label>
                 <select
                   value={selectedDriver}
@@ -471,6 +473,16 @@ const DriverLedger = () => {
                 <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
               </div>
             </div>
+             <button
+                 onClick={() => {
+    setSelectedDriver("");
+    setSelectedMonth("");   
+    setShowFilter(false);    
+  }}
+                className="w-[12rem] mt-6 bg-gradient-to-r from-primary to-primary text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                 মুছে ফেলুন
+              </button>
           </div>
         )}
 
@@ -493,7 +505,7 @@ const DriverLedger = () => {
           <table className="min-w-full text-sm text-left text-gray-900">
             <thead>
               <tr className="font-bold bg-gray-100">
-                <td colSpan={14} className="border px-2 py-1">
+                <td colSpan={15} className="border px-2 py-1">
                   <div className="flex justify-between">
                     <span>Final Balance (After TADA Deduction):</span>
                     <span>
@@ -509,7 +521,7 @@ const DriverLedger = () => {
                 <th rowSpan="2" className="border px-2 py-1">
                   তারিখ
                 </th>
-                <th colSpan="3" className="border py-1">
+                <th colSpan="4" className="border py-1">
                   বিবরণ
                 </th>
                 <th rowSpan="2" className="border px-2 py-1">
@@ -529,6 +541,7 @@ const DriverLedger = () => {
                 </th>
               </tr>
               <tr>
+                <th className="border px-2 py-1">কাজের জায়গা</th>
                 <th className="border px-2 py-1">লোড</th>
                 <th className="border px-2 py-1">আনলোড</th>
                 <th className="border px-2 py-1">কমিশন</th>
@@ -545,19 +558,26 @@ const DriverLedger = () => {
             <tbody className="overflow-x-auto">
               {rowsWithBalance.map((item, index) => (
                 <tr key={index}>
-                  <td className="border px-2 py-1">{item.date}</td>
-                  <td className="border px-2 py-1">{item.load_point}</td>
-                  <td className="border px-2 py-1">{item.unload_point}</td>
-                  <td className="border px-2 py-1">{item.driver_commission}</td>
-                  <td className="border px-2 py-1">{item.driver_adv}</td>
-                  <td className="border px-2 py-1">{item.labor}</td>
-                  <td className="border px-2 py-1">{item.parking_cost}</td>
-                  <td className="border px-2 py-1">{item.night_guard}</td>
-                  <td className="border px-2 py-1">{item.toll_cost}</td>
-                  <td className="border px-2 py-1">{item.feri_cost}</td>
-                  <td className="border px-2 py-1">{item.police_cost}</td>
-                  <td className="border px-2 py-1">{item.chada}</td>
-                  <td className="border px-2 py-1">{item.totalExpense}</td>
+                  <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
+                  <td className="border px-2 py-1">
+            {item.working_area || <span className="flex justify-center items-center">--</span>}
+          </td>
+                 <td className="border px-2 py-1">
+            {item.load_point || <span className="flex justify-center items-center">--</span>}
+          </td>
+                  <td className="border px-2 py-1">
+            {item.unload_point || <span className="flex justify-center items-center">--</span>}
+          </td>
+                  <td className="border px-2 py-1">{toNumber(item.driver_commission)}</td>
+                  <td className="border px-2 py-1">{toNumber( )}</td>
+                  <td className="border px-2 py-1">{toNumber(item.labor)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.parking_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.night_guard)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.toll_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.feri_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.police_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.chada)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.totalExpense)}</td>
                   <td className="border px-2 py-1">
                     {item.balance < 0
                       ? `(${Math.abs(item.balance)})`
@@ -569,7 +589,7 @@ const DriverLedger = () => {
 
             <tfoot>
               <tr className="font-bold bg-gray-100">
-                <td colSpan={3} className="border px-2 py-1 text-right">
+                <td colSpan={4} className="border px-2 py-1 text-right">
                   Total:
                 </td>
                 <td className="border px-2 py-1">{footerTotals.commission}</td>
@@ -589,7 +609,7 @@ const DriverLedger = () => {
               {selectedDriver && tadaAmounts[selectedDriver] && (
                 <>
                   <tr className="font-bold bg-gray-100">
-                    <td colSpan={14} className="border px-2 py-1">
+                    <td colSpan={15} className="border px-2 py-1">
                       <div className="flex justify-between">
                         <span>Balance:</span>
                         <span>
@@ -602,7 +622,7 @@ const DriverLedger = () => {
                     </td>
                   </tr>
                   <tr className="font-bold bg-gray-100">
-                    <td colSpan={14} className="border px-2 py-1">
+                    <td colSpan={15} className="border px-2 py-1">
                       <div className="flex justify-between">
                         <span> খোরাকি:</span>
                         <span>
@@ -613,7 +633,7 @@ const DriverLedger = () => {
                     </td>
                   </tr>
                   <tr className="font-bold bg-gray-100">
-                    <td colSpan={14} className="border px-2 py-1">
+                    <td colSpan={15} className="border px-2 py-1">
                       <div className="flex justify-between">
                         <span>ড্রাইভারের কমিশন:</span>
                         <span>{footerTotals.commission} BDT</span>
@@ -621,7 +641,7 @@ const DriverLedger = () => {
                     </td>
                   </tr>
                   <tr className="font-bold bg-gray-100">
-                    <td colSpan={14} className="border px-2 py-1">
+                    <td colSpan={15} className="border px-2 py-1">
                       <div className="flex justify-between">
                         <span>চূড়ান্ত ব্যালেন্স (টিএডিএ কেটে নেওয়ার পরে)</span>
                         <span>
@@ -639,7 +659,7 @@ const DriverLedger = () => {
               {/* Final Balance Row when no driver is selected */}
               {!selectedDriver && (
                 <tr className="font-bold bg-gray-100">
-                  <td colSpan={3} className="border px-2 py-1 text-right">
+                  <td colSpan={4} className="border px-2 py-1 text-right">
                     Final Balance:
                   </td>
                   <td colSpan={11} className="border px-8 py-1 text-right">

@@ -312,7 +312,7 @@ const TripList = () => {
       ),
     },
      {
-      title: "ইকুইপমেন্ট নম্বর",
+      title: "ইকুইপমেন্ট নং",
       key: "vehicle_no",
       render: (_, record) => (
         <div>
@@ -331,6 +331,11 @@ const TripList = () => {
           <div>কমিশন: {record.driver_commission || "0"}</div> */}
         </div>
       ),
+    },
+    {
+      title: "কাজের জায়গা",
+      dataIndex: "working_area",
+      key: "working_area",
     },
     {
       title: "লোডিং পয়েন্ট",

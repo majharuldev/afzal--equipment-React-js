@@ -328,7 +328,7 @@ export default function VehicleProfitReport() {
 
   const columns = useMemo(() => [
     { title: "তারিখ", dataIndex: "date", key: "date", render: (text) => tableFormatDate(text) },
-    { title: "গাড়ির নাম্বার", dataIndex: "vehicle_no", key: "vehicle_no", render: (text) => <b>{text}</b> },
+    { title: "ইকুইপমেন্ট/গাড়ি", dataIndex: "vehicle_no", key: "vehicle_no", render: (text) => <b>{text}</b> },
     { title: "ট্রিপ সংখ্যা", dataIndex: "trip_count", key: "trip_count" },
     { title: "ভাড়া", dataIndex: "total_revenue", key: "total_revenue", render: (value) => value.toLocaleString() },
     { title: "ট্রিপ খরচ", dataIndex: "trip_expenses", key: "trip_expenses", render: (value) => value.toLocaleString() },

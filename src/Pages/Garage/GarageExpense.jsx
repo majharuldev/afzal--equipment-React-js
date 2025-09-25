@@ -371,12 +371,18 @@ const GarageExpense = () => {
                 className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
               />
             </div>
-            <div className="mt-3 md:mt-0 flex gap-2">
+            <div className="w-xs mt-3 md:mt-0 flex gap-2">
               <button
-                onClick={() => setCurrentPage(1)}
+                onClick={() => {
+                  setCurrentPage(1)
+                  setShowFilter(false)
+                  setStartDate("")
+                  setEndDate("")
+                }
+                }
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> ফিল্টার
+                <FaFilter /> মুছে ফেলুন
               </button>
             </div>
           </div>
@@ -523,7 +529,7 @@ const GarageExpense = () => {
             {/* Modal Header */}
             <div className="flex justify-between items-center p-5 ">
               <h2 className="text-lg font-semibold text-gray-900">
-                {editingId ? "Update Daily Expense" : " দৈনিক অফিস খরচ"}
+                {editingId ? "আপডেট গ্যারেজ খরচ" : " দৈনিক গ্যারেজ খরচ"}
               </h2>
               <button
                 onClick={handleCancel}
@@ -560,7 +566,7 @@ const GarageExpense = () => {
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Paid To"
+                      placeholder="প্রদত্ত ব্যক্তি"
                       value={formData.paid_to}
                       onChange={(e) =>
                         setFormData({ ...formData, paid_to: e.target.value })
@@ -582,7 +588,7 @@ const GarageExpense = () => {
                     <input
                       type="number"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Amount"
+                      placeholder="পরিমাণ"
                       value={formData.pay_amount}
                       onChange={(e) =>
                         setFormData({ ...formData, pay_amount: e.target.value })
@@ -608,7 +614,7 @@ const GarageExpense = () => {
                         })
                       }
                     >
-                      <option value="">Select category</option>
+                      <option value="">ক্যাটাগরি</option>
                       {salaryCategories.map((category) => (
                         <option key={category} value={category}>
                           {category}
@@ -631,7 +637,7 @@ const GarageExpense = () => {
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Branch Name"
+                      placeholder="শাখার নাম"
                       value={formData.branch_name}
                       onChange={(e) =>
                         setFormData({
@@ -654,7 +660,7 @@ const GarageExpense = () => {
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Remarks"
+                      placeholder="মন্তব্য"
                       value={formData.remarks}
                       onChange={(e) =>
                         setFormData({ ...formData, remarks: e.target.value })
@@ -669,11 +675,11 @@ const GarageExpense = () => {
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="mt-5 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  বাতিল করুন
                 </button>
-                <BtnSubmit loading={isSubmitting}>Submit</BtnSubmit>
+                <BtnSubmit loading={isSubmitting}>জমা দিন</BtnSubmit>
               </div>
             </form>
           </div>

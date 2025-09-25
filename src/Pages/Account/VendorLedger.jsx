@@ -692,14 +692,14 @@ const VendorLedger = () => {
         <div className="overflow-x-auto max-w-5xl mx-auto">
           <div className="md:flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-[#11375B] capitalize">
-              Vendor Ledger: {selectedVendor || "All Vendors"}
+              ভেন্ডর লেজার: {selectedVendor || "সকল ভেন্ডর"}
             </h1>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => setShowFilter((prev) => !prev)}
                 className="text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 cursor-pointer"
               >
-                <FaFilter /> Filter
+                <FaFilter /> ফিল্টার
               </button>
             </div>
           </div>
@@ -710,21 +710,21 @@ const VendorLedger = () => {
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaFileExcel className="" />
-                Excel
+                এক্সেল
               </button>
               <button
                 onClick={exportToPDF}
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaFilePdf className="" />
-                PDF
+                পিডিএফ
               </button>
               <button
                 onClick={printTable}
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaPrint className="" />
-                Print
+                প্রিন্ট
               </button>
             </div>
           </div>
@@ -735,14 +735,14 @@ const VendorLedger = () => {
                 <div className="w-[50%]">
                   <div className="relative w-full">
                     <label className="text-primary text-sm font-semibold">
-                      Select Month
+                      মাস নির্বাচন করুন
                     </label>
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(e.target.value)}
                       className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
                     >
-                      <option value="">All Months</option>
+                      <option value="">সকল মাস</option>
                       {availableMonths.map((month, idx) => {
                         const [year, monthNum] = month.split("-");
                         const date = new Date(`${month}-01`);
@@ -761,7 +761,7 @@ const VendorLedger = () => {
                 {/* select vendor */}
                 <div className="mt-3 md:mt-0 relative w-[50%]">
                   <label className="text-primary text-sm font-semibold">
-                    Select Vendor
+                    ভেন্ডর নির্বাচন করুন
                   </label>
                   <select
                     value={selectedVendor}
@@ -770,7 +770,7 @@ const VendorLedger = () => {
                     }}
                     className="mt-1 w-full text-gray-600 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
                   >
-                    <option value="">All Vendors</option>
+                    <option value="">সকল ভেন্ডর</option>
                     {vendorList.map((vendor, idx) => (
                       <option key={idx} value={vendor.vendor_name}>
                         {vendor.vendor_name}
@@ -786,9 +786,9 @@ const VendorLedger = () => {
                       setSelectedMonth("");
                       setShowFilter(false);
                     }}
-                    className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                    className="bg-gradient-to-r from-primary to-primary text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                   >
-                    Clear
+                    মুছে ফেলুন
                   </button>
                 </div>
               </div>
@@ -799,7 +799,7 @@ const VendorLedger = () => {
               <thead className="bg-gray-100">
                 <tr className="font-bold bg-gray-100">
                   <td colSpan={7} className="border px-2 py-1 text-right">
-                    TOTAL:
+                    মোট:
                   </td>
                   <td className="border px-2 py-1">{totals.rent}</td>
                   <td className="border px-2 py-1">{totals.advance}</td>
@@ -818,21 +818,21 @@ const VendorLedger = () => {
                   </td>
                 </tr>
                 <tr>
-                  <th className="border px-2 py-1">SL.</th>
-                  <th className="border px-2 py-1">Date</th>
-                  <th className="border px-2 py-1">Vendor</th>
-                  <th className="border px-2 py-1">Load</th>
-                  <th className="border px-2 py-1">Unload</th>
-                  <th className="border px-2 py-1">Vehicle</th>
-                  <th className="border px-2 py-1">Driver</th>
-                  <th className="border px-2 py-1">Trip Rent</th>
-                  <th className="border px-2 py-1">Advance</th>
-                  <th className="border px-2 py-1">Pay Amount</th>
+                  <th className="border px-2 py-1">ক্রমিক</th>
+                  <th className="border px-2 py-1">তারিখ</th>
+                  <th className="border px-2 py-1">ভেন্ডর</th>
+                  <th className="border px-2 py-1">লোড</th>
+                  <th className="border px-2 py-1">আনলোড</th>
+                  <th className="border px-2 py-1">ইকুইপমেন্ট</th>
+                  <th className="border px-2 py-1">অপারেটর/ড্রাইভার</th>
+                  <th className="border px-2 py-1">ভাড়া</th>
+                  <th className="border px-2 py-1">অগ্রিম</th>
+                  <th className="border px-2 py-1">পরিশোধ</th>
                   <th className="border px-2 py-1">
-                    Due{" "}
+                    বাকি{" "}
                     {selectedVendor && (
                       <p className="text-xs text-gray-600 font-normal">
-                        Opening Balance: {openingBalance.toFixed(2)}
+                        উদ্বোধনী ব্যালেন্স: {openingBalance.toFixed(2)}
                       </p>
                     )}
                   </th>

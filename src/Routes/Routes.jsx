@@ -100,6 +100,7 @@ import GarageCustomerForm from "../Pages/Garage/GarageCustomerForm";
 import GarageCustomer from "../Pages/Garage/GarageCustomer";
 import GarageExpense from "../Pages/Garage/GarageExpense";
 import GarageCustomerLedger from "../Pages/Account/GarageCustomerLedger";
+import GarageReceiveAmount from "../Pages/Garage/GarageReceiveAmount";
 
 export const router = createBrowserRouter([
   {
@@ -578,6 +579,7 @@ export const router = createBrowserRouter([
       { path: "/tramessy/GarageCustomerForm/update/:id", element: <GarageCustomerForm />},
       { path: "/tramessy/garage-expense", element: <GarageExpense /> },
       { path: "/tramessy/garage-customer-ledger", element: <GarageCustomerLedger /> },
+      { path: "/tramessy/garage-recieve-amount", element: <GarageReceiveAmount /> },
       // Reports
       {
         path: "/tramessy/Reports/Employee-Report",
