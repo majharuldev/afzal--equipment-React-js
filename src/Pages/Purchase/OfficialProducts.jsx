@@ -1,17 +1,20 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FaEye, FaFilter, FaPen, FaPlus, FaUserSecret } from "react-icons/fa";
+import { FaEye, FaFileExcel, FaFilePdf, FaFilter, FaPen, FaPlus, FaPrint, FaUserSecret } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Table, Modal, Button, Input, DatePicker } from "antd";
+import { Table, Modal, Button, Input } from "antd";
 
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import { RiEditLine } from "react-icons/ri";
-
-const { RangePicker } = DatePicker;
+import DatePicker from "react-datepicker";
+// import "react-datepicker/dist/react-datepicker.css";
+// import { registerLocale } from "react-datepicker";
+// import enGB from "date-fns/locale/en-GB";
+// registerLocale("en-GB", enGB);
 
 const OfficialProducts = () => {
     const [purchase, setPurchase] = useState([]);
@@ -24,7 +27,7 @@ const OfficialProducts = () => {
     const [dateRange, setDateRange] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);   
+    const [endDate, setEndDate] = useState(null);
 
     useEffect(() => {
         axios
@@ -234,60 +237,66 @@ const OfficialProducts = () => {
                     </div>
                 </div>
 
-                 {/* Conditional Filter Section */}
-        {showFilter && (
-          <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="flex-1 min-w-0">
-                         <DatePicker
-                           selected={startDate}
-                           onChange={(date) => setStartDate(date)}
-                           selectsStart
-                           startDate={startDate}
-                           endDate={endDate}
-                           dateFormat="dd/MM/yyyy"
-                           placeholderText="DD/MM/YYYY"
-                           locale="en-GB"
-                           className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-                           isClearable
-                         />
-                       </div>
-           
-                       <div className="flex-1 min-w-0">
-                         <DatePicker
-                           selected={endDate}
-                           onChange={(date) => setEndDate(date)}
-                           selectsEnd
-                           startDate={startDate}
-                           endDate={endDate}
-                           minDate={startDate}
-                           dateFormat="dd/MM/yyyy"
-                           placeholderText="DD/MM/YYYY"
-                           locale="en-GB"
-                           className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-                           isClearable
-                         />
-                       </div>
-           
-            <div className="">
-              <button
-                onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                  setVehicleFilter("");
-                  setShowFilter(false);
-                }}
-                className="bg-gradient-to-r from-primary to-blue-600 text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-              >
-                <FaFilter /> Clear 
-              </button>
-            </div>
-          </div>
-        )}
+                {/* Conditional Filter Section */}
+                {showFilter && (
+                    <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+                        <div className="flex-1 min-w-0">
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                selectsStart
+                                startDate={startDate}
+                                endDate={endDate}
+                                dateFormat="dd/MM/yyyy"
+                                placeholderText="শুরুর তারিখ"
+                                locale="en-GB"
+                                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                                isClearable
+                            />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                selectsEnd
+                                startDate={startDate}
+                                endDate={endDate}
+                                minDate={startDate}
+                                dateFormat="dd/MM/yyyy"
+                                placeholderText="শেষ তারিখ"
+                                locale="en-GB"
+                                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                                isClearable
+                            />
+                        </div>
+
+                        <div className="">
+                            <button
+                                onClick={() => {
+                                    setStartDate("");
+                                    setEndDate("");
+                                    setVehicleFilter("");
+                                    setShowFilter(false);
+                                }}
+                                className="bg-gradient-to-r from-primary to-blue-600 text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                            >
+                                <FaFilter /> মুছে ফেলুন
+                            </button>
+                        </div>
+                    </div>
+                )}
                 <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
                     <div className="flex gap-2 flex-wrap">
-                        <Button onClick={exportExcel}>এক্সেল</Button>
-                        <Button onClick={exportPDF}>পিডিএফ</Button>
-                        <Button onClick={printTable}>প্রিন্ট</Button>
+                        <Button icon={<FaFileExcel />} onClick={exportExcel}
+                            type="primary"
+                            className="!py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-green-200 hover:!text-white">এক্সেল</Button>
+                        <Button icon={<FaFilePdf />} onClick={exportPDF}
+                            type="primary"
+                            className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-amber-200 hover:!text-white">পিডিএফ</Button>
+                        <Button icon={<FaPrint />} onClick={printTable}
+                            type="primary"
+                            className=" !text-primary !py-2 !px-5 hover:!bg-primary !bg-gray-50 !shadow-md !shadow-blue-200 hover:!text-white">প্রিন্ট</Button>
                     </div>
                     <Input
                         placeholder="পণ্য অনুসন্ধান করুন..."
@@ -300,7 +309,6 @@ const OfficialProducts = () => {
                         style={{ width: 250 }}
                     />
                 </div>
-
 
                 <Table
                     dataSource={currentPurchase}
@@ -315,6 +323,7 @@ const OfficialProducts = () => {
                         showQuickJumper: true,
                         position: ['bottomCenter'],
                     }}
+                    scroll={{ x: "max-content" }}
                 />
 
                 <Modal

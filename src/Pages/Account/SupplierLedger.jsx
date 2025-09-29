@@ -234,7 +234,7 @@
 //               <FaFileExcel className="" />
 //               Excel
 //             </button>
-          
+
 //             <button
 //               onClick={exportSuppliersToPDF}
 //               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -242,7 +242,7 @@
 //               <FaFilePdf className="" />
 //               PDF
 //             </button>
-          
+
 //             <button
 //               onClick={printTable}
 //               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -394,6 +394,9 @@ import { MdOutlineArrowDropDown } from "react-icons/md";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FaFilter } from "react-icons/fa6";
+import { Button } from "antd";
+import DatePicker from "react-datepicker";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const SupplierLedger = () => {
   const [supplier, setSupplier] = useState([]);
@@ -437,8 +440,8 @@ const SupplierLedger = () => {
       totalPurchase += purchase;
       totalPayment += payment;
 
-      return { 
-        ...dt, 
+      return {
+        ...dt,
         balance: runningBalance,
         purchase_amount: purchase,
         pay_amount: payment
@@ -597,26 +600,56 @@ const SupplierLedger = () => {
         </div>
 
         {showFilter && (
-          <div className="flex flex-wrap gap-4 border border-gray-300 rounded-md p-5 mb-4">
-            <div className="relative w-full md:w-auto flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">শুরুর তারিখ</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"/>
-              {startDate && <button onClick={() => setStartDate("")} className="absolute right-8 top-[1.8rem] text-gray-600 hover:text-gray-900" type="button">&times;</button>}
-            </div>
-            <div className="relative w-full md:w-auto flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">শেষ তারিখ (ঐচ্ছিক)</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} min={startDate} className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"/>
-              {endDate && <button onClick={() => setEndDate("")} className="absolute right-8 top-[1.8rem] text-gray-600 hover:text-gray-900" type="button">&times;</button>}
-            </div>
-            <div className="relative w-full md:w-auto flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">সাপ্লায়ার</label>
+          <div className="md:flex items-center gap-4 border border-gray-300 rounded-md p-5 mb-4">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শুরুর তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শেষ তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            
+            <div className="w-full">
               <select value={selectedSupplier} onChange={(e) => setSelectedSupplier(e.target.value)} className="w-full text-gray-700 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none">
                 <option value="">সকল সাপ্লায়ার</option>
                 {supplierNames.map((name, idx) => <option key={idx} value={name}>{name}</option>)}
               </select>
-              <MdOutlineArrowDropDown className="absolute top-9 right-2 pointer-events-none text-xl text-gray-500"/>
+              <MdOutlineArrowDropDown className="absolute top-9 right-2 pointer-events-none text-xl text-gray-500" />
             </div>
+            <Button
+              type="primary"
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+                setShowFilter(false);
+                setCurrentPage(1);
+              }}
+              icon={<FaFilter />}
+              className="!bg-primary !text-white"
+            >
+              মুছে ফেলুন
+            </Button>
           </div>
+          
         )}
 
         <div id="supplier-ledger-table" className="w-full mt-5 overflow-x-auto border border-gray-200">
@@ -647,7 +680,7 @@ const SupplierLedger = () => {
                 processedLedger.map((dt, index) => (
                   <tr key={index} className="hover:bg-gray-50 transition-all">
                     <td className="border border-gray-700 px-2 py-1 font-bold">{index + 1}.</td>
-                    <td className="border border-gray-700 px-2 py-1">{dt.date}</td>
+                    <td className="border border-gray-700 px-2 py-1">{tableFormatDate(dt.date)}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.supplier_name}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.remarks}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.mode}</td>

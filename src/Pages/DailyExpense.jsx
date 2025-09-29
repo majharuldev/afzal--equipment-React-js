@@ -16,6 +16,7 @@ import BtnSubmit from "../components/Button/BtnSubmit"
 import { Button, Form, Input, Modal, Select, Table } from "antd"
 import { RiEditLine } from "react-icons/ri"
 import { tableFormatDate } from "../components/Shared/formatDate"
+import DatePicker from "react-datepicker"
 
 const DailyExpense = () => {
   const [expenses, setExpenses] = useState([])
@@ -266,7 +267,7 @@ const DailyExpense = () => {
       title: "তারিখ",
       dataIndex: "date",
       key: "date",
-     render: (text) => tableFormatDate(text),
+      render: (text) => tableFormatDate(text),
     },
     {
       title: "যাকে প্রদান",
@@ -341,14 +342,14 @@ const DailyExpense = () => {
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-cyan-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FileText size={16} />
-              CSV
+              সিএসভি
             </button>
             <button
               onClick={exportExcel}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFileExcel className="" />
-              Excel
+              এক্সেল
             </button>
 
             <button
@@ -356,7 +357,7 @@ const DailyExpense = () => {
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
-              PDF
+              পিডিএফ
             </button>
 
             <button
@@ -364,7 +365,7 @@ const DailyExpense = () => {
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaPrint className="" />
-              Print
+              প্রিন্ট
             </button>
           </div>
           {/* search */}
@@ -383,28 +384,43 @@ const DailyExpense = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="শুরুর তারিখ"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
 
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="শেষ তারিখ"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
-                onClick={() => setCurrentPage(1)}
+                onClick={() => {setCurrentPage(1)
+                  setShowFilter(false)
+                  setStartDate("")
+                  setEndDate("")
+                }}
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 <FaFilter /> মুছে ফেলুন
@@ -419,7 +435,14 @@ const DailyExpense = () => {
           dataSource={filteredExpense}
           loading={loading}
           rowKey="id"
-          pagination={false}
+          pagination={{
+            current: currentPage,
+            pageSize: itemsPerPage,
+            total: filteredData.length,
+            onChange: (page) => setCurrentPage(page),
+            showSizeChanger: false,
+            position: ['bottomCenter'],
+          }}
           locale={{
             emptyText: "কোন ব্যয়ের তথ্য পাওয়া যায়নি",
           }}

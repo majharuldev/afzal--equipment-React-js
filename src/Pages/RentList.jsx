@@ -209,7 +209,7 @@ const RentList = () => {
     { title: "রেজি. নম্বর", dataIndex: "registration_number", key: "registration_number" },
     { title: "অবস্থা", dataIndex: "status", key: "status" },
     {
-      title: "কার্যকলাপ",
+      title: "অ্যাকশন",
       key: "action",
       render: (_, record) => (
         <Space>
@@ -343,6 +343,7 @@ const RentList = () => {
             showSizeChanger: false,
             position: ['bottomCenter'],
           }}
+          scroll={{ x: "max-content" }}
         />
       </div>
       {/* Delete modal */}

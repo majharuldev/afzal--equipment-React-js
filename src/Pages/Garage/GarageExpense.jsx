@@ -27,6 +27,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { FaPlus } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import BtnSubmit from "../../components/Button/BtnSubmit";
+import DatePicker from "react-datepicker";
 
 const GarageExpense = () => {
   const [expenses, setExpenses] = useState([]);
@@ -352,25 +353,32 @@ const GarageExpense = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শুরুর তারিখ"
+              locale="en-GB"
+              className="w-full p-2 border border-gray-300 rounded text-sm"
+              isClearable
+            />
 
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শেষ তারিখ"
+              locale="en-GB"
+              className="w-full p-2 border border-gray-300 rounded text-sm"
+              isClearable
+            />
             <div className="w-xs mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {

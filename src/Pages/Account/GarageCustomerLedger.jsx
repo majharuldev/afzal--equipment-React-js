@@ -337,7 +337,7 @@ const GarageCustomerLedger = () => {
                 onClick={() => setShowFilter((prev) => !prev)}
                 className="text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 cursor-pointer"
               >
-                <FaFilter /> Filter
+                <FaFilter /> ফিল্টার
               </button>
             </div>
           </div>
@@ -348,21 +348,21 @@ const GarageCustomerLedger = () => {
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaFileExcel className="" />
-                Excel
+                এক্সেল
               </button>
               <button
                 onClick={exportToPDF}
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaFilePdf className="" />
-                PDF
+                পিডিএফ
               </button>
               <button
                 onClick={printTable}
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaPrint className="" />
-                Print
+                প্রিন্ট
               </button>
             </div>
           </div>

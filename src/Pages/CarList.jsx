@@ -299,7 +299,7 @@ const CarList = () => {
       <Toaster />
       <Card
         title={
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 !border-b-none">
             <FaTruck className="text-primary text-2xl" />
             <span className="text-primary font-bold">ইকুইপমেন্ট তালিকা</span>
           </div>
@@ -318,23 +318,28 @@ const CarList = () => {
             <Button
               onClick={exportExcel}
               icon={<FaFileExcel />}
-              className="flex items-center"
+              type="primary"
+              className="!py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-green-200 hover:!text-white"
+
             >
-              Excel
+              এক্সেল
             </Button>
             <Button
               onClick={exportPDF}
               icon={<FaFilePdf />}
-              className="flex items-center"
+              type="primary"
+            className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-amber-200 hover:!text-white"
+
             >
-              PDF
+             পিডিএফ
             </Button>
             <Button
               onClick={printTable}
               icon={<FaPrint />}
-              className="flex items-center"
+              type="primary"
+              className=" !text-primary !py-2 !px-5 hover:!bg-primary !bg-gray-50 !shadow-md !shadow-blue-200 hover:!text-white"
             >
-              Print
+              প্রিন্ট
             </Button>
           </Space>
           
@@ -376,6 +381,7 @@ const CarList = () => {
               </div>
             ),
           }}
+          scroll={{ x: "max-content" }}
         />
       </Card>
 

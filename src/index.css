@@ -317,3 +317,8 @@ input[type="date"].remove-date-icon::-moz-focusring {
   border-radius: 0.375rem;
   font-size: 0.875rem;
 }
+
+/* antd card tiltle border off */
+:where(.css-dev-only-do-not-override-l9pxc0).ant-card .ant-card-head{
+  border-bottom: none !important;
+}

@@ -6,6 +6,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { BiTrip } from "react-icons/bi";
+import { Button } from "antd";
+import DatePicker from "react-datepicker";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const TripReport = () => {
   const [trips, setTrips] = useState([]);
@@ -15,6 +18,7 @@ const TripReport = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // trips data fetch
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_BASE_URL}/api/trip/list`)
@@ -30,6 +34,7 @@ const TripReport = () => {
       });
   }, []);
 
+  // filter trips by date range
   const filteredTrips = trips.filter((trip) => {
     const tripDate = new Date(trip.date);
     const start = startDate ? new Date(startDate) : null;
@@ -41,6 +46,7 @@ const TripReport = () => {
   const totalExpense = filteredTrips.reduce((sum, t) => sum + Number(t.total_exp || 0), 0);
   const totalProfit = totalRent - totalExpense;
 
+  // excel export function
   const exportToExcel = () => {
     const data = filteredTrips.map((t, i) => ({
       SL: i + 1,
@@ -59,6 +65,7 @@ const TripReport = () => {
     XLSX.writeFile(wb, "Trip_Report.xlsx");
   };
 
+  // pdf export function
   const exportToPDF = () => {
     const doc = new jsPDF("landscape");
     const tableColumn = ["SL", "তারিখ", "ভ্যান / গাড়ি", "ড্রাইভার", "লোড পয়েন্ট", "আনলোড পয়েন্ট", "ভাড়া", "ব্যয়", "লাভ"];
@@ -77,6 +84,7 @@ const TripReport = () => {
     doc.save("Trip_Report.pdf");
   };
 
+  // print function
   const printReport = () => {
     const content = document.getElementById("trip-table").outerHTML;
     const printWindow = window.open("", "", "width=900,height=650");
@@ -144,17 +152,45 @@ const TripReport = () => {
 
       {showFilter && (
         <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5 justify-center items-center">
-          <div className="relative w-full">
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none" />
-          </div>
-          <div className="relative w-full">
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none" />
-          </div>
-          <div className="mt-3 md:mt-0 flex gap-2">
-            <button onClick={() => setCurrentPage(1)} className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-              <FaFilter /> ফিল্টার
-            </button>
-          </div>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="শুরুর তারিখ"
+            locale="en-GB"
+            className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+            isClearable
+          />
+
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="শেষ তারিখ"
+            locale="en-GB"
+            className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+            isClearable
+          />
+          <Button
+            type="primary"
+            onClick={() => {
+              setStartDate("");
+              setEndDate("");
+              setVehicleFilter("");
+              setShowFilter(false);
+            }}
+            icon={<FaFilter />}
+            className="!bg-primary !text-white"
+          >
+            মুছে ফেলুন
+          </Button>
         </div>
       )}
 
@@ -184,7 +220,7 @@ const TripReport = () => {
               currentTripsReport.map((t, i) => (
                 <tr key={i} className="text-gray-700">
                   <td className="px-2 py-3">{i + 1}</td>
-                  <td className="px-2 py-3">{t.date}</td>
+                  <td className="px-2 py-3">{tableFormatDate(t.date)}</td>
                   <td className="px-2 py-3">{t.vehicle_no}</td>
                   <td className="px-2 py-3">{t.driver_name}</td>
                   <td className="px-2 py-3">{t.load_point}</td>

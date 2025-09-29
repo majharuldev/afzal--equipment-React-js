@@ -787,23 +787,24 @@ const Bill = () => {
  const body = [
   ["ক্রমিক", "তারিখ", "গাড়ি নং", "চালান নং", "সি এফ টি", "দর", "বিলের টাকা", "অবস্থা"],
   ...selectedData.map((dt, idx) => [
-    idx + 1,
-    tableFormatDate(dt.date),
-    dt.vehicle_no,
-    dt.challan_no,
-    dt.total_rent,
-    15,
-    (Number.parseFloat(dt.total_rent) || 0) * 15,
-    dt.status,
+    { text: idx + 1 },
+    { text: tableFormatDate(dt.date) },
+    { text: dt.vehicle_no },
+    { text: dt.challan_no },
+    { text: dt.total_rent },
+    { text: 15 },
+    { text: (Number.parseFloat(dt.total_rent) || 0) * 15 },
+    { text: dt.status },
   ]),
   [
     { text: "মোট", colSpan: 4, alignment: "right" }, {}, {}, {},
-    totalRent,
-    15,
-    grandTotal,
-    ""
+    { text: totalRent || 0 },
+    { text: 15 },
+    { text: grandTotal || 0 },
+    { text: "" }
   ],
 ]
+
   const docDefinition = {
     content: [
       { text: "বিল", style: "header" },
@@ -1218,13 +1219,13 @@ const handlePrevPage = () => {
               <FaFileExcel className="" />
               এক্সেল
             </button>
-            <button
+            {/* <button
               onClick={exportToPDF}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
               পিডিএফ
-            </button>
+            </button> */}
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -1245,7 +1246,7 @@ const handlePrevPage = () => {
                 startDate={startDate}
                 endDate={endDate}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="DD/MM/YYYY"
+                placeholderText="শুরুর তারিখ"
                 locale="en-GB"
                 className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
                 isClearable
@@ -1260,7 +1261,7 @@ const handlePrevPage = () => {
                 endDate={endDate}
                 minDate={startDate}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="DD/MM/YYYY"
+                placeholderText="শেষ তারিখ"
                 locale="en-GB"
                 className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
                 isClearable
@@ -1268,7 +1269,7 @@ const handlePrevPage = () => {
             </div>
             <CreatableSelect
               isClearable
-              placeholder="Select or create customer..."
+              placeholder="কাস্টমার নির্বাচন করুন..."
               value={selectedCustomer ? { value: selectedCustomer, label: selectedCustomer } : null}
               options={customerOptions}
               onChange={(newValue) => {

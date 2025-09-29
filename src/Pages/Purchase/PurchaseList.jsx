@@ -579,7 +579,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { FaEye, FaFilter, FaPen, FaTrashAlt, FaPlus, FaUserSecret } from "react-icons/fa";
+import { FaEye, FaFilter, FaPen, FaTrashAlt, FaPlus, FaUserSecret, FaFilePdf, FaPrint, FaFileExcel } from "react-icons/fa";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
@@ -604,7 +604,7 @@ const PurchaseList = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [vehicleFilter, setVehicleFilter] = useState("");
+  const [vehicleFilter, setVehicleFilter] = useState(null);
 
   useEffect(() => {
     axios
@@ -976,13 +976,22 @@ const PurchaseList = () => {
       >
         <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
           <div className="flex gap-2">
-            <Button icon={<DownloadOutlined />} onClick={exportExcel}>
+            <Button icon={<FaFileExcel />} onClick={exportExcel}
+            type="primary"
+              className="!py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-green-200 hover:!text-white"
+            >
               এক্সেল
             </Button>
-            <Button icon={<DownloadOutlined />} onClick={exportPDF}>
+            <Button icon={<FaFilePdf/>} onClick={exportPDF}
+             type="primary"
+            className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-amber-200 hover:!text-white"
+            >
               পিডিএফ
             </Button>
-            <Button icon={<PrinterOutlined />} onClick={printTable}>
+            <Button icon={<FaPrint />} onClick={printTable}
+                type="primary"
+              className=" !text-primary !py-2 !px-5 hover:!bg-primary !bg-gray-50 !shadow-md !shadow-blue-200 hover:!text-white"
+            >
               প্রিন্ট
             </Button>
           </div>
@@ -1001,7 +1010,7 @@ const PurchaseList = () => {
         </div>
 
         {showFilter && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-md mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border border-gray-200 rounded-md mb-4">
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}
@@ -1011,7 +1020,7 @@ const PurchaseList = () => {
               dateFormat="dd/MM/yyyy"
               placeholderText="শুরুর তারিখ"
               locale="en-GB"
-              className="w-full p-2 border border-gray-300 rounded text-sm"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
               isClearable
             />
             
@@ -1025,7 +1034,7 @@ const PurchaseList = () => {
               dateFormat="dd/MM/yyyy"
               placeholderText="শেষ তারিখ"
               locale="en-GB"
-              className="w-full p-2 border border-gray-300 rounded text-sm"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
               isClearable
             />
             
@@ -1047,6 +1056,7 @@ const PurchaseList = () => {
             </Select>
             
             <Button 
+            type="primary"
               onClick={() => {
                 setStartDate("");
                 setEndDate("");
@@ -1054,8 +1064,9 @@ const PurchaseList = () => {
                 setShowFilter(false);
               }}
               icon={<FaFilter />}
+              className="!bg-primary !text-white"
             >
-              ফিল্টার সরান
+              মুছে ফেলুন
             </Button>
           </div>
         )}

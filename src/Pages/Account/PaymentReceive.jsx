@@ -4,6 +4,7 @@ import { FaPen, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { MdOutlineAirplaneTicket } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const PaymentReceive = () => {
   const [payment, setPayment] = useState([]);
@@ -61,7 +62,7 @@ const PaymentReceive = () => {
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-xs">
+            <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
               <tr>
                 <th className="px-2 py-3">SL.</th>
                 <th className="px-2 py-3">তারিখ</th>
@@ -73,7 +74,7 @@ const PaymentReceive = () => {
                 {/* <th className="px-2 py-3">নোট</th> */}
                 <th className="px-2 py-3">তৈরি করেছেন</th>
                 <th className="px-2 py-3">অবস্থা</th>
-                <th className="px-2 py-3">কার্যকলাপ</th>
+                <th className="px-2 py-3">অ্যাকশন</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -105,7 +106,7 @@ const PaymentReceive = () => {
                 currentPayment?.map((dt, index) => (
                   <tr className="hover:bg-gray-50 transition-all border border-gray-200">
                     <td className="p-2 font-bold">{index + 1}.</td>
-                    <td className="p-2">{dt.date}</td>
+                    <td className="p-2">{tableFormatDate(dt.date)}</td>
                     <td className="p-2">{dt.customer_name}</td>
                     <td className="p-2">{dt.branch_name}</td>
                     <td className="p-2">{dt.bill_ref}</td>

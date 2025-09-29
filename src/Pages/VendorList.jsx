@@ -811,13 +811,22 @@ const VendorList = () => {
         {/* export */}
         <div className="md:flex justify-between items-center mb-5">
           <Space>
-            <Button onClick={exportExcel} icon={<FaFileExcel />}>
+            <Button onClick={exportExcel} icon={<FaFileExcel />}
+            type="primary"
+              className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-green-200 hover:!text-white"
+            >
               এক্সেল
             </Button>
-            <Button onClick={exportPDF} icon={<FaFileExcel />}>
+            <Button onClick={exportPDF} icon={<FaFileExcel />}
+            type="primary"
+            className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-amber-200 hover:!text-white"
+            >
               পিডিএফ
             </Button>
-            <Button onClick={printTable} icon={<FaPrint />}>
+            <Button onClick={printTable} icon={<FaPrint />}
+            type="primary"
+              className=" !text-primary !py-2 !px-5 hover:!bg-primary !bg-gray-50 !shadow-md !shadow-blue-200 hover:!text-white"
+            >
               প্রিন্ট
             </Button>
           </Space>
@@ -893,6 +902,7 @@ const VendorList = () => {
               </div>
             )
           }}
+          scroll={{ x: "max-content" }}
         />
       </div>
       

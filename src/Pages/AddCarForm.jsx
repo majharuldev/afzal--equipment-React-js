@@ -289,18 +289,33 @@ const AddCarForm = () => {
             <div className="mt-2 md:mt-0 w-full">
               <SelectField
                 name="registration_serial"
-                label="রেজিস্ট্রেশন সিরিয়াল"
+                label="নিবন্ধন সিরিয়াল"
                 required
                 options={[
-                  { value: "Ta", label: "Ta" },
-                  { value: "Tha", label: "Tha" },
-                  { value: "Da", label: "Da" },
-                  { value: "Dha", label: "Dha" },
-                  { value: "Na", label: "Na" },
-                  { value: "M", label: "M" },
-                  { value: "Sh", label: "Sh" },
+                  { value: "KA", label: "কা" },
+                  { value: "KHA", label: "খা" },
+                  { value: "GA", label: "গা" },
+                  { value: "GHA", label: "ঘা" },
+                  { value: "CHA", label: "চা" },
+                  { value: "JA", label: "জা" },
+                  { value: "JHA", label: "ঝা" },
+                  { value: "TA", label: "টা" },
+                  { value: "THA", label: "ঠা" },
+                  { value: "DA", label: "ডা" },
+                  { value: "DHA", label: "ঢা" },
+                  { value: "NA", label: "না" },
+                  { value: "PA", label: "পা" },
+                  { value: "FA", label: "ফা" },
+                  { value: "BA", label: "বা" },
+                  { value: "MA", label: "মা" },
+                  { value: "SHA", label: "শা" },
+                  { value: "LA", label: "লা" },
+                  { value: "RA", label: "রা" },
+                  { value: "RO", label: "রো" },
+                  { value: "HA", label: "হা" },
                 ]}
               />
+
             </div>
             <div className="relative w-full">
               <SelectField
@@ -502,8 +517,8 @@ const AddCarForm = () => {
                 label="অবস্থা"
                 required
                 options={[
-                  { value: "Active", label: "Active" },
-                  { value: "Inactive", label: "Inactive" },
+                  { value: "Active", label: "সক্রিয়" },
+                  { value: "Inactive", label: "নিষ্ক্রিয়" },
                 ]}
               />
             </div>

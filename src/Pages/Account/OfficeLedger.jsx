@@ -346,6 +346,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import ReactPaginate from "react-paginate";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
 
 const OfficeLedger = () => {
   const [branch, setbranch] = useState([]);
@@ -493,46 +494,32 @@ const OfficeLedger = () => {
         {/* ফিল্টার সেকশন */}
         {showFilter && (
           <div className="flex gap-4 border border-gray-300 rounded-md p-5 mb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setCurrentPage(0);
-                }}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-              {startDate && (
-                <button
-                  onClick={() => setStartDate("")}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="শুরুর তারিখ মুছে দিন"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শুরুর তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
 
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-              {endDate && (
-                <button
-                  onClick={() => setEndDate("")}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="শেষের তারিখ মুছে দিন"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
-            </div>
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শেষ তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
             <div className="w-xs mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {

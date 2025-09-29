@@ -12,6 +12,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FaFileExcel, FaFilePdf, FaPrint } from "react-icons/fa";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import { Button } from "antd";
+import DatePicker from "react-datepicker";
 
 const PaymentList = () => {
   const generateRefId = useRefId();
@@ -90,8 +93,8 @@ const PaymentList = () => {
         parseFloat(dt.pay_amount) === 0
           ? "Unpaid"
           : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
-          ? "Paid"
-          : "Partial",
+            ? "Paid"
+            : "Partial",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -137,8 +140,8 @@ const PaymentList = () => {
       parseFloat(dt.pay_amount) === 0
         ? "Unpaid"
         : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
-        ? "Paid"
-        : "Partial",
+          ? "Paid"
+          : "Partial",
     ]);
 
     autoTable(doc, {
@@ -165,10 +168,9 @@ const PaymentList = () => {
         <td>${dt.total}</td>
         <td>${dt.pay_amount}</td>
         <td>${parseFloat(dt.total) - parseFloat(dt.pay_amount)}</td>
-        <td>${
-          parseFloat(dt.pay_amount) === 0
-            ? "Unpaid"
-            : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
+        <td>${parseFloat(dt.pay_amount) === 0
+          ? "Unpaid"
+          : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
             ? "Paid"
             : "Partial"
         }</td>
@@ -267,8 +269,7 @@ const PaymentList = () => {
 
       // 1. Update Payment
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/payment/update/${
-          selectedPayment.id
+        `${import.meta.env.VITE_BASE_URL}/api/payment/update/${selectedPayment.id
         }`,
         paymentPayload
       );
@@ -307,16 +308,16 @@ const PaymentList = () => {
           prevList.map((item) =>
             item.id === selectedPayment.id
               ? {
-                  ...item,
-                  pay_amount: updatedAmount,
-                  due_amount: parseFloat(item.total_amount) - updatedAmount,
-                  status:
-                    updatedAmount === 0
-                      ? "Unpaid"
-                      : updatedAmount >= parseFloat(item.total_amount)
+                ...item,
+                pay_amount: updatedAmount,
+                due_amount: parseFloat(item.total_amount) - updatedAmount,
+                status:
+                  updatedAmount === 0
+                    ? "Unpaid"
+                    : updatedAmount >= parseFloat(item.total_amount)
                       ? "Paid"
                       : "Partial",
-                }
+              }
               : item
           )
         );
@@ -341,8 +342,8 @@ const PaymentList = () => {
       console.error("Payment update error:", error);
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "An error occurred while updating payment"
+        error.message ||
+        "An error occurred while updating payment"
       );
     }
   };
@@ -431,34 +432,45 @@ const PaymentList = () => {
         </div>
         {showFilter && (
           <div className="md:flex gap-6 justify-between border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              {/* <label className="block mb-1 text-sm font-medium">
-                Start Date
-              </label> */}
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="relative w-full">
-              {/* <label className="block mb-1 text-sm font-medium">End Date</label> */}
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage(1)}
-                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300  cursor-pointer"
-              >
-                <FaFilter /> ফিল্টার
-              </button>
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শুরুর তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শেষ তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            <Button
+            type="primary"
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+                setShowFilter(false);
+                setCurrentPage(1);
+              }}
+              icon={<FaFilter />}
+              className="!bg-primary !text-white"
+            >
+              মুছে ফেলুন
+            </Button>
           </div>
         )}
 
@@ -512,7 +524,7 @@ const PaymentList = () => {
                     className="hover:bg-gray-50 transition-all border border-gray-200"
                   >
                     <td className="px-1 py-2 font-bold">{index + 1}</td>
-                    <td className="px-1 py-2">{dt.date}</td>
+                    <td className="px-1 py-2">{tableFormatDate(dt.date)}</td>
                     <td className="px-1 py-2">{dt.supplier_name}</td>
                     <td className="px-1 py-2">{dt.category}</td>
                     <td className="px-1 py-2">{dt.item_name}</td>
@@ -554,7 +566,7 @@ const PaymentList = () => {
                           onClick={() => {
                             if (
                               parseFloat(dt.total_amount) -
-                                parseFloat(dt.pay_amount) <=
+                              parseFloat(dt.pay_amount) <=
                               0
                             )
                               return;
@@ -566,22 +578,21 @@ const PaymentList = () => {
                               // note: dt.item_name,
                             });
                           }}
-                          className={`px-1 py-1 rounded shadow-md transition-all cursor-pointer ${
-                            parseFloat(dt.total_amount) -
+                          className={`px-1 py-1 rounded shadow-md transition-all cursor-pointer ${parseFloat(dt.total_amount) -
                               parseFloat(dt.pay_amount) >
-                            0
+                              0
                               ? "text-primary hover:bg-primary hover:text-white"
                               : "text-green-700 bg-gray-200 cursor-not-allowed"
-                          }`}
+                            }`}
                           disabled={
                             parseFloat(dt.total_amount) -
-                              parseFloat(dt.pay_amount) <=
+                            parseFloat(dt.pay_amount) <=
                             0
                           }
                         >
                           {parseFloat(dt.total_amount) -
                             parseFloat(dt.pay_amount) >
-                          0
+                            0
                             ? "Pay Now"
                             : "Complete"}
                         </button>
@@ -601,9 +612,8 @@ const PaymentList = () => {
             <div className="space-x-2 flex items-center">
               <button
                 onClick={handlePrevPage}
-                className={`p-2 ${
-                  currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
-                } rounded-sm`}
+                className={`p-2 ${currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
+                  } rounded-sm`}
                 disabled={currentPage === 1}
               >
                 <GrFormPrevious />
@@ -612,22 +622,20 @@ const PaymentList = () => {
                 <button
                   key={number + 1}
                   onClick={() => handlePageClick(number + 1)}
-                  className={`px-3 py-1 rounded-sm ${
-                    currentPage === number + 1
+                  className={`px-3 py-1 rounded-sm ${currentPage === number + 1
                       ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
                       : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-                  }`}
+                    }`}
                 >
                   {number + 1}
                 </button>
               ))}
               <button
                 onClick={handleNextPage}
-                className={`p-2 ${
-                  currentPage === totalPages
+                className={`p-2 ${currentPage === totalPages
                     ? "bg-gray-300"
                     : "bg-primary text-white"
-                } rounded-sm`}
+                  } rounded-sm`}
                 disabled={currentPage === totalPages}
               >
                 <GrFormNext />

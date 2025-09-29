@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { FaBars, FaMagnifyingGlass } from "react-icons/fa6";
 import avatar from "../../assets/Afjal-image.jpg";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,6 +17,28 @@ const Header = ({ setMobileSidebarOpen }) => {
     logout();
     navigate("/tramessy");
   };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setIsAdminOpen(false);
+      }
+    };
+
+    if (isAdminOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAdminOpen]);
 
   return (
     <>

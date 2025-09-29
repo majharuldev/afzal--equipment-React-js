@@ -87,6 +87,20 @@ const TripList = () => {
     }, 100)
   }
 
+  // customer data
+  useEffect(() => {
+    // Fetch customers data
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
+      .then((response) => {
+        if (response.data.status === "Success") {
+          setCustomers(response.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching customers:", error);
+      });
+  }, []);
 
   // Fetch trips data
   useEffect(() => {
@@ -293,18 +307,20 @@ const TripList = () => {
       title: "SL.",
       dataIndex: "index",
       key: "index",
-      width: 60,
+      width: 50,
       render: (_, record, index) => (currentPage - 1) * itemsPerPage + index + 1,
     },
     {
       title: "তারিখ",
       dataIndex: "date",
       key: "date",
+      width: 120,
       render: (date) => tableFormatDate(date),
     },
      {
       title: "কাস্টমার",
       key: "customer",
+      width: 100,
       render: (_, record) => (
         <div>
           <div> {record.customer || "N/A"}</div>
@@ -324,6 +340,7 @@ const TripList = () => {
     {
       title: "অপারেটর/ড্রাইভার",
       key: "driver_info",
+      width: 70,
       render: (_, record) => (
         <div>
           <div> {record.driver_name || "N/A"}</div>
@@ -370,7 +387,7 @@ const TripList = () => {
       title: "অ্যাকশন",
       key: "action",
       fixed: "right",
-      width: 150,
+      width: 100,
       render: (_, record) => (
         <Space size="small">
           {/* <Link to={`/tramessy/UpdateTripForm/${record.id}`}>
@@ -494,7 +511,7 @@ const TripList = () => {
                 startDate={startDate}
                 endDate={endDate}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="DD/MM/YYYY"
+                placeholderText="শুরুর তারিখ"
                 locale="en-GB"
                 className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
                 isClearable
@@ -510,7 +527,7 @@ const TripList = () => {
                 endDate={endDate}
                 minDate={startDate}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="DD/MM/YYYY"
+                placeholderText="শেষ তারিখ"
                 locale="en-GB"
                 className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
                 isClearable
@@ -525,7 +542,7 @@ const TripList = () => {
               }}
               className=" flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
             >
-              <option value="">Select Customer</option>
+              <option value="">কাস্টমার নির্বাচন করুন</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.customer_name}>
                   {c.customer_name}
@@ -542,9 +559,9 @@ const TripList = () => {
               }}
               className="flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
             >
-              <option value="">All Transport</option>
-              <option value="own_transport">Own Transport</option>
-              <option value="vendor_transport">Vendor Transport</option>
+              <option value="">ট্রান্সপোর্টের ধরন</option>
+              <option value="own_transport">নিজস্ব ট্রান্সপোর্ট</option>
+              <option value="vendor_transport">ভেন্ডর ট্রান্সপোর্ট</option>
             </select>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
@@ -564,7 +581,6 @@ const TripList = () => {
           </div>
         )}
 
-        {/* Table */}
         {/* Table */}
         <Table
           columns={columns}
@@ -598,6 +614,7 @@ const TripList = () => {
               </div>
             )
           }}
+          scroll={{ x: "max-content" }}
         />
       </div>
       {/* Hidden Component for Printing */}
@@ -650,7 +667,7 @@ const TripList = () => {
         {selectedTrip && (
           <Row gutter={16}>
             <Col span={12}>
-              <p><strong>গ্রাহক:</strong> {selectedTrip.customer}</p>
+              <p><strong>কাস্টমার:</strong> {selectedTrip.customer}</p>
               <p><strong>ট্রিপ তারিখ:</strong> {selectedTrip.date}</p>
               <p><strong>লোডিং পয়েন্ট:</strong> {selectedTrip.load_point}</p>
               <p><strong>আনলোডিং পয়েন্ট:</strong> {selectedTrip.unload_point}</p>

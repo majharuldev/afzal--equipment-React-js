@@ -386,6 +386,9 @@ import * as XLSX from "xlsx"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { saveAs } from "file-saver"
+import DatePicker from "react-datepicker"
+import { set } from "react-hook-form"
+import { Button } from "antd"
 
 const DailyTripExpense = () => {
   const [showFilter, setShowFilter] = useState(false)
@@ -440,6 +443,7 @@ const DailyTripExpense = () => {
     }
   })
 
+  // Excel export function
   const exportExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(csvData)
     const workbook = XLSX.utils.book_new()
@@ -449,6 +453,7 @@ const DailyTripExpense = () => {
     saveAs(data, "khroch_data.xlsx")
   }
 
+  // PDF export function
   const exportPDF = () => {
     const doc = new jsPDF()
     const tableColumn = headers.map((h) => h.label)
@@ -457,6 +462,7 @@ const DailyTripExpense = () => {
     doc.save("khroch_data.pdf")
   }
 
+  // print function
   const printTable = () => {
     const actionColumns = document.querySelectorAll(".action_column")
     actionColumns.forEach((col) => { col.style.display = "none" })
@@ -576,32 +582,45 @@ const DailyTripExpense = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="শুরুর তারিখ"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="শেষের তারিখ"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="mt-3 md:mt-0 flex gap-2">
-              <button
-                onClick={() => setCurrentPage(1)}
-                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-              >
-                <FaFilter /> ফিল্টার
-              </button>
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শুরুর তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শেষ তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            <Button
+            type="primary"
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+                setShowFilter(false);
+                setCurrentPage(1);
+              }}
+              icon={<FaFilter />}
+              className="!bg-primary !text-white"
+            >
+              মুছে ফেলুন
+            </Button>
           </div>
         )}
         {/* Table */}
@@ -674,11 +693,10 @@ const DailyTripExpense = () => {
                 <button
                   key={number + 1}
                   onClick={() => handlePageClick(number + 1)}
-                  className={`px-3 py-1 rounded-sm ${
-                    currentPage === number + 1
+                  className={`px-3 py-1 rounded-sm ${currentPage === number + 1
                       ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
                       : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-                  }`}
+                    }`}
                 >
                   {number + 1}
                 </button>

@@ -372,7 +372,7 @@ export default function VehicleProfitReport() {
                   startDate={fromDate}
                   endDate={toDate}
                   dateFormat="dd/MM/yyyy"
-                  placeholderText="DD/MM/YYYY"
+                  placeholderText="শুরুর তারিখ"
                   locale="en-GB"
                   className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
                   isClearable
@@ -387,7 +387,7 @@ export default function VehicleProfitReport() {
                   endDate={toDate}
                   minDate={fromDate}
                   dateFormat="dd/MM/yyyy"
-                  placeholderText="DD/MM/YYYY"
+                  placeholderText="শেষ তারিখ"
                   locale="en-GB"
                   className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
                   isClearable

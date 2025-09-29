@@ -89,7 +89,7 @@ const Customer = () => {
       key: "status",
     },
     {
-      title: "কার্যকলাপ",
+      title: "অ্যাকশন",
       key: "action",
       render: (_, record) => (
         <div className="flex gap-2">

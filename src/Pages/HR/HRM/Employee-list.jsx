@@ -284,6 +284,9 @@ const EmployeeList = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+// view modal states
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   useEffect(() => {
     fetchEmployeeData();
@@ -314,6 +317,12 @@ const EmployeeList = () => {
     }
   };
 
+  // view handler function
+  const handleView = (employee) => {
+    setSelectedEmployee(employee);
+    setViewModalOpen(true);
+  };
+
   const columns = [
     { title: "ক্রমিক", key: "index", render: (_, __, index) => index + 1 },
     {
@@ -334,7 +343,7 @@ const EmployeeList = () => {
     { title: "পদবী", dataIndex: "designation", key: "designation" },
     { title: "মোবাইল", dataIndex: "mobile", key: "mobile" },
     {
-      title: "অবস্থা",
+      title: "অ্যাকশন",
       key: "action",
       render: (_, record) => (
         <Space>
@@ -343,7 +352,8 @@ const EmployeeList = () => {
               <RiEditLine />
             </Button>
           </Link>
-          <Button type="primary" size="small" className="!bg-white !text-primary !shadow-md">
+          <Button type="primary" size="small" className="!bg-white !text-primary !shadow-md"
+          onClick={() => handleView(record)}>
             <FaEye />
           </Button>
           <Button
@@ -383,8 +393,50 @@ const EmployeeList = () => {
         loading={loading}
         pagination={{ pageSize: 10 }}
         locale={{ emptyText: "কোনো কর্মচারী তথ্য পাওয়া যায়নি" }}
+        scroll={{ x: "max-content" }}
       />
 
+      {/* View Modal */}
+      <Modal
+        title="কর্মচারীর তথ্য"
+        open={viewModalOpen}
+        onCancel={() => setViewModalOpen(false)}
+        footer={null}
+      >
+        {selectedEmployee && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <img
+                src={
+                  selectedEmployee.image
+                    ? `${import.meta.env.VITE_BASE_URL}/public/uploads/employee/${selectedEmployee.image}`
+                    : "https://via.placeholder.com/100"
+                }
+                alt={selectedEmployee.full_name}
+                className="w-24 h-24 rounded-full border"
+              />
+              <div className="flex flex-col gap-1">
+                <p><span className="font-semibold">Name:</span> {selectedEmployee.full_name}</p>
+                <p><span className="font-semibold">Email:</span> {selectedEmployee.email}</p>
+                <p><span className="font-semibold">Mobile:</span> {selectedEmployee.mobile}</p>
+                <p><span className="font-semibold">Designation:</span> {selectedEmployee.designation}</p>
+                <p><span className="font-semibold">Join Date:</span> {selectedEmployee.join_date}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <p><span className="font-semibold">Gender:</span> {selectedEmployee.gender}</p>
+              <p><span className="font-semibold">Blood Group:</span> {selectedEmployee.blood_group}</p>
+              <p><span className="font-semibold">NID:</span> {selectedEmployee.nid}</p>
+              <p><span className="font-semibold">Salary:</span> {selectedEmployee.salary}</p>
+              <p><span className="font-semibold">Branch:</span> {selectedEmployee.branch_name}</p>
+              <p><span className="font-semibold">Status:</span> {selectedEmployee.status}</p>
+            </div>
+
+            <p><span className="font-semibold">Address:</span> {selectedEmployee.address}</p>
+          </div>
+        )}
+      </Modal>
       {/* Delete Modal */}
       <Modal
         title="মুছে ফেলার নিশ্চয়তা"

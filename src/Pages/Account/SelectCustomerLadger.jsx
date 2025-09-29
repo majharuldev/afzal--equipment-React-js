@@ -169,19 +169,19 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
               onClick={exportToExcel}
               className="flex items-center gap-2 py-2 px-5 bg-gray-50 hover:bg-primary text-primary hover:text-white rounded-md shadow-md shadow-green-200 transition-all duration-300"
             >
-              <FaFileExcel /> Excel
+              <FaFileExcel /> এক্সেল
             </button>
             <button
               onClick={exportToPDF}
               className="flex items-center gap-2 py-2 px-5 bg-gray-50 hover:bg-primary text-primary hover:text-white rounded-md shadow-md shadow-amber-200 transition-all duration-300"
             >
-              <FaFilePdf /> PDF
+              <FaFilePdf /> পিডিএফ
             </button>
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 py-2 px-5 bg-gray-50 hover:bg-primary text-primary hover:text-white rounded-md shadow-md shadow-blue-200 transition-all duration-300"
             >
-              <FaPrint /> Print
+              <FaPrint /> প্রিন্ট
             </button>
           </div>
           <div className="flex gap-2">
@@ -189,7 +189,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
               onClick={() => setShowFilter((prev) => !prev)}
               className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300"
             >
-              <FaFilter /> Filter
+              <FaFilter /> ফিল্টার
             </button>
           </div>
         </div>

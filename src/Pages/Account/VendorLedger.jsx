@@ -732,7 +732,7 @@ const VendorLedger = () => {
             {/* Month Filter Section */}
             {showFilter && (
               <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-                <div className="w-[50%]">
+                <div className="w-full">
                   <div className="relative w-full">
                     <label className="text-primary text-sm font-semibold">
                       মাস নির্বাচন করুন
@@ -759,7 +759,7 @@ const VendorLedger = () => {
                   </div>
                 </div>
                 {/* select vendor */}
-                <div className="mt-3 md:mt-0 relative w-[50%]">
+                <div className="mt-3 md:mt-0 relative w-full">
                   <label className="text-primary text-sm font-semibold">
                     ভেন্ডর নির্বাচন করুন
                   </label>
@@ -779,14 +779,14 @@ const VendorLedger = () => {
                   </select>
                   <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
                 </div>
-                <div className=" mt-7">
+                <div className=" mt-6 w-xs">
                   <button
                     onClick={() => {
                       setSelectedVendor("");
                       setSelectedMonth("");
                       setShowFilter(false);
                     }}
-                    className="bg-gradient-to-r from-primary to-primary text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                    className="bg-gradient-to-r from-primary to-primary w-full text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                   >
                     মুছে ফেলুন
                   </button>

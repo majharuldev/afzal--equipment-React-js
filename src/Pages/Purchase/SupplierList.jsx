@@ -86,7 +86,7 @@ const SupplierList = () => {
     {
       title: "তারিখ",
       dataIndex: "date",
-      rnder: (date) => tableFormatDate(date),
+      render: (date) => tableFormatDate(date),
     },
     {
       title: "ব্যবসার নাম",
@@ -163,6 +163,7 @@ const SupplierList = () => {
         columns={columns}
         pagination={{ pageSize: 10 }}
         locale={{ emptyText: "কোনো সরবরাহকারীর তথ্য পাওয়া যায়নি" }}
+        scroll={{ x: "max-content" }}
       />
 
       {/* Delete Modal */}
