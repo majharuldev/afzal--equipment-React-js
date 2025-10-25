@@ -200,8 +200,8 @@ const Sidebar = () => {
     },
     // গ্যারেজ ম্যানেজমেন্ট
     {
-      key: "house",
-      icon: <PiWarehouse />,
+      key: "garage",
+      icon: <PiWarehouse className="mr-1"/>,
       label: "গ্যারেজ ম্যানেজমেন্ট",
       children: [
         {

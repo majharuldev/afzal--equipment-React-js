@@ -123,6 +123,7 @@ import toast, { Toaster } from "react-hot-toast";
 import useRefId from "../../../hooks/useRef";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../../../utils/axiosConfig";
 
 const OfficeForm = () => {
   const [loading, setLoading] = useState(false);
@@ -139,10 +140,10 @@ const OfficeForm = () => {
   // যদি id থাকে → ডেটা ফেচ করে ফর্মে সেট করব
   useEffect(() => {
     if (id) {
-      axios
-        .get(`${import.meta.env.VITE_BASE_URL}/api/office/show/${id}`)
+      api
+        .get(`/office/${id}`)
         .then((res) => {
-          if (res.data.status === "Success") {
+          if (res.data.success) {
             const data = res.data.data;
             setEditData(data);
             reset(data);
@@ -164,11 +165,11 @@ const OfficeForm = () => {
       if (!id) {
         // Add
         formData.append("ref_id", generateRefId());
-        const response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/office/create`,
+        const response = await api.post(
+          `/office`,
           formData
         );
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           toast.success("অফিসের তথ্য সফলভাবে সংরক্ষণ হয়েছে");
           reset();
           navigate("/tramessy/HR/HRM/Office");
@@ -181,7 +182,7 @@ const OfficeForm = () => {
           `${import.meta.env.VITE_BASE_URL}/api/office/update/${id}`,
           formData
         );
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           toast.success("অফিসের তথ্য সফলভাবে আপডেট হয়েছে");
           navigate("/tramessy/HR/HRM/Office");
         } else {
@@ -234,20 +235,14 @@ const OfficeForm = () => {
               <div className="w-full">
                 <InputField name="branch_name" label="শাখার নাম" required />
               </div>
-              <div className="w-full">
-                <InputField
-                  name="factory_name"
-                  label="ফ্যাক্টরি / কোম্পানির নাম"
-                  required
-                />
-              </div>
+              
             </div>
             <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
               <div className="w-full">
                 <InputField
                   type="number"
                   name="opening_balance"
-                  label="প্রারম্ভিক ব্যালেন্স"
+                  label="শুরুর ব্যালেন্স"
                   required
                 />
               </div>

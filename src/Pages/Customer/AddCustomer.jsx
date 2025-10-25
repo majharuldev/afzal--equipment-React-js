@@ -7,6 +7,7 @@ import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import useRefId from "../../hooks/useRef";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../../utils/axiosConfig";
 
 const CustomerForm = () => {
   const [loading, setLoading] = useState(false);
@@ -22,15 +23,13 @@ const CustomerForm = () => {
   useEffect(() => {
     if (id) {
       setIsEdit(true);
-      axios
-        .get(`${import.meta.env.VITE_BASE_URL}/api/customer/show/${id}`)
+      api
+        .get(`/customer/${id}`)
         .then((res) => {
-          if (res.data.status === "Success") {
-            const customer = res.data.data;
+            const customer = res.data;
             Object.keys(customer).forEach((key) => {
               setValue(key, customer[key]);
             });
-          }
         })
         .catch((err) => {
           console.error(err);
@@ -43,22 +42,22 @@ const CustomerForm = () => {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-      if (!isEdit) {
-        formData.append("ref_id", generateRefId());
-      }
+      const payload = { ...data };
+
+    // ref_id only generate if not in update mode
+    if (!id) {
+      payload.ref_id = generateRefId();
+    }
+
 
       const url = isEdit
-        ? `${import.meta.env.VITE_BASE_URL}/api/customer/update/${id}`
-        : `${import.meta.env.VITE_BASE_URL}/api/customer/create`;
+        ? `/customer/${id}`
+        : `/customer`;
 
-      const response = await axios.post(url, formData);
+       const response = isEdit
+                ? await api.put(url, payload)
+                : await api.post(url, payload);
       const resData = response.data;
-
-      if (resData.status === "Success") {
         toast.success(
           isEdit
             ? "গ্রাহকের তথ্য সফলভাবে হালনাগাদ হয়েছে!"
@@ -66,9 +65,6 @@ const CustomerForm = () => {
         );
         reset();
         navigate("/tramessy/Customer");
-      } else {
-        toast.error("সার্ভার সমস্যা: " + (resData.message || "অজানা ত্রুটি"));
-      }
     } catch (error) {
       console.error(error);
       const errorMessage =
@@ -90,52 +86,43 @@ const CustomerForm = () => {
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="md:flex justify-between gap-3">
+              <div className="w-full relative">
+                <InputField name="customer_name" label="কাস্টমার নাম" required={!isEdit} />
+              </div>
+              <div className="mt-3 md:mt-0 w-full relative">
+                <InputField name="mobile" label="মোবাইল" required={!isEdit}  />
+              </div>
+            </div>
+
+            <div className="mt-1 md:flex justify-between gap-3">
+              <div className="w-full relative">
+                <InputField name="address" label="ঠিকানা" required={!isEdit}  />
+              </div>
+              <div className="mt-3 md:mt-0 w-full relative">
+                <InputField name="email" label="ইমেইল" required={false} />
+              </div>
+            </div>
+
+            <div className="mt-1 md:flex justify-between gap-3">
               <div className="w-full">
-                <InputField
-                  name="date"
-                  label="তারিখ"
-                  type="date"
-                  required
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    dateRef.current = e;
-                  }}
-                  icon={
-                    <span
-                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                      onClick={() => dateRef.current?.showPicker?.()}
-                    >
-                      <FiCalendar className="text-white cursor-pointer" />
-                    </span>
-                  }
+                <SelectField
+                  name="rate"
+                  label="ফিক্সড"
+                  required={!isEdit} 
+                  options={[
+                    { value: "Fixed", label: "ফিক্সড" },
+                    { value: "Unfixed", label: "আনফিক্সড" },
+                  ]}
                 />
               </div>
               <div className="w-full relative">
-                <InputField name="customer_name" label="কাস্টমার নাম" required />
-              </div>
-            </div>
-
-            <div className="mt-1 md:flex justify-between gap-3">
-              <div className="mt-3 md:mt-0 w-full relative">
-                <InputField name="mobile" label="মোবাইল" required />
-              </div>
-              <div className="mt-3 md:mt-0 w-full relative">
-                <InputField name="email" label="ইমেইল" />
-              </div>
-            </div>
-
-            <div className="mt-1 md:flex justify-between gap-3">
-              <div className="w-full relative">
-                <InputField name="address" label="ঠিকানা" required />
-              </div>
-              <div className="w-full relative">
-                <InputField name="due" label="বাকি পরিমাণ" required />
+                <InputField name="opening_balance" label="শুরুর ব্যালেন্স" required={!isEdit}  />
               </div>
               <div className="w-full">
                 <SelectField
                   name="status"
                   label="অবস্থা"
-                  required
+                  required={!isEdit} 
                   options={[
                     { value: "Active", label: "সক্রিয়" },
                     { value: "Inactive", label: "নিষ্ক্রিয়" },

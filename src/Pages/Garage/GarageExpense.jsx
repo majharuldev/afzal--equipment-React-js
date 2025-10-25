@@ -28,6 +28,7 @@ import { FaPlus } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import BtnSubmit from "../../components/Button/BtnSubmit";
 import DatePicker from "react-datepicker";
+import api from "../../utils/axiosConfig";
 
 const GarageExpense = () => {
   const [expenses, setExpenses] = useState([]);
@@ -58,8 +59,8 @@ const GarageExpense = () => {
   const showModal = async (record = null) => {
     if (record) {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/expense/${record.id}`
+        const res = await api.get(
+          `/garageExp/${record.id}`
         );
         const data = res.data?.data;
         setFormData({
@@ -110,8 +111,8 @@ const GarageExpense = () => {
   //   expense
   const fetchExpenses = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/expense/list`
+      const response = await api.get(
+        `/garageExp`
       );
       const allExpenses = response.data?.data || [];
       const utilityExpenses = allExpenses.filter(
@@ -152,14 +153,14 @@ const GarageExpense = () => {
       };
 
       if (editingId) {
-        await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/expense/update/${editingId}`,
+        await api.put(
+          `/garageExp/${editingId}`,
           payload
         );
         toast.success("Expense Data Update successful");
       } else {
-        await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/expense/create`,
+        await api.post(
+          `/garageExp`,
           payload
         );
         toast.success("Epense Added successful");
@@ -575,14 +576,14 @@ const GarageExpense = () => {
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="প্রদত্ত ব্যক্তি"
-                      value={formData.paid_to}
+                      value={formData.person_name}
                       onChange={(e) =>
-                        setFormData({ ...formData, paid_to: e.target.value })
+                        setFormData({ ...formData, person_name: e.target.value })
                       }
                     />
-                    {errors.paid_to && (
+                    {errors.person_name && (
                       <p className="text-red-500 text-xs mt-1">
-                        {errors.paid_to}
+                        {errors.person_name}
                       </p>
                     )}
                   </div>
@@ -597,14 +598,14 @@ const GarageExpense = () => {
                       type="number"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="পরিমাণ"
-                      value={formData.pay_amount}
+                      value={formData.amount}
                       onChange={(e) =>
-                        setFormData({ ...formData, pay_amount: e.target.value })
+                        setFormData({ ...formData, amount: e.target.value })
                       }
                     />
-                    {errors.pay_amount && (
+                    {errors.amount && (
                       <p className="text-red-500 text-xs mt-1">
-                        {errors.pay_amount}
+                        {errors.amount}
                       </p>
                     )}
                   </div>
@@ -614,11 +615,11 @@ const GarageExpense = () => {
                     </label>
                     <select
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.payment_category}
+                      value={formData.category}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          payment_category: e.target.value,
+                          category: e.target.value,
                         })
                       }
                     >
@@ -629,38 +630,30 @@ const GarageExpense = () => {
                         </option>
                       ))}
                     </select>
-                    {errors.payment_category && (
+                    {errors.category && (
                       <p className="text-red-500 text-xs mt-1">
-                        {errors.payment_category}
+                        {errors.category}
                       </p>
                     )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
+
+                  <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      শাখার নাম <span className="text-red-500">*</span>
+                      মন্তব্য
                     </label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="শাখার নাম"
-                      value={formData.branch_name}
+                      placeholder="মন্তব্য"
+                      value={formData.remarks}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          branch_name: e.target.value,
-                        })
+                        setFormData({ ...formData, remarks: e.target.value })
                       }
                     />
-                    {errors.branch_name && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.branch_name}
-                      </p>
-                    )}
                   </div>
-
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       মন্তব্য

@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -6,19 +5,21 @@ import { FaPen, FaTrashAlt, FaUsers, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Table, Modal, Button } from "antd";
 import { RiEditLine } from "react-icons/ri";
+import api from "../../utils/axiosConfig";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const GarageCustomer = () => {
   const [customer, setCustomer] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-
+const [searchTerm, setSearchTerm] = useState("");
   // গ্রাহক ডাটা ফেচ
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
+    api
+      .get(`/garageCustomer`)
       .then((response) => {
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           setCustomer(response.data.data);
         }
         setLoading(false);
@@ -32,11 +33,8 @@ const GarageCustomer = () => {
   // গ্রাহক ডিলিট
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/customer/delete/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await api.delete(
+        `/customer/${id}`,
       );
       if (!response.ok) throw new Error("গ্রাহক ডিলিট ব্যর্থ হয়েছে!");
 
@@ -59,24 +57,30 @@ const GarageCustomer = () => {
       render: (_, __, index) => index + 1,
     },
     {
+      title: "ক্রমিক",
+      dataIndex: "date",
+      key: "date",
+      render: (_, record) => tableFormatDate(record.date),
+    },
+    {
       title: "নাম",
       dataIndex: "customer_name",
       key: "customer_name",
     },
     {
       title: "মোবাইল",
-      dataIndex: "mobile",
-      key: "mobile",
+      dataIndex: "customer_mobile",
+      key: "customer_mobile",
     },
     {
       title: "মাস",
-      dataIndex: "month",
-      key: "month",
+      dataIndex: "month_name",
+      key: "month_name",
     },
     {
       title: "ইকুইপমেন্ট নম্বর",
-      dataIndex: "",
-      key: "address",
+      dataIndex: "vehicle_no",
+      key: "vehicle_no",
     },
     {
       title: "ঠিকানা",
@@ -85,13 +89,13 @@ const GarageCustomer = () => {
     },
     {
       title: "ইকুইপমেন্ট সংখ্যা",
-      dataIndex: "",
-      key: "address",
+      dataIndex: "vehicle_qty",
+      key: "vehicle_qty",
     },
     {
       title: "পরিমাণ",
-      dataIndex: "due",
-      key: "due",
+      dataIndex: "amount",
+      key: "amount",
     },
     {
       title: "অবস্থা",
@@ -103,20 +107,20 @@ const GarageCustomer = () => {
       key: "action",
       render: (_, record) => (
         <div className="flex gap-2">
-          <Link to={`/tramessy/UpdateCustomerForm/${record.id}`}>
+          <Link to={`/tramessy/GarageCustomerForm/update/${record.id}`}>
             <Button
               type="primary"
               size="small"
               className="!bg-white !text-primary"
             >
- <RiEditLine/>
+              <RiEditLine />
             </Button>
           </Link>
           <Button
             type="primary"
             danger
             size="small"
-           className="!bg-white !text-red-500"
+            className="!bg-white !text-red-500"
             onClick={() => {
               setSelectedCustomerId(record.id);
               setIsModalOpen(true);
@@ -146,9 +150,36 @@ const GarageCustomer = () => {
                 icon={<FaPlus />}
                 className="flex items-center !bg-primary"
               >
-                 যোগ করুন
+                যোগ করুন
               </Button>
             </Link>
+          </div>
+        </div>
+        <div className="flex justify-end my-3">
+          {/* search */}
+          <div className="mt-3 md:mt-0 relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="ট্রিপ খুঁজুন..."
+              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-5 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 

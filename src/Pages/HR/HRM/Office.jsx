@@ -9,6 +9,7 @@ import { IoMdClose } from "react-icons/io";
 import { RiEditLine, RiHomeOfficeLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { tableFormatDate } from "../../../components/Shared/formatDate";
+import api from "../../../utils/axiosConfig";
 
 const Office = () => {
   const [office, setOffice] = useState([]);
@@ -19,10 +20,10 @@ const Office = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
   // Fetch customer ledger data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/office/list`)
+    api
+      .get(`/office`)
       .then((response) => {
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           const data = response.data.data;
           setOffice(data);
         }
@@ -36,11 +37,8 @@ const Office = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/office/delete/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await api.delete(
+        `/office/${id}`,
       );
       if (!response.ok) {
         throw new Error("শাখার তথ্য মুছে ফেলা ব্যর্থ হয়েছে");
@@ -84,8 +82,8 @@ const Office = () => {
       dataIndex: "address",
     },
     {
-      title: "ফ্যাক্টরি/কোম্পানির নাম",
-      dataIndex: "factory_name",
+      title: "শুরুর ব্যালেন্স",
+      dataIndex: "opening_balance",
     },
     {
       title: "কার্যকলাপ",

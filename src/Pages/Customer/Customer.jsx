@@ -6,6 +6,7 @@ import { FaPen, FaTrashAlt, FaUsers, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Table, Modal, Button } from "antd";
 import { RiEditLine } from "react-icons/ri";
+import api from "../../utils/axiosConfig";
 
 const Customer = () => {
   const [customer, setCustomer] = useState([]);
@@ -15,12 +16,10 @@ const Customer = () => {
 
   // গ্রাহক ডাটা ফেচ
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
+    api
+      .get(`/customer`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          setCustomer(response.data.data);
-        }
+          setCustomer(response.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -32,11 +31,8 @@ const Customer = () => {
   // গ্রাহক ডিলিট
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/customer/delete/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await api.delete(
+        `/customer/${id}`
       );
       if (!response.ok) throw new Error("গ্রাহক ডিলিট ব্যর্থ হয়েছে!");
 
@@ -79,9 +75,14 @@ const Customer = () => {
       key: "address",
     },
     {
+      title: "রেট",
+      dataIndex: "rate",
+      key: "rate",
+    },
+    {
       title: "বাকি পরিমাণ",
-      dataIndex: "due",
-      key: "due",
+      dataIndex: "opening_balance",
+      key: "opening_balance",
     },
     {
       title: "অবস্থা",

@@ -7,6 +7,7 @@ import { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { FiCalendar } from "react-icons/fi";
 import { add, format } from "date-fns";
+import api from "../utils/axiosConfig";
 
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
@@ -141,23 +142,23 @@ export default function AddTripForm() {
   useEffect(() => {
     // মোট খরচ হিসাব
     const totalExp =
-      (Number(driverCommision) || 0) +
-      (Number(labourCost) || 0) +
-      (Number(parkingCost) || 0) +
-      (Number(nightGuardCost) || 0) +
-      (Number(tollCost) || 0) +
-      (Number(feriCost) || 0) +
-      (Number(policeCost) || 0) +
-      (Number(foodCost) || 0) +
-      (Number(chadaCost) || 0) +
-      (Number(fuelCost) || 0) +
-      (Number(additional_cost) || 0) +
-      (Number(othersCost) || 0);
+      (toNumber(driverCommision) || 0) +
+      (toNumber(labourCost) || 0) +
+      (toNumber(parkingCost) || 0) +
+      (toNumber(nightGuardCost) || 0) +
+      (toNumber(tollCost) || 0) +
+      (toNumber(feriCost) || 0) +
+      (toNumber(policeCost) || 0) +
+      (toNumber(foodCost) || 0) +
+      (toNumber(chadaCost) || 0) +
+      (toNumber(fuelCost) || 0) +
+      (toNumber(additional_cost) || 0) +
+      (toNumber(othersCost) || 0);
 
     setValue("total_exp", totalExp);
 
     // ড্যামারেজ মোট হিসাব
-    const d_total = (Number(d_day) || 0) * (Number(d_amount) || 0);
+    const d_total = (toNumber(d_day) || 0) * (toNumber(d_amount) || 0);
     setValue("d_total", d_total);
   }, [
     driverCommision,
@@ -181,7 +182,7 @@ export default function AddTripForm() {
   const [vendorRent, vendorAdvance] = watch(["total_exp", "advance"]);
 
   useEffect(() => {
-    const due = (Number(vendorRent) || 0) - (Number(vendorAdvance) || 0);
+    const due = (toNumber(vendorRent) || 0) - (toNumber(vendorAdvance) || 0);
     setValue("due_amount", due, { shouldValidate: true });
   }, [vendorRent, vendorAdvance, setValue]);
 
@@ -190,7 +191,7 @@ export default function AddTripForm() {
     const fetchAllData = async () => {
       try {
         // প্রথমে রেট ডেটা ফেচ করা
-        const ratesRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/rate/list`);
+        const ratesRes = await api.get(`/rate`);
         const ratesData = await ratesRes.json();
         setRates(ratesData.data);
 
@@ -224,47 +225,29 @@ export default function AddTripForm() {
           vendorRes,
           branchRes,
         ] = await Promise.all([
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/vehicle/list`),
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/driver/list`),
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/rent/list`),
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/rent/list`),
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/customer/list`),
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/vendor/list`),
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/office/list`),
+          api.get(`/vehicle`),
+          api.get(`/driver`),
+          api.get(`/rent`),
+          api.get(`/api/rent`),
+          api.get(`/customer`),
+          api.get(`/vendor`),
+          api.get(`/office`),
         ]);
 
-        const [
-          vehicleData,
-          driverData,
-          vendorVehicleData,
-          vendorDriversData,
-          customerData,
-          vendorData,
-          branchData,
-        ] = await Promise.all([
-          vehicleRes.json(),
-          driverRes.json(),
-          vendorVehicleRes.json(),
-          vendorDriversRes.json(),
-          customerRes.json(),
-          vendorRes.json(),
-          branchRes.json(),
-        ]);
-
-        setVehicle(vehicleData.data);
-        setDriver(driverData.data);
-        setVendorVehicle(vendorVehicleData.data);
-        setVendorDrivers(vendorDriversData.data);
-        setCustomer(customerData.data);
-        setVendors(vendorData.data);
-        setBranch(branchData.data);
+        setVehicle(vehicleRes.data)
+        setDriver(driverRes.data)
+        setVendorVehicle(vendorVehicleRes.data.data)
+        setVendorDrivers(vendorDriversRes.data.data)
+        setCustomer(customerRes.data)
+        setVendors(vendorRes.data.data)
+        setBranch(branchRes.data.data)
 
         if (id) {
           const tripRes = await fetch(
-            `${import.meta.env.VITE_BASE_URL}/api/trip/show/${id}`
+            `/trip/${id}`
           );
-          if (tripRes.ok) {
-            const { data: tripData } = await tripRes.json();
+           if (tripRes.data) {
+            const tripData = tripRes.data
 
             if (tripData.date) {
               tripData.date = new Date(tripData.date).toISOString().split("T")[0];

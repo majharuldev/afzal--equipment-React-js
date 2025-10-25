@@ -25,6 +25,8 @@ import { Button, Col, Modal, Row, Space, Table } from "antd";
 import DatePicker from "react-datepicker";
 import { RiEditLine } from "react-icons/ri";
 import { tableFormatDate } from "../components/Shared/formatDate";
+import api from "../utils/axiosConfig";
+import { toNumber } from "../hooks/toNumber";
 const TripList = () => {
   const [trip, setTrip] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -90,12 +92,10 @@ const TripList = () => {
   // customer data
   useEffect(() => {
     // Fetch customers data
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
+    api
+      .get(`/customer`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          setCustomers(response.data.data);
-        }
+        setCustomers(response.data);
       })
       .catch((error) => {
         console.error("Error fetching customers:", error);
@@ -104,12 +104,10 @@ const TripList = () => {
 
   // Fetch trips data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/trip/list`)
+    api
+      .get(`/trip`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          setTrip(response.data.data);
-        }
+        setTrip(response.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -128,10 +126,10 @@ const TripList = () => {
       Commission: dt.driver_commission || "0",
       "Load Point": dt.load_point,
       "Unload Point": dt.unload_point,
-      "Trip Cost": dt.total_exp || 0,
-      "Trip Fare": dt.total_rent || 0,
+      "Trip Fare": toNumber(dt.total_rent) || 0,
+      "Trip Cost": toNumber(dt.total_exp) || 0,
       "Total Profit":
-        parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0),
+        toNumber(dt.total_rent || 0) - toNumber(dt.total_exp || 0),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(tableData);
@@ -233,25 +231,22 @@ const TripList = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/trip/delete/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await api.delete(`/trip/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete driver");
+      // Axios er jonno check
+      if (response.status === 200) {
+        // UI update
+        setTrip((prev) => prev.filter((item) => item.id !== id));
+        toast.success("Trip deleted successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setIsOpen(false);
+        setselectedTripId(null);
+      } else {
+        throw new Error("Delete request failed");
       }
-      // Remove trip from local list
-      setTrip((prev) => prev.filter((trip) => trip.id !== id));
-      toast.success("Trip deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      setIsOpen(false);
-      setselectedTripId(null);
     } catch (error) {
       console.error("Delete error:", error);
       toast.error("There was a problem deleting!", {
@@ -263,15 +258,11 @@ const TripList = () => {
   // view trip by id
   const handleView = async (id) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/trip/show/${id}`
+      const response = await api.get(
+        `/trip/${id}`
       );
-      if (response.data.status === "Success") {
-        setselectedTrip(response.data.data);
-        setViewModalOpen(true);
-      } else {
-        toast.error("Can't get trip details");
-      }
+      setselectedTrip(response.data);
+      setViewModalOpen(true);
     } catch (error) {
       console.error("View error:", error);
       toast.error("Can't get trip details");
@@ -317,7 +308,7 @@ const TripList = () => {
       width: 120,
       render: (date) => tableFormatDate(date),
     },
-     {
+    {
       title: "কাস্টমার",
       key: "customer",
       width: 100,
@@ -327,13 +318,13 @@ const TripList = () => {
         </div>
       ),
     },
-     {
+    {
       title: "ইকুইপমেন্ট নং",
       key: "vehicle_no",
       render: (_, record) => (
         <div>
           <div> {record.vehicle_no || "N/A"}</div>
-        
+
         </div>
       ),
     },
@@ -409,18 +400,21 @@ const TripList = () => {
             <FaEye className="text-[12px]" />
           </button>
 
-          {/* <button
-            onClick={() => handlePrintClick(record)}
-            className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+          <button
+            onClick={() => {
+              setselectedTripId(record.id);
+              setIsOpen(true);
+            }}
+            className="text-red-500 hover:text-white hover:bg-red-500 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
           >
-            <Printer className="h-4 w-4" />
-          </button> */}
+            <FaTrashAlt className="text-[12px]" />
+          </button>
         </Space>
       ),
     },
   ];
 
-  if (loading) return <p className="text-center mt-16">Loading trip...</p>;
+  // if (loading) return <p className="text-center mt-16">Loading trip...</p>;
 
   return (
     <main className=" ">
@@ -448,7 +442,6 @@ const TripList = () => {
         </div>
         {/* export and search */}
         <div className="md:flex justify-between items-center mb-5">
-
           <div className="flex flex-wrap md:flex-row gap-1 md:gap-3 text-primary font-semibold rounded-md">
             <button
               onClick={exportTripsToExcel}
@@ -615,6 +608,7 @@ const TripList = () => {
             )
           }}
           scroll={{ x: "max-content" }}
+          loading={loading}
         />
       </div>
       {/* Hidden Component for Printing */}

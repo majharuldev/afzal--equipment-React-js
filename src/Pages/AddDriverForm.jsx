@@ -236,6 +236,7 @@ import toast, { Toaster } from "react-hot-toast";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../utils/axiosConfig";
 
 const DriverForm = () => {
   const [loading, setLoading] = useState(false);
@@ -252,17 +253,13 @@ const DriverForm = () => {
   // Update mode হলে ডেটা লোড করা
   useEffect(() => {
     if (id) {
-      axios
-        .get(`${import.meta.env.VITE_BASE_URL}/api/driver/show/${id}`)
+      api
+        .get(`/driver/${id}`)
         .then((res) => {
-          if (res.data.status === "Success") {
-            const driver = res.data.data;
+            const driver = res.data;
             setInitialData(driver);
             reset(driver); // form fields set
-            if (driver.license_image) setPreviewImage(driver.license_image);
-          } else {
-            toast.error("ড্রাইভারের তথ্য লোড করা যায়নি");
-          }
+            // if (driver.license_image) setPreviewImage(driver.license_image);
         })
         .catch((err) => {
           console.error(err);
@@ -274,34 +271,30 @@ const DriverForm = () => {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      const formData = new FormData();
-      for (const key in data) {
-        if (data[key] !== undefined && data[key] !== null) {
-          formData.append(key, data[key]);
-        }
-      }
+      // const formData = new FormData();
+      // for (const key in data) {
+      //   if (data[key] !== undefined && data[key] !== null) {
+      //     formData.append(key, data[key]);
+      //   }
+      // }
 
       let response;
       if (id) {
-        response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/driver/update/${id}`,
-          formData
+        response = await api.put(
+          `/driver/${id}`,
+          data
         );
       } else {
-        response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/driver/create`,
-          formData
+        response = await api.post(
+          `/driver`,
+          data
         );
       }
 
       const resData = response.data;
-      if (resData.status === "Success") {
         toast.success(id ? "ড্রাইভার সফলভাবে আপডেট হয়েছে" : "ড্রাইভার সফলভাবে যোগ হয়েছে");
         reset();
-        navigate("/tramessy/HR/HRM/DriverList");
-      } else {
-        toast.error("সার্ভার সমস্যা: " + (resData.message || "অজানা সমস্যা"));
-      }
+        navigate("/tramessy/HR/DriverList");
     } catch (error) {
       console.error(error);
       toast.error("সার্ভার সমস্যা: " + (error.response?.data?.message || error.message));
@@ -322,17 +315,17 @@ const DriverForm = () => {
             {/* নাম ও মোবাইল */}
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
-                <InputField name="driver_name" label="ড্রাইভারের নাম" required />
+                <InputField name="driver_name" label="ড্রাইভারের নাম" required={!id} />
               </div>
               <div className="mt-2 md:mt-0 w-full">
-                <InputField name="driver_mobile" label="ড্রাইভারের মোবাইল" required />
+                <InputField name="driver_mobile" label="ড্রাইভারের মোবাইল" required={!id} />
               </div>
             </div>
 
             {/* ঠিকানা ও জরুরি যোগাযোগ */}
             <div className="md:flex justify-between gap-3 mt-3">
               <div className="w-full">
-                <InputField name="address" label="ঠিকানা" required />
+                <InputField name="address" label="ঠিকানা" required={!id} />
               </div>
               <div className="mt-2 md:mt-0 w-full">
                 <InputField name="emergency_contact" label="জরুরি যোগাযোগ" />
@@ -342,10 +335,10 @@ const DriverForm = () => {
             {/* NID & লাইসেন্স */}
             <div className="md:flex justify-between gap-3 mt-3">
               <div className="w-full">
-                <InputField name="nid" label="NID নম্বর" required />
+                <InputField name="nid" label="NID নম্বর" required={!id} />
               </div>
               <div className="mt-2 md:mt-0 w-full">
-                <InputField name="license" label="লাইসেন্স নম্বর" required />
+                <InputField name="lincense" label="লাইসেন্স নম্বর" required={!id} />
               </div>
             </div>
 
@@ -353,12 +346,12 @@ const DriverForm = () => {
             <div className="md:flex justify-between gap-3 mt-3">
               <div className="w-full">
                 <InputField
-                  name="license_expire_date"
+                  name="expire_date"
                   label="লাইসেন্স মেয়াদ শেষ"
                   type="date"
-                  required
+                  required={!id}
                   inputRef={(e) => {
-                    register("license_expire_date").ref(e);
+                    register("expire_date").ref(e);
                     driverDateRef.current = e;
                   }}
                   icon={
@@ -379,23 +372,23 @@ const DriverForm = () => {
             {/* স্ট্যাটাস ও ওপেনিং ব্যালান্স */}
             <div className="md:flex justify-between gap-3 mt-3">
               <div className="w-full">
-                <InputField name="opening_balance" label="ওপেনিং ব্যালান্স" required />
+                <InputField name="opening_balance" label="ওপেনিং ব্যালান্স" required={!id} />
               </div>
               <div className="w-full">
                 <SelectField
                   name="status"
                   label="স্ট্যাটাস"
-                  required
+                  required={!id}
                   options={[
-                    { value: "Active", label: "Active" },
-                    { value: "Inactive", label: "Inactive" },
+                    { value: "Active", label: "সক্রিয়" },
+                    { value: "Inactive", label: "নিষ্ক্রিয়" },
                   ]}
                 />
               </div>
             </div>
 
             {/* লাইসেন্স ইমেজ */}
-            <div className="mt-3 w-[50%]">
+            {/* <div className="mt-3 w-[50%]">
               <label className="text-gray-700 text-sm font-medium">
                 লাইসেন্স ইমেজ আপলোড <span className="text-red-500">*</span>
               </label>
@@ -433,10 +426,10 @@ const DriverForm = () => {
                   </div>
                 )}
               />
-            </div>
+            </div> */}
 
             {/* প্রিভিউ */}
-            {previewImage && (
+            {/* {previewImage && (
               <div className="mt-3 relative flex justify-end">
                 <button
                   type="button"
@@ -455,7 +448,7 @@ const DriverForm = () => {
                   className="max-w-xs h-auto rounded border border-gray-300"
                 />
               </div>
-            )}
+            )} */}
 
             <div className="mt-6 text-left">
               <BtnSubmit loading={loading}>{id ? "আপডেট করুন" : "সাবমিট করুন"}</BtnSubmit>

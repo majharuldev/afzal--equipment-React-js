@@ -11,6 +11,8 @@ import autoTable from "jspdf-autotable";
 import { saveAs } from "file-saver";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Button, Modal, Space, Table } from "antd";
+import api from "../utils/axiosConfig";
+import { tableFormatDate } from "../components/Shared/formatDate";
 const CarList = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,12 +30,10 @@ const CarList = () => {
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/driver/list`)
+    api
+      .get(`/driver`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          setDrivers(response.data.data);
-        }
+          setDrivers(response.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -47,11 +47,8 @@ const CarList = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/driver/delete/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await api.delete(
+        `/driver/${id}`
       );
 
       if (!response.ok) {
@@ -77,8 +74,8 @@ const CarList = () => {
   // view driver by id
   const handleView = async (id) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/driver/show/${id}`
+      const response = await api.get(
+        `/driver/${id}`
       );
       if (response.data.status === "Success") {
         setSelectedDriver(response.data.data);
@@ -227,8 +224,10 @@ const CarList = () => {
       render: (address) => (<p className="line-clamp-2">{address}</p> ) 
      },
     { title: "জরুরি যোগাযোগ", dataIndex: "emergency_contact", key: "emergency_contact" },
-    { title: "লাইসেন্স", dataIndex: "license", key: "license" },
-    { title: "মেয়াদ শেষ", dataIndex: "license_expire_date", key: "license_expire_date" },
+    { title: "লাইসেন্স", dataIndex: "lincense", key: "lincense" },
+    { title: "মেয়াদ শেষ", dataIndex: "expire_date", key: "expire_date",
+      render: (date) => <span>{tableFormatDate(date)}</span>
+     },
     { title: "স্ট্যাটাস", dataIndex: "status", key: "status", render: (status) => <span className="bg-green-700 text-white px-2 py-1 rounded">{status}</span> },
     {
       title: "অ্যাকশন",

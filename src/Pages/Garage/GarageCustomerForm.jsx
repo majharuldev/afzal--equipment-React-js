@@ -2,11 +2,13 @@ import BtnSubmit from "../../components/Button/BtnSubmit";
 import { FiCalendar } from "react-icons/fi";
 import { FormProvider, useForm } from "react-hook-form";
 import { InputField, SelectField } from "../../components/Form/FormFields";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import useRefId from "../../hooks/useRef";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../../utils/axiosConfig";
+import { AuthContext } from "../../providers/AuthProvider";
 
 const GarageCustomerForm = () => {
     const [loading, setLoading] = useState(false);
@@ -15,17 +17,18 @@ const GarageCustomerForm = () => {
     const methods = useForm();
     const navigate = useNavigate();
     const { id } = useParams(); // Update হলে আইডি আসবে
-    const { handleSubmit, reset, register, setValue } = methods;
+    const { handleSubmit, reset, register, setValue, control } = methods;
     const generateRefId = useRefId();
+    const { user } = useContext(AuthContext);
 
     // যদি Update মোড হয়, তাহলে ডাটা লোড করবো
     useEffect(() => {
         if (id) {
             setIsEdit(true);
-            axios
-                .get(`${import.meta.env.VITE_BASE_URL}/api/customer/show/${id}`)
+            api
+                .get(`/garageCustomer/${id}`)
                 .then((res) => {
-                    if (res.data.status === "Success") {
+                    if (res.data.success) {
                         const customer = res.data.data;
                         Object.keys(customer).forEach((key) => {
                             setValue(key, customer[key]);
@@ -43,29 +46,42 @@ const GarageCustomerForm = () => {
     const onSubmit = async (data) => {
         try {
             setLoading(true);
-            const formData = new FormData();
-            for (const key in data) {
-                formData.append(key, data[key]);
-            }
+            // const formData = new FormData();
+            // for (const key in data) {
+            //     formData.append(key, data[key]);
+            // }
+            // if (!isEdit) {
+            //     formData.append("ref_id", generateRefId());
+            // }
+
+            const payload = {
+                ...data,
+                created_by: user?.name || "system",
+            };
+
+            // 🔹 Generate ref_id only when adding new
             if (!isEdit) {
-                formData.append("ref_id", generateRefId());
+                payload.ref_id = generateRefId();
             }
+
 
             const url = isEdit
-                ? `${import.meta.env.VITE_BASE_URL}/api/customer/update/${id}`
-                : `${import.meta.env.VITE_BASE_URL}/api/customer/create`;
+                ? `/garageCustomer/${id}`
+                : `/garageCustomer`;
 
-            const response = await axios.post(url, formData);
+            const response = isEdit
+                ? await api.put(url, payload)
+                : await api.post(url, payload);
             const resData = response.data;
 
-            if (resData.status === "Success") {
+            if (resData.success) {
                 toast.success(
                     isEdit
                         ? "গ্রাহকের তথ্য সফলভাবে হালনাগাদ হয়েছে!"
                         : "গ্রাহকের তথ্য সফলভাবে সংরক্ষণ করা হয়েছে!"
                 );
                 reset();
-                navigate("/tramessy/Customer");
+                navigate("/tramessy/garage");
             } else {
                 toast.error("সার্ভার সমস্যা: " + (resData.message || "অজানা ত্রুটি"));
             }
@@ -107,11 +123,11 @@ const GarageCustomerForm = () => {
                                 <InputField name="customer_name" label="কাস্টমার নাম" required />
                             </div>
                             <div className="mt-3 md:mt-0 w-full relative">
-                                <InputField name="mobile" label="মোবাইল" required />
+                                <InputField name="customer_mobile" label="মোবাইল" required />
                             </div>
                             <div className="w-full">
                                 <SelectField
-                                    name="month"
+                                    name="month_name"
                                     label="মাস"
                                     required
                                     options={[
@@ -134,14 +150,31 @@ const GarageCustomerForm = () => {
 
                         <div className="mt-1 md:flex justify-between gap-3">
 
-                            <div className="mt-3 md:mt-0 w-full relative">
-                                <InputField name="equipment_category" label="ইকুইপমেন্ট ক্যাটাগরি" />
+                            <div className="w-full relative">
+                                <SelectField
+                                    name="vehicle_category"
+                                    label="ইকুইপমেন্টের ধরণ"
+                                    required
+                                    options={[
+                                        { value: "", label: "ইকুইপমেন্টের ধরণ নির্বাচন করুন..." },
+                                        { value: "Exvator", label: "এক্সভেটর" },
+                                        { value: "Concrete Mixer", label: "কংক্রিট মিক্সার" },
+                                        { value: "Road Roller", label: "রোলার" },
+                                        { value: "Payloader", label: "পে-লোডার" },
+                                        { value: "Chain Dozer", label: "চেইন ডোজার" },
+                                        { value: "Dump Truck", label: "ডাম্প ট্রাক" },
+                                        { value: "Crane", label: "ক্রেন" },
+                                        { value: "Trailer", label: "ট্রেইলার" },
+                                        { value: "Other", label: "অন্যান্য" }
+                                    ]}
+                                    control={control}
+                                />
                             </div>
                             <div className="w-full relative">
-                                <InputField name="equipment_no" label="ইকুইপমেন্ট নম্বর" required />
+                                <InputField name="vehicle_no" label="ইকুইপমেন্ট নম্বর" required />
                             </div>
                             <div className="w-full relative">
-                                <InputField name="equipment_qty" label="ইকুইপমেন্ট সংখ্যা" required />
+                                <InputField name="vehicle_qty" label="ইকুইপমেন্ট সংখ্যা" required />
                             </div>
                         </div>
 

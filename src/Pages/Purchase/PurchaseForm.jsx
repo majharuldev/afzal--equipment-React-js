@@ -772,6 +772,14 @@ const PurchaseForm = () => {
                 ]}
               />
             </div>
+            <div className="w-full">
+              <InputField
+                name="service_charge"
+                label="Service Charge"
+                type="number"
+                required={!isEditMode}
+              />
+            </div>
             {selectedCategory === "parts" && (
               <div className="w-full">
                 <InputField name="item_name" label="আইটেমের নাম" required={!isEditMode} />
