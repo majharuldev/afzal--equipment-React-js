@@ -34,8 +34,6 @@ const Customer = () => {
       const response = await api.delete(
         `/customer/${id}`
       );
-      if (!response.ok) throw new Error("গ্রাহক ডিলিট ব্যর্থ হয়েছে!");
-
       setCustomer((prev) => prev.filter((customer) => customer.id !== id));
       toast.success("গ্রাহকের তথ্য সফলভাবে ডিলিট করা হয়েছে");
       setIsModalOpen(false);
@@ -80,7 +78,7 @@ const Customer = () => {
       key: "rate",
     },
     {
-      title: "বাকি পরিমাণ",
+      title: "শুরুর ব্যালেন্স",
       dataIndex: "opening_balance",
       key: "opening_balance",
     },

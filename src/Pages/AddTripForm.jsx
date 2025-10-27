@@ -8,6 +8,7 @@ import BtnSubmit from "../components/Button/BtnSubmit";
 import { FiCalendar } from "react-icons/fi";
 import { add, format } from "date-fns";
 import api from "../utils/axiosConfig";
+import { toNumber } from "../hooks/toNumber";
 
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
@@ -255,28 +256,27 @@ export default function AddTripForm() {
 
             const parsedTripData = {
               ...tripData,
-              fuel_cost: Number(tripData.fuel_cost) || 0,
-              toll_cost: Number(tripData.toll_cost) || 0,
-              police_cost: Number(tripData.police_cost) || 0,
-              driver_commission: Number(tripData.driver_commission) || 0,
-              labor: Number(tripData.labor) || 0,
-              others_cost: Number(tripData.others_cost) || 0,
-              parking_cost: Number(tripData.parking_cost) || 0,
-              night_guard: Number(tripData.night_guard) || 0,
-              feri_cost: Number(tripData.feri_cost) || 0,
-              chada: Number(tripData.chada) || 0,
-              food_cost: Number(tripData.food_cost) || 0,
-              d_day: Number(tripData.d_day) || 0,
-              d_amount: Number(tripData.d_amount) || 0,
-              d_total: Number(tripData.d_total) || 0,
-              total_exp: Number(tripData.total_exp) || 0,
-              total_rent: Number(tripData.total_rent) || 0,
-              trip_rent: Number(tripData.trip_rent) || 0,
-              advance: Number(tripData.advance) || 0,
-              due_amount: Number(tripData.due_amount) || 0,
-              driver_adv: Number(tripData.driver_adv) || 0,
+              fuel_cost: toNumber(tripData.fuel_cost) || 0,
+              toll_cost: toNumber(tripData.toll_cost) || 0,
+              police_cost: toNumber(tripData.police_cost) || 0,
+              driver_commission: toNumber(tripData.driver_commission) || 0,
+              labor: toNumber(tripData.labor) || 0,
+              others_cost: toNumber(tripData.others_cost) || 0,
+              parking_cost: toNumber(tripData.parking_cost) || 0,
+              night_guard: toNumber(tripData.night_guard) || 0,
+              feri_cost: toNumber(tripData.feri_cost) || 0,
+              chada: toNumber(tripData.chada) || 0,
+              food_cost: toNumber(tripData.food_cost) || 0,
+              d_day: toNumber(tripData.d_day) || 0,
+              d_amount: toNumber(tripData.d_amount) || 0,
+              d_total: toNumber(tripData.d_total) || 0,
+              total_exp: toNumber(tripData.total_exp) || 0,
+              total_rent: toNumber(tripData.total_rent) || 0,
+              trip_rent: toNumber(tripData.trip_rent) || 0,
+              advance: toNumber(tripData.advance) || 0,
+              due_amount: toNumber(tripData.due_amount) || 0,
+              driver_adv: toNumber(tripData.driver_adv) || 0,
             };
-
             reset(parsedTripData);
           }
         }

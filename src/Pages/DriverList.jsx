@@ -33,7 +33,7 @@ const CarList = () => {
     api
       .get(`/driver`)
       .then((response) => {
-          setDrivers(response.data);
+        setDrivers(response.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -41,6 +41,20 @@ const CarList = () => {
         setLoading(false);
       });
   }, []);
+
+  // search
+  const filteredDriver = drivers.filter((driver) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      driver.driver_name?.toLowerCase().includes(term) ||
+      driver.driver_mobile?.toLowerCase().includes(term) ||
+      driver.nid?.toLowerCase().includes(term) ||
+      driver.emergency_contact?.toLowerCase().includes(term) ||
+      driver.address?.toLowerCase().includes(term) ||
+      driver.license?.toLowerCase().includes(term) ||
+      driver.status?.toLowerCase().includes(term)
+    );
+  });
 
   if (loading) return <p className="text-center mt-16">Loading drivers...</p>;
 
@@ -90,14 +104,14 @@ const CarList = () => {
   };
   // export functionality
   const exportDriversToExcel = () => {
-    const tableData = currentDrivers.map((driver, index) => ({
+    const tableData = filteredDriver.map((driver, index) => ({
       "SL.": indexOfFirstItem + index + 1,
       Name: driver.driver_name,
       Mobile: driver.driver_mobile,
       Address: driver.address,
       Emergency: driver.emergency_contact,
-      License: driver.license,
-      Expired: driver.license_expire_date,
+      License: driver.lincense,
+      Expried: tableFormatDate(driver.expire_date),
       Status: driver.status,
     }));
 
@@ -133,8 +147,8 @@ const CarList = () => {
       driver.driver_mobile,
       driver.address,
       driver.emergency_contact,
-      driver.license,
-      driver.license_expire_date,
+      driver.lincense,
+      tableFormatDate(driver.expire_date),
       driver.status,
     ]);
 
@@ -181,6 +195,12 @@ const CarList = () => {
         th, td { border: 1px solid #000; padding: 8px; text-align: left; }
         thead { background-color: #11375B; color: white; }
         tbody tr:nth-child(odd) { background-color: #f3f4f6; }
+        thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
       </style>
     </head>
     <body>
@@ -201,41 +221,31 @@ const CarList = () => {
     });
   };
 
-  // search
-  const filteredDriver = drivers.filter((driver) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      driver.driver_name?.toLowerCase().includes(term) ||
-      driver.driver_mobile?.toLowerCase().includes(term) ||
-      driver.nid?.toLowerCase().includes(term) ||
-      driver.emergency_contact?.toLowerCase().includes(term) ||
-      driver.address?.toLowerCase().includes(term) ||
-      driver.license?.toLowerCase().includes(term) ||
-      driver.status?.toLowerCase().includes(term)
-    );
-  });
 
   // table columns
   const columns = [
-    { title: "ক্রমিক", key: "id", render: (_, __, index) => index+1 },
+    { title: "ক্রমিক", key: "id", render: (_, __, index) => index + 1 },
     { title: "নাম", dataIndex: "driver_name", key: "driver_name" },
     { title: "মোবাইল", dataIndex: "driver_mobile", key: "driver_mobile" },
-    { title: "ঠিকানা", dataIndex: "address", key: "address",
-      render: (address) => (<p className="line-clamp-2">{address}</p> ) 
-     },
+    {
+      title: "ঠিকানা", dataIndex: "address", key: "address",
+      render: (address) => (<p className="line-clamp-2">{address}</p>)
+    },
     { title: "জরুরি যোগাযোগ", dataIndex: "emergency_contact", key: "emergency_contact" },
     { title: "লাইসেন্স", dataIndex: "lincense", key: "lincense" },
-    { title: "মেয়াদ শেষ", dataIndex: "expire_date", key: "expire_date",
+    {
+      title: "মেয়াদ শেষ", dataIndex: "expire_date", key: "expire_date",
       render: (date) => <span>{tableFormatDate(date)}</span>
-     },
+    },
     { title: "স্ট্যাটাস", dataIndex: "status", key: "status", render: (status) => <span className="bg-green-700 text-white px-2 py-1 rounded">{status}</span> },
     {
       title: "অ্যাকশন",
       key: "action",
+      className: "action_column",
       render: (_, record) => (
         <Space size="middle">
           <Link to={`/tramessy/UpdateDriverForm/${record.id}`}>
-            <Button icon={<FaPen />} type="primary" size="small" className="!bg-white !text-primary !shadow-md"/>
+            <Button icon={<FaPen />} type="primary" size="small" className="!bg-white !text-primary !shadow-md" />
           </Link>
           <Button icon={<FaEye />} type="primary" size="small" className="!bg-white !text-primary !shadow-md" onClick={() => handleView(record.id)}></Button>
           <Button icon={<FaTrashAlt />} type="primary" className="!bg-white !text-red-500 !shadow-md" size="small" onClick={() => { setSelectedDriverId(record.id); setIsDeleteOpen(true); }}></Button>
@@ -253,7 +263,7 @@ const CarList = () => {
     indexOfLastItem
   );
   const totalPages = Math.ceil(drivers.length / itemsPerPage);
-  
+
   return (
     <main className="">
       <Toaster />
@@ -312,6 +322,18 @@ const CarList = () => {
               placeholder="নাম বা মোবাইল দিয়ে খুঁজুন..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-7 top-[5.9rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
@@ -333,7 +355,7 @@ const CarList = () => {
         />
       </div>
 
-       {/* Delete Modal */}
+      {/* Delete Modal */}
       <Modal
         title="সতর্কবার্তা"
         visible={isDeleteOpen}

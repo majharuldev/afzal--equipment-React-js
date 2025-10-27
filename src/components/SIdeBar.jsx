@@ -50,16 +50,16 @@ const Sidebar = () => {
         {
           key: "trips",
           icon: <CarOutlined />,
-          label: <Link to="/tramessy/TripList">ইকুইপমেন্ট অপারেশন</Link>,
-          className: isActive("/tramessy/TripList")
+          label: <Link to="/tramessy/equipment-operation">ইকুইপমেন্ট অপারেশন</Link>,
+          className: isActive("/tramessy/equipment-operation")
             ? "ant-menu-item-selected"
             : "",
         },
         {
           key: "vehicles",
           icon: <CarOutlined />,
-          label: <Link to="/tramessy/vehicel">ইকুইপমেন্ট তথ্য</Link>,
-          className: isActive("/tramessy/vehicel")
+          label: <Link to="/tramessy/equipment">ইকুইপমেন্ট তথ্য</Link>,
+          className: isActive("/tramessy/equipment")
             ? "ant-menu-item-selected"
             : "",
         },
@@ -138,8 +138,8 @@ const Sidebar = () => {
         },
         {
           key: "salary-expense",
-          label: <Link to="/tramessy/HR/HRM/daily-expense">বেতন খরচ</Link>,
-          className: isActive("/tramessy/daily-expense")
+          label: <Link to="/tramessy/HR/HRM/salary-expense">বেতন খরচ</Link>,
+          className: isActive("/tramessy/salary-expense")
             ? "ant-menu-item-selected"
             : "",
         },

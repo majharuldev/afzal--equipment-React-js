@@ -1,22 +1,19 @@
 
-import { useEffect, useState, useRef } from "react"
-import axios from "axios"
+import { useEffect, useState, useRef, useContext } from "react"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
 import dayjs from "dayjs"
-import { Edit, FileText, FileSpreadsheet, FileImage, Printer, Plus, Filter, X } from "lucide-react"
-import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTruck } from "react-icons/fa"
-import { GrFormNext, GrFormPrevious } from "react-icons/gr"
+import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTrashAlt, FaTruck } from "react-icons/fa"
 import toast, { Toaster } from "react-hot-toast"
 import { FaPlus } from "react-icons/fa6"
-import { Link } from "react-router-dom"
-import BtnSubmit from "../components/Button/BtnSubmit"
-import { Button, Form, Input, Modal, Select, Table } from "antd"
+import { Button, Form, Input, Modal, Select, Space, Table } from "antd"
 import { RiEditLine } from "react-icons/ri"
 import { tableFormatDate } from "../components/Shared/formatDate"
 import DatePicker from "react-datepicker"
+import api from "../utils/axiosConfig"
+import { AuthContext } from "../providers/AuthProvider"
 
 const DailyExpense = () => {
   const [expenses, setExpenses] = useState([])
@@ -24,23 +21,21 @@ const DailyExpense = () => {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const printRef = useRef()
+  const [expenseForm] = Form.useForm();
+  const { user } = useContext(AuthContext);
   const [employeesLoading, setEmployeesLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [formData, setFormData] = useState({
-    date: "",
-    paid_to: "",
-    pay_amount: "",
-    payment_category: "",
-    branch_name: "",
-    remarks: "",
-  })
   const [errors, setErrors] = useState({})
   // Date filter state
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // delete modal state
+  const [selectedExpenseId, setSelectedExpenseId] = useState(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleModal = () => setIsOpen(!isOpen);
 
   const salaryCategories = [
     "Salary",
@@ -51,9 +46,12 @@ const DailyExpense = () => {
     const fetchEmployees = async () => {
       try {
         setEmployeesLoading(true);
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/employee/list`);
-        if (response.data.status === "Success") {
-          setEmployees(response.data.data);
+        const response = await api.get(`/employee`);
+        if (response.data.success) {
+          const activeEmployees = response.data.data.filter(
+            (emp) => emp.status?.toLowerCase() === "active"
+          );
+          setEmployees(activeEmployees);
         }
       } catch (err) {
         console.error("Error fetching employees:", err);
@@ -66,51 +64,42 @@ const DailyExpense = () => {
     fetchEmployees();
     // fetchExpenses();
   }, []);
-  // modal show handler
-  const showModal = async (record = null) => {
-    if (record) {
-      try {
-        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/${record.id}`)
-        const data = res.data?.data
-        setFormData({
-          date: data?.date || "",
-          paid_to: data?.paid_to || "",
-          pay_amount: data?.pay_amount || "",
-          payment_category: data?.payment_category || "",
-          branch_name: data?.branch_name || "",
-          remarks: data?.remarks || "",
-        })
-        setEditingId(record.id)
-      } catch (err) {
-        // showToast("ডেটা লোড করতে সমস্যা হয়েছে", "error")
-        console.log("error show modal")
-      }
-    } else {
-      setFormData({
-        date: "",
-        paid_to: "",
-        pay_amount: "",
-        payment_category: "",
-        remarks: "",
-      })
-      setEditingId(null)
-    }
-    setIsModalVisible(true)
-  }
 
-  const handleCancel = () => {
-    setFormData({
-      date: "",
-      paid_to: "",
-      pay_amount: "",
-      payment_category: "",
-      branch_name: "",
-      remarks: "",
-    })
-    setEditingId(null)
-    setIsModalVisible(false)
-    setErrors({})
+  // modal show handler
+const showModal = async (record = null) => {
+  if (record) {
+    try {
+      const res = await api.get(`/garageExp/${record.id}`);
+      const data = res.data?.data;
+
+      // Form field গুলো prefill করুন
+      expenseForm.setFieldsValue({
+        date: data?.date || "",
+        paid_to: data?.paid_to || "",
+        amount: data?.amount || "",
+        payment_category: data?.payment_category || "",
+        branch_name: data?.branch_name || "",
+        status: data?.status || "",
+        particulars: data?.particulars || "",
+      });
+
+      setEditingId(record.id);
+    } catch (err) {
+      console.log("Error loading data for modal", err);
+    }
+  } else {
+    expenseForm.resetFields(); // নতুন ফিল্ড খালি হবে
+    setEditingId(null);
   }
+  setIsModalVisible(true);
+};
+
+// handle modal cancel
+const handleCancel = () => {
+  expenseForm.resetFields(); // সব ফিল্ড খালি হবে
+  setEditingId(null);
+  setIsModalVisible(false);
+};
 
   useEffect(() => {
     fetchExpenses()
@@ -118,8 +107,8 @@ const DailyExpense = () => {
 
   const fetchExpenses = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list`)
-      const allExpenses = response.data?.data || [];
+      const response = await api.get(`/expense`)
+      const allExpenses = response.data || [];
       const salaryExpenses = allExpenses.filter(expense =>
         expense.payment_category === 'Salary'
       );
@@ -132,34 +121,44 @@ const DailyExpense = () => {
     }
   }
 
-  const validateForm = () => {
-    const newErrors = {}
-    if (!formData.date) newErrors.date = "তারিখ আবশ্যক"
-    if (!formData.paid_to) newErrors.paid_to = "যাকে প্রদান করবেন তা আবশ্যক"
-    if (!formData.pay_amount) newErrors.pay_amount = "পরিমাণ আবশ্যক"
-    if (!formData.branch_name) newErrors.branch_name = "শাখার নাম আবশ্যক"
-    if (!formData.payment_category) newErrors.payment_category = "ক্যাটাগরি নির্বাচন করুন"
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/expense/${id}`);
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+      // Remove driver from local list
+      setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+      toast.success("বেতন খরচ সফলভাবে মুছে ফেলা হয়েছে", {
+        position: "top-right",
+        autoClose: 3000,
+      });
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault()
+      setIsOpen(false);
+      setSelectedExpenseId(null);
+    } catch (error) {
+      console.error("Delete error:", error.response || error);
+      toast.error("মুছে ফেলার অনুরোধ ব্যর্থ হয়েছে", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
 
-    if (!validateForm()) return
+  // expense submit handler
+  const handleFormSubmit = async (values) => {
     setIsSubmitting(true);
     try {
       const payload = {
-        ...formData,
-        date: dayjs(formData.date).format("YYYY-MM-DD"),
+        ...values,
+        date: dayjs(values.date).format("YYYY-MM-DD"),
+        created_by: user.name
       }
 
       if (editingId) {
-        await axios.post(`${import.meta.env.VITE_BASE_URL}/api/expense/update/${editingId}`, payload)
+        await api.put(`/expense/${editingId}`, payload)
         toast.success("খরচের তথ্য সফলভাবে আপডেট হয়েছে")
       } else {
-        await axios.post(`${import.meta.env.VITE_BASE_URL}/api/expense/create`, payload)
+        await api.post(`/expense`, payload)
         toast.success("নতুন খরচ সফলভাবে যোগ হয়েছে")
       }
 
@@ -173,23 +172,36 @@ const DailyExpense = () => {
     }
   }
 
-  const filteredData = expenses.filter((item) =>
-    [item.paid_to, item.pay_amount, item.payment_category, item.remarks]
-      .join(" ")
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase()),
-  )
+const filteredData = expenses.filter((item) => {
+  // search filter
+  const matchesSearch = [item.paid_to, item.amount, item.payment_category, item.particulars]
+    .join(" ")
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase());
+
+  // date filter
+  let matchesDate = true;
+  if (startDate) {
+    matchesDate = dayjs(item.date).isAfter(dayjs(startDate).subtract(1, 'day')); // startDate included
+  }
+  if (endDate) {
+    matchesDate = matchesDate && dayjs(item.date).isBefore(dayjs(endDate).add(1, 'day')); // endDate included
+  }
+
+  return matchesSearch && matchesDate;
+});
+
   // csv
   const exportCSV = () => {
     const csvContent = [
-      ["Serial", "Date", "Paid To", "Amount", "Category", "Remarks"],
+      ["Serial", "Date", "Paid To", "Amount", "Category", "particulars"],
       ...filteredData.map((item, i) => [
         i + 1,
         item.date,
         item.paid_to,
-        item.pay_amount,
+        item.amount,
         item.payment_category,
-        item.remarks,
+        item.particulars,
       ]),
     ]
       .map((row) => row.join(","))
@@ -201,12 +213,14 @@ const DailyExpense = () => {
   // excel
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
-      ক্রমিক: i + 1,
-      তারিখ: item.date,
-      "যাকে প্রদান": item.paid_to,
-      পরিমাণ: item.pay_amount,
-      ক্যাটাগরি: item.payment_category,
-      মন্তব্য: item.remarks,
+      Sl: i + 1,
+      Date: item.date,
+      "Paid to": item.paid_to,
+      Amount: item.amount,
+      Category: item.payment_category,
+      Remarks: item.particulars,
+      Status: item.status,
+      "Created By": item.created_by,
     }))
 
     const ws = XLSX.utils.json_to_sheet(data)
@@ -219,41 +233,72 @@ const DailyExpense = () => {
   const exportPDF = () => {
     const doc = new jsPDF()
     autoTable(doc, {
-      head: [["Serial", "Date", "Paid To", "Amount", "Category", "Remarks"]],
+      head: [["Serial", "Date", "Paid To", "Amount", "Category", "particulars", "Status", "Created By"]],
       body: filteredData.map((item, i) => [
         i + 1,
         item.date,
         item.paid_to,
-        item.pay_amount,
+        item.amount,
         item.payment_category,
-        item.remarks,
+        item.particulars,
+        item.status,
+        item.created_by,
       ]),
     })
     doc.save("general_expense.pdf")
   }
   // print
-  const printTable = () => {
-    const content = printRef.current.innerHTML
-    const win = window.open("", "", "width=900,height=650")
-    win.document.write(`
-      <html>
-        <head>
-          <title>Print</title>
-          <style>
-            body { font-family: Arial, sans-serif; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f5f5f5; }
-          </style>
-        </head>
-        <body>${content}</body>
-      </html>
-    `)
-    win.document.close()
-    win.focus()
-    win.print()
-    win.close()
-  }
+ // print function
+const printTable = () => {
+  // print columns (action column excluded)
+const printColumns = columns.filter(col => col.key !== "action");
+  const doc = document.createElement("table");
+  doc.style.borderCollapse = "collapse";
+  doc.style.width = "100%";
+
+  // Header
+  const thead = doc.createTHead();
+  const headRow = thead.insertRow();
+  printColumns.forEach(col => {
+    const th = document.createElement("th");
+    th.innerText = col.title;
+    th.style.border = "1px solid #ddd";
+    th.style.padding = "8px";
+    th.style.backgroundColor = "#f5f5f5";
+    th.style.textAlign = "left";
+    headRow.appendChild(th);
+  });
+
+  // Body
+  const tbody = doc.createTBody();
+  filteredData.forEach((item, i) => {
+    const row = tbody.insertRow();
+    printColumns.forEach(col => {
+      const cell = row.insertCell();
+      let value = item[col.dataIndex];
+      if(col.dataIndex === "date") value = tableFormatDate(value);
+      if(col.dataIndex === "index") value = i + 1;
+      cell.innerText = value ?? "";
+      cell.style.border = "1px solid #ddd";
+      cell.style.padding = "8px";
+    });
+  });
+
+  const win = window.open("", "", "width=900,height=650");
+  win.document.write(`
+    <html>
+      <head>
+        <title>Print</title>
+        <style>body{font-family:Arial,sans-serif;}</style>
+      </head>
+      <body>${doc.outerHTML}</body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  win.print();
+  win.close();
+};
 
   // column for table
   const columns = [
@@ -276,8 +321,8 @@ const DailyExpense = () => {
     },
     {
       title: "পরিমাণ",
-      dataIndex: "pay_amount",
-      key: "pay_amount",
+      dataIndex: "amount",
+      key: "amount",
     },
     {
       title: "ক্যাটাগরি",
@@ -286,16 +331,37 @@ const DailyExpense = () => {
     },
     {
       title: "মন্তব্য",
-      dataIndex: "remarks",
-      key: "remarks",
+      dataIndex: "particulars",
+      key: "particulars",
+    },
+    {
+      title: "স্ট্যাটাস",
+      dataIndex: "status",
+      key: "status",
+    },
+    {
+      title: "ক্রিয়েটেড",
+      dataIndex: "created_by",
+      key: "created_by",
     },
     {
       title: "অ্যাকশন",
       key: "action",
       render: (_, record) => (
-        <Button onClick={() => showModal(record)} size="small" type="primary" className="!bg-white !text-primary !shadow-md">
-          <RiEditLine />
-        </Button>
+        <Space>
+          <Button onClick={() => showModal(record)} size="small" type="primary" className="!bg-white !text-primary !shadow-md">
+            <RiEditLine />
+          </Button>
+          <button
+            onClick={() => {
+              setSelectedExpenseId(record.id);
+              setIsOpen(true);
+            }}
+            className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+          >
+            <FaTrashAlt className="text-[12px]" />
+          </button>
+        </Space >
       ),
     },
   ]
@@ -337,13 +403,13 @@ const DailyExpense = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4">
           <div className="flex flex-wrap gap-2">
 
-            <button
+            {/* <button
               onClick={exportCSV}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-cyan-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
               <FileText size={16} />
               সিএসভি
-            </button>
+            </button> */}
             <button
               onClick={exportExcel}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -378,6 +444,18 @@ const DailyExpense = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-14 top-[11.9rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
@@ -416,7 +494,8 @@ const DailyExpense = () => {
             </div>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
-                onClick={() => {setCurrentPage(1)
+                onClick={() => {
+                  setCurrentPage(1)
                   setShowFilter(false)
                   setStartDate("")
                   setEndDate("")
@@ -430,26 +509,28 @@ const DailyExpense = () => {
         )}
 
         {/* Table */}
-        <Table
-          columns={columns}
-          dataSource={filteredExpense}
-          loading={loading}
-          rowKey="id"
-          pagination={{
-            current: currentPage,
-            pageSize: itemsPerPage,
-            total: filteredData.length,
-            onChange: (page) => setCurrentPage(page),
-            showSizeChanger: false,
-            position: ['bottomCenter'],
-          }}
-          locale={{
-            emptyText: "কোন ব্যয়ের তথ্য পাওয়া যায়নি",
-          }}
-        />
+        <div ref={printRef}>
+          <Table
+            columns={columns}
+            dataSource={filteredExpense}
+            loading={loading}
+            rowKey="id"
+            pagination={{
+              current: currentPage,
+              pageSize: itemsPerPage,
+              total: filteredData.length,
+              onChange: (page) => setCurrentPage(page),
+              showSizeChanger: false,
+              position: ['bottomCenter'],
+            }}
+            locale={{
+              emptyText: "কোন ব্যয়ের তথ্য পাওয়া যায়নি",
+            }}
+          />
+        </div>
       </div>
 
-      {/* Modal */}
+      {/*Add/update expense Modal */}
       <Modal
         title={editingId ? "বেতন খরচ আপডেট করুন" : "নতুন বেতন খরচ যোগ করুন"}
         visible={isModalVisible}
@@ -458,38 +539,32 @@ const DailyExpense = () => {
         centered
       >
         <Form
+          form={expenseForm}
           layout="vertical"
           onFinish={handleFormSubmit}
-          initialValues={formData}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          className="grid grid-cols-1 md:grid-cols-2 gap-x-4"
         >
           <Form.Item
             label="তারিখ"
             name="date"
-            rules={[{ required: true, message: "তারিখ আবশ্যক" }]}
+            rules={[{ required: editingId, message: "তারিখ আবশ্যক" }]}
           >
-            <Input
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            />
+            <Input type="date" />
           </Form.Item>
 
           <Form.Item
             label="যাকে প্রদান"
             name="paid_to"
-            rules={[{ required: true, message: "যাকে প্রদান করবেন তা আবশ্যক" }]}
+            rules={[{ required: !editingId, message: "যাকে প্রদান করবেন তা আবশ্যক" }]}
           >
             <Select
               placeholder={employeesLoading ? "লোড হচ্ছে..." : "কর্মচারী নির্বাচন করুন"}
-              value={formData.paid_to}
-              onChange={(value) => setFormData({ ...formData, paid_to: value })}
               loading={employeesLoading}
             >
               {!employeesLoading &&
                 employees.map((employee) => (
-                  <Select.Option key={employee.id} value={employee.full_name}>
-                    {employee.full_name}
+                  <Select.Option key={employee.id} value={employee.employee_name}>
+                    {employee.employee_name}
                   </Select.Option>
                 ))}
             </Select>
@@ -497,27 +572,18 @@ const DailyExpense = () => {
 
           <Form.Item
             label="পরিমাণ"
-            name="pay_amount"
-            rules={[{ required: true, message: "পরিমাণ আবশ্যক" }]}
+            name="amount"
+            rules={[{ required: !editingId, message: "পরিমাণ আবশ্যক" }]}
           >
-            <Input
-              type="number"
-              placeholder="পরিমাণ লিখুন"
-              value={formData.pay_amount}
-              onChange={(e) => setFormData({ ...formData, pay_amount: e.target.value })}
-            />
+            <Input type="number" placeholder="পরিমাণ লিখুন" />
           </Form.Item>
 
           <Form.Item
             label="ক্যাটাগরি"
             name="payment_category"
-            rules={[{ required: true, message: "ক্যাটাগরি নির্বাচন করুন" }]}
+            rules={[{ required: !editingId, message: "ক্যাটাগরি নির্বাচন করুন" }]}
           >
-            <Select
-              placeholder="ক্যাটাগরি নির্বাচন করুন"
-              value={formData.payment_category}
-              onChange={(value) => setFormData({ ...formData, payment_category: value })}
-            >
+            <Select placeholder="ক্যাটাগরি নির্বাচন করুন">
               {salaryCategories.map((category) => (
                 <Select.Option key={category} value={category}>
                   {category}
@@ -529,24 +595,30 @@ const DailyExpense = () => {
           <Form.Item
             label="শাখার নাম"
             name="branch_name"
-            rules={[{ required: true, message: "শাখার নাম আবশ্যক" }]}
+            rules={[{ required: !editingId, message: "শাখার নাম আবশ্যক" }]}
           >
-            <Input
-              placeholder="শাখার নাম লিখুন"
-              value={formData.branch_name}
-              onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })}
-            />
+            <Input placeholder="শাখার নাম লিখুন" />
           </Form.Item>
 
-          <Form.Item label="মন্তব্য" name="remarks">
-            <Input
-              placeholder="মন্তব্য লিখুন"
-              value={formData.remarks}
-              onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-            />
+          {/* নতুন Status ফিল্ড */}
+          <Form.Item
+            label="স্ট্যাটাস"
+            name="status"
+            rules={[
+              { required: !editingId, message: "স্ট্যাটাস নির্বাচন করুন" }
+            ]}
+          >
+            <Select placeholder="অবস্থা নির্বাচন করুন">
+              <Select.Option value="paid">Paid</Select.Option>
+              <Select.Option value="unpaid">Unpaid</Select.Option>
+            </Select>
           </Form.Item>
 
-          <div className="flex justify-end gap-3 mt-4">
+          <Form.Item label="মন্তব্য" name="particulars">
+            <Input placeholder="মন্তব্য লিখুন" />
+          </Form.Item>
+
+          <div className="flex justify-end gap-3 mt-5 md:col-span-2">
             <Button onClick={handleCancel}>বাতিল</Button>
             <Button
               type="primary"
@@ -557,6 +629,32 @@ const DailyExpense = () => {
             </Button>
           </div>
         </Form>
+      </Modal>
+      {/* Delete Modal */}
+      <Modal
+        open={isOpen}
+        onCancel={toggleModal}
+        footer={[
+          <Button key="cancel" onClick={toggleModal}>
+            না
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            onClick={() => handleDelete(selectedExpenseId)}
+          >
+            হ্যাঁ
+          </Button>,
+        ]}
+        title="বেতন  খরচ মুছে ফেলুন"
+      >
+        <div className="flex justify-center mb-4 text-red-500 text-4xl">
+          <FaTrashAlt />
+        </div>
+        <p className="text-center">
+          আপনি কি নিশ্চিত যে আপনি এই বেতন খরচ মুছে ফেলতে চান?
+        </p>
       </Modal>
     </div>
   )

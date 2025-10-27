@@ -397,6 +397,7 @@ import { FaFilter } from "react-icons/fa6";
 import { Button } from "antd";
 import DatePicker from "react-datepicker";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import api from "../../utils/axiosConfig";
 
 const SupplierLedger = () => {
   const [supplier, setSupplier] = useState([]);
@@ -409,8 +410,8 @@ const SupplierLedger = () => {
   const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/supply/list`)
+    api
+      .get(`/supplier`)
       .then((res) => {
         if (res.data.status === "Success") {
           setSupplier(res.data.data);
@@ -458,8 +459,8 @@ const SupplierLedger = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/supplierLedger/list`)
+    api
+      .get(`/supplierLedger`)
       .then((response) => {
         if (response.data.status === "Success") {
           const rawData = response.data.data;

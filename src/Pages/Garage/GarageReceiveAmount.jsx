@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -6,29 +6,21 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 import {
-    Edit,
-    FileText,
-    FileSpreadsheet,
-    FileImage,
-    Printer,
-    Plus,
-    Filter,
-    X,
-} from "lucide-react";
-import {
     FaFileExcel,
     FaFilePdf,
     FaFilter,
     FaPrint,
+    FaTrashAlt,
     FaTruck,
 } from "react-icons/fa";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import toast, { Toaster } from "react-hot-toast";
 import { FaPlus } from "react-icons/fa6";
-import { Link } from "react-router-dom";
-import BtnSubmit from "../../components/Button/BtnSubmit";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import { Button, Form, Input, Modal, Select, Space, Table } from "antd";
+import api from "../../utils/axiosConfig";
+import { AuthContext } from "../../providers/AuthProvider";
+import { RiEditLine } from "react-icons/ri";
 
 const GarageReceiveAmount = () => {
     const [expenses, setExpenses] = useState([]);
@@ -36,72 +28,55 @@ const GarageReceiveAmount = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const printRef = useRef();
+    const [expenseForm] = Form.useForm();
+    const [employeesLoading, setEmployeesLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({
-        date: "",
-        paid_to: "",
-        pay_amount: "",
-        payment_category: "",
-        branch_name: "",
-        remarks: "",
-    });
     const [errors, setErrors] = useState({});
+    const { user } = useContext(AuthContext);
+     // delete modal state
+    const [selectedExpenseId, setSelectedExpenseId] = useState(null)
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleModal = () => setIsOpen(!isOpen);
     // Date filter state
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [showFilter, setShowFilter] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const salaryCategories = ["Utility"];
-
     // modal show handler
     const showModal = async (record = null) => {
         if (record) {
             try {
-                const res = await axios.get(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense/${record.id}`
-                );
+                const res = await api.get(`/garageVara/${record.id}`);
                 const data = res.data?.data;
-                setFormData({
+
+                // Form field গুলো prefill করুন
+                expenseForm.setFieldsValue({
                     date: data?.date || "",
-                    paid_to: data?.paid_to || "",
-                    pay_amount: data?.pay_amount || "",
-                    payment_category: data?.payment_category || "",
-                    branch_name: data?.branch_name || "",
+                    person_name: data?.person_name || "",
+                    amount: data?.amount || "",
+                    category: data?.category || "",
+                    status: data?.status || "",
                     remarks: data?.remarks || "",
                 });
+
                 setEditingId(record.id);
             } catch (err) {
-                // showToast("ডেটা লোড করতে সমস্যা হয়েছে", "error")
-                console.log("error show modal");
+                console.log("Error loading data for modal", err);
             }
         } else {
-            setFormData({
-                date: "",
-                paid_to: "",
-                pay_amount: "",
-                payment_category: "",
-                branch_name: "",
-                remarks: "",
-            });
+            expenseForm.resetFields(); // নতুন ফিল্ড খালি হবে
             setEditingId(null);
         }
         setIsModalVisible(true);
     };
 
+    // handle modal cancel
     const handleCancel = () => {
-        setFormData({
-            date: "",
-            paid_to: "",
-            pay_amount: "",
-            payment_category: "",
-            branch_name: "",
-            remarks: "",
-        });
+        expenseForm.resetFields(); // সব ফিল্ড খালি হবে
         setEditingId(null);
         setIsModalVisible(false);
-        setErrors({});
     };
 
     useEffect(() => {
@@ -111,8 +86,8 @@ const GarageReceiveAmount = () => {
     //   expense
     const fetchExpenses = async () => {
         try {
-            const response = await axios.get(
-                `${import.meta.env.VITE_BASE_URL}/api/expense/list`
+            const response = await api.get(
+                `/garageVara`
             );
             const allExpenses = response.data?.data || [];
             const utilityExpenses = allExpenses.filter(
@@ -127,43 +102,51 @@ const GarageReceiveAmount = () => {
         }
     };
 
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.date) newErrors.date = "Date is required";
-        if (!formData.paid_to) newErrors.paid_to = "Recipient is required";
-        if (!formData.pay_amount) newErrors.pay_amount = "Amount is required";
-        if (!formData.branch_name)
-            newErrors.branch_name = "Branch name is required";
-        if (!formData.payment_category)
-            newErrors.payment_category = "Category is required";
+    // delete by id
+    const handleDelete = async (id) => {
+        try {
+            const response = await api.delete(`/garageVara/${id}`);
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+            // Remove driver from local list
+            setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+            toast.success("বেতন খরচ সফলভাবে মুছে ফেলা হয়েছে", {
+                position: "top-right",
+                autoClose: 3000,
+            });
+
+            setIsOpen(false);
+            setSelectedExpenseId(null);
+        } catch (error) {
+            console.error("Delete error:", error.response || error);
+            toast.error("মুছে ফেলার অনুরোধ ব্যর্থ হয়েছে", {
+                position: "top-right",
+                autoClose: 3000,
+            });
+        }
     };
 
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!validateForm()) return;
+    //   form submit handler
+    const handleFormSubmit = async (values) => {
         setIsSubmitting(true);
         try {
             const payload = {
-                ...formData,
-                date: dayjs(formData.date).format("YYYY-MM-DD"),
+                ...values,
+                date: dayjs(values.date).format("YYYY-MM-DD"),
+                created_by: user.name,
             };
 
             if (editingId) {
-                await axios.post(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense/update/${editingId}`,
+                await api.put(
+                    `/garageVara/${editingId}`,
                     payload
                 );
-                toast.success("Expense Data Update successful");
+                toast.success("Garage vara uttolon Data Update successful");
             } else {
-                await axios.post(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense/create`,
+                await api.post(
+                    `/garageVara`,
                     payload
                 );
-                toast.success("Epense Added successful");
+                toast.success("Garage Vara uttolon Added successful");
             }
 
             handleCancel();
@@ -182,6 +165,72 @@ const GarageReceiveAmount = () => {
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
     );
+
+    // column for table
+    const columns = [
+        {
+            title: "ক্রমিক",
+            dataIndex: "index",
+            key: "index",
+            render: (text, record, index) => index + 1,
+        },
+        {
+            title: "তারিখ",
+            dataIndex: "date",
+            key: "date",
+            render: (text) => tableFormatDate(text),
+        },
+        {
+            title: "যাকে প্রদান",
+            dataIndex: "person_name",
+            key: "person_name",
+        },
+        {
+            title: "পরিমাণ",
+            dataIndex: "amount",
+            key: "amount",
+        },
+        {
+            title: "ক্যাটাগরি",
+            dataIndex: "category",
+            key: "category",
+        },
+        {
+            title: "মন্তব্য",
+            dataIndex: "remarks",
+            key: "remarks",
+        },
+        {
+            title: "স্ট্যাটাস",
+            dataIndex: "status",
+            key: "status",
+        },
+        {
+            title: "ক্রিয়েটেড",
+            dataIndex: "created_by",
+            key: "created_by",
+        },
+        {
+            title: "অ্যাকশন",
+            key: "action",
+            render: (_, record) => (
+                <Space>
+                    <Button onClick={() => showModal(record)} size="small" type="primary" className="!bg-white !text-primary !shadow-md">
+                        <RiEditLine />
+                    </Button>
+                    <button
+                        onClick={() => {
+                            setSelectedExpenseId(record.id);
+                            setIsOpen(true);
+                        }}
+                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                    >
+                        <FaTrashAlt className="text-[12px]" />
+                    </button>
+                </Space >
+            ),
+        },
+    ]
     // csv
     const exportCSV = () => {
         const csvContent = [
@@ -266,16 +315,6 @@ const GarageReceiveAmount = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const filteredExpense = filteredData.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    const handlePrevPage = () => {
-        if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
-    };
-    const handleNextPage = () => {
-        if (currentPage < totalPages)
-            setCurrentPage((currentPage) => currentPage + 1);
-    };
-    const handlePageClick = (number) => {
-        setCurrentPage(number);
-    };
 
     return (
         <div className=" min-h-screen">
@@ -393,301 +432,139 @@ const GarageReceiveAmount = () => {
                 )}
 
                 {/* Table */}
-                <div
-                    className="mt-5 overflow-x-auto rounded-xl border border-gray-200"
-                    ref={printRef}
-                >
-                    <table className="min-w-full text-sm text-left">
-                        <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
-                            <tr className="">
-                                <th className="px-3 py-3 text-left text-sm font-semibold w-16">
-                                    ক্রমিক
-                                </th>
-                                <th className="px-3 py-3 text-left text-sm font-semibold">
-                                    তারিখ
-                                </th>
-                                <th className="px-3 py-3 text-left text-sm font-semibold">
-                                    মাস
-                                </th>
-                                <th className="px-3 py-3 text-left text-sm font-semibold">
-                                    প্রদানকারী ব্যক্তি
-                                </th>
-                                <th className="px-3 py-3 text-left text-sm font-semibold">
-                                    পরিমাণ
-                                </th>
-                                <th className="px-3 py-3 text-left text-sm font-semibold">
-                                    মন্তব্য
-                                </th>
-                                <th className="px-3 py-3 text-left text-sm font-semibold">
-                                    স্ট্যাটাস
-                                </th>
-                                <th className="px-3 py-3 text-left text-sm font-semibold w-24">
-                                    অ্যাকশন
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td
-                                        colSpan="7"
-                                        className="px-3 py-10 text-center text-gray-500"
-                                    >
-                                        Loading...
-                                    </td>
-                                </tr>
-                            ) : filteredExpense.length === 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan="8"
-                                        className="text-center py-10 text-gray-500 italic"
-                                    >
-                                        <div className="flex flex-col items-center">
-                                            <svg
-                                                className="w-12 h-12 text-gray-300 mb-2"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                />
-                                            </svg>
-                                            No Expense data found.
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredExpense.map((item, index) => (
-                                    <tr
-                                        key={item.id}
-                                        className="border-b border-gray-200 hover:bg-gray-50"
-                                    >
-                                        <td className="px-3 py-3 text-sm">{index + 1}</td>
-                                        <td className="px-3 py-3 text-sm">{tableFormatDate(item.date)}</td>
-                                        <td className="px-3 py-3 text-sm">{item.month}</td>
-                                        <td className="px-3 py-3 text-sm">{item.paid_to}</td>
-                                        <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
-                                        <td className="px-3 py-3 text-sm">{item.remarks}</td>
-                                        <td className="px-3 py-3 text-sm">{item.status}</td>
-                                        <td className="px-3 py-3 text-sm">
-                                            <button
-                                                onClick={() => showModal(item)}
-                                                className="flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors"
-                                            >
-                                                <Edit size={12} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                <div ref={printRef}>
+                    <Table
+                        columns={columns}
+                        dataSource={filteredExpense}
+                        loading={loading}
+                        rowKey="id"
+                        pagination={{
+                            current: currentPage,
+                            pageSize: itemsPerPage,
+                            total: filteredData.length,
+                            onChange: (page) => setCurrentPage(page),
+                            showSizeChanger: false,
+                            position: ['bottomCenter'],
+                        }}
+                        locale={{
+                            emptyText: "কোন ভাড়া উত্তোলন তথ্য পাওয়া যায়নি",
+                        }}
+                    />
                 </div>
-                {/* pagination */}
-                {filteredExpense.length === 0 ? (
-                    ""
-                ) : (
-                    <div className="mt-10 flex justify-center">
-                        <div className="space-x-2 flex items-center">
-                            <button
-                                onClick={handlePrevPage}
-                                className={`p-2 ${currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
-                                    } rounded-sm`}
-                                disabled={currentPage === 1}
-                            >
-                                <GrFormPrevious />
-                            </button>
-                            {[...Array(totalPages).keys()].map((number) => (
-                                <button
-                                    key={number + 1}
-                                    onClick={() => handlePageClick(number + 1)}
-                                    className={`px-3 py-1 rounded-sm ${currentPage === number + 1
-                                        ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
-                                        : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-                                        }`}
-                                >
-                                    {number + 1}
-                                </button>
-                            ))}
-                            <button
-                                onClick={handleNextPage}
-                                className={`p-2 ${currentPage === totalPages
-                                    ? "bg-gray-300"
-                                    : "bg-primary text-white"
-                                    } rounded-sm`}
-                                disabled={currentPage === totalPages}
-                            >
-                                <GrFormNext />
-                            </button>
-                        </div>
-                    </div>
-                )}
             </div>
 
-            {/* Modal */}
-            {isModalVisible && (
-                <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
-                    <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
-                        {/* Modal Header */}
-                        <div className="flex justify-between items-center p-5 ">
-                            <h2 className="text-lg font-semibold text-gray-900">
-                                {editingId ? "আপডেট ভাড়া উত্তোলন" : " ভাড়া উত্তোলন"}
-                            </h2>
-                            <button
-                                onClick={handleCancel}
-                                className="p-1 hover:bg-gray-100 rounded transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
+            {/*Add/update expense Modal */}
+            <Modal
+                title={editingId ? " ভাড়া উত্তোলন আপডেট করুন" : "নতুন ভাড়া উত্তোলন  যোগ করুন"}
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                footer={null}
+                centered
+            >
+                <Form
+                    form={expenseForm}
+                    layout="vertical"
+                    onFinish={handleFormSubmit}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-x-4"
+                >
+                    <Form.Item
+                        label="তারিখ"
+                        name="date"
+                        rules={[{ required: editingId, message: "তারিখ আবশ্যক" }]}
+                    >
+                        <Input type="date" />
+                    </Form.Item>
 
-                        {/* Modal Body */}
-                        <form onSubmit={handleFormSubmit}>
-                            <div className="p-5">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            তারিখ <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="date"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            value={formData.date}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, date: e.target.value })
-                                            }
-                                        />
-                                        {errors.date && (
-                                            <p className="text-red-500 text-xs mt-1">{errors.date}</p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            প্রদানকারী ব্যক্তি <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="প্রদানকারী ব্যক্তি"
-                                            value={formData.paid_to}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, paid_to: e.target.value })
-                                            }
-                                        />
-                                        {errors.paid_to && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.paid_to}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
+                    <Form.Item
+                        label="প্রদানকারী ব্যক্তি"
+                        name="paid_to"
+                        rules={[{ required: !editingId, message: "প্রদানকারী ব্যক্তি করবেন তা আবশ্যক" }]}
+                    >
+                        <Select
+                            placeholder={employeesLoading ? "লোড হচ্ছে..." : "কর্মচারী নির্বাচন করুন"}
+                            loading={employeesLoading}
+                        >
+                            {!employeesLoading &&
+                                employees.map((employee) => (
+                                    <Select.Option key={employee.id} value={employee.employee_name}>
+                                        {employee.employee_name}
+                                    </Select.Option>
+                                ))}
+                        </Select>
+                    </Form.Item>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            পরিমাণ <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="number"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="পরিমাণ"
-                                            value={formData.pay_amount}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, pay_amount: e.target.value })
-                                            }
-                                        />
-                                        {errors.pay_amount && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.pay_amount}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            মাস <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="মাস"
-                                            value={formData.month}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    month: e.target.value,
-                                                })
-                                            }
-                                        />
-                                        {errors.month && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.month}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
+                    <Form.Item
+                        label="পরিমাণ"
+                        name="amount"
+                        rules={[{ required: !editingId, message: "পরিমাণ আবশ্যক" }]}
+                    >
+                        <Input type="number" placeholder="পরিমাণ লিখুন" />
+                    </Form.Item>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            স্ট্যাটাস <span className="text-red-500">*</span>
-                                        </label>
-                                        <select
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            value={formData.status}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    status: e.target.value,
-                                                })
-                                            }
-                                        >
-                                            <option value="">স্ট্যাটাস নির্বাচন করুন</option>
-                                            <option value="Paid">পরিশোধিত</option>
-                                            <option value="Unpaid">অপরিশোধিত</option>
-                                        </select>
-                                        {errors.status && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.status}
-                                            </p>
-                                        )}
-                                    </div>
+                    <Form.Item
+                        label="শাখার নাম"
+                        name="branch_name"
+                        rules={[{ required: !editingId, message: "শাখার নাম আবশ্যক" }]}
+                    >
+                        <Input placeholder="শাখার নাম লিখুন" />
+                    </Form.Item>
 
-                                    <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            মন্তব্য
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="মন্তব্য"
-                                            value={formData.remarks}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, remarks: e.target.value })
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                    {/* নতুন Status ফিল্ড */}
+                    <Form.Item
+                        label="স্ট্যাটাস"
+                        name="status"
+                        rules={[
+                            { required: !editingId, message: "স্ট্যাটাস নির্বাচন করুন" }
+                        ]}
+                    >
+                        <Select placeholder="অবস্থা নির্বাচন করুন">
+                            <Select.Option value="paid">Paid</Select.Option>
+                            <Select.Option value="unpaid">Unpaid</Select.Option>
+                        </Select>
+                    </Form.Item>
 
-                            {/* Modal Footer */}
-                            <div className="flex justify-end gap-3 p-5 ">
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    className="mt-5 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <BtnSubmit loading={isSubmitting}>Submit</BtnSubmit>
-                            </div>
-                        </form>
+                    <Form.Item label="মন্তব্য" name="particulars">
+                        <Input placeholder="মন্তব্য লিখুন" />
+                    </Form.Item>
+
+                    <div className="flex justify-end gap-3 mt-5 md:col-span-2">
+                        <Button onClick={handleCancel}>বাতিল</Button>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={isSubmitting}
+                        >
+                            {editingId ? "আপডেট করুন" : "সংরক্ষণ করুন"}
+                        </Button>
                     </div>
+                </Form>
+            </Modal>
+            {/* Delete Modal */}
+            <Modal
+                open={isOpen}
+                onCancel={toggleModal}
+                footer={[
+                    <Button key="cancel" onClick={toggleModal}>
+                        না
+                    </Button>,
+                    <Button
+                        key="delete"
+                        type="primary"
+                        danger
+                        onClick={() => handleDelete(selectedExpenseId)}
+                    >
+                        হ্যাঁ
+                    </Button>,
+                ]}
+                title="গ্যারেজ ভাড়া উত্তোলন মুছে ফেলুন"
+            >
+                <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                    <FaTrashAlt />
                 </div>
-            )}
+                <p className="text-center">
+                    আপনি কি নিশ্চিত যে আপনি এই গ্যারেজ ভাড়া উত্তোলন মুছে ফেলতে চান?
+                </p>
+            </Modal>
         </div>
     );
 };

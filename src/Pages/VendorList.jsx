@@ -271,9 +271,9 @@
 //                <FaFileExcel className="" />
 //                এক্সেল
 //              </button>
-           
-            
-           
+
+
+
 //              <button
 //                onClick={printTable}
 //                className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -501,6 +501,7 @@ import { RiEditLine } from "react-icons/ri";
 import toast, { Toaster } from "react-hot-toast";
 import { Table, Button, Space, Modal, Input, DatePicker, Card } from 'antd';
 import { tableFormatDate } from "../components/Shared/formatDate";
+import api from "../utils/axiosConfig";
 
 const VendorList = () => {
   const [vendor, setVendor] = useState([]);
@@ -517,13 +518,13 @@ const VendorList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   // search
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Fetch vendor data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/vendor/list`)
+    api
+      .get(`/vendor`)
       .then((response) => {
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           setVendor(response.data.data);
         }
         setLoading(false);
@@ -535,12 +536,12 @@ const VendorList = () => {
   }, []);
 
   if (loading) return <p className="text-center mt-16">Loading vendor...</p>;
-  
+
   // Export Excel
   const exportExcel = () => {
     const exportData = filteredvendor.map(
       ({ date, vendor_name, mobile, rent_category, work_area, status }) => ({
-        Date: date,
+        Date: tableFormatDate(date),
         Name: vendor_name,
         Mobile: mobile,
         RentCategory: rent_category,
@@ -576,7 +577,7 @@ const VendorList = () => {
     ];
     const tableRows = filteredvendor.map(
       ({ date, vendor_name, mobile, rent_category, work_area, status }) => [
-        date,
+        tableFormatDate(date),
         vendor_name,
         mobile,
         rent_category,
@@ -616,6 +617,12 @@ const VendorList = () => {
             background-color: #11375B;
             color: white;
           }
+         thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
@@ -634,19 +641,19 @@ const VendorList = () => {
           </thead>
           <tbody>
             ${filteredvendor
-              .map(
-                (dt, i) => `
+        .map(
+          (dt, i) => `
               <tr>
                 <td>${i + 1}</td>
-                <td>${dt.date}</td>
+                <td>${tableFormatDate(dt.date)}</td>
                 <td>${dt.vendor_name}</td>
                 <td>${dt.mobile}</td>
                 <td>${dt.rent_category}</td>
                 <td>${dt.work_area}</td>
                 <td>${dt.status}</td>
               </tr>`
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
       </body>
@@ -664,44 +671,41 @@ const VendorList = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/vendor/delete/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await api.delete(`/vendor/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete trip");
+      // Axios er jonno check
+      if (response.status === 200) {
+        // UI update
+        setVendor((prev) => prev.filter((item) => item.id !== id));
+        toast.success("ভেন্ডর সফলভাবে মুছে ফেলা হয়েছে", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setIsOpen(false);
+        setselectedvendorId(null);
+      } else {
+        throw new Error("মুছে ফেলার অনুরোধ ব্যর্থ হয়েছে");
       }
-      // Remove vendor from local list
-      setVendor((prev) => prev.filter((driver) => driver.id !== id));
-      toast.success("Vendor deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      setIsOpen(false);
-      setselectedvendorId(null);
     } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("Failed to delete vendor!", {
+      console.error("মুছে ফেলার ত্রুটি:", error);
+      toast.error("মুছে ফেলার সময় একটি সমস্যা হয়েছে!", {
         position: "top-right",
         autoClose: 3000,
       });
     }
   };
-  
+
   // search
   const filteredvendor = vendor.filter((dt) => {
     const term = searchTerm.toLowerCase();
-    const vendorDate = dt.date_time;
+    const vendorDate = dt.date;
     const matchesSearch =
-      dt.date_time?.toLowerCase().includes(term) ||
-      dt.vehicle_number?.toLowerCase().includes(term) ||
+      dt.date?.toLowerCase().includes(term) ||
+      dt.vendor_name?.toLowerCase().includes(term) ||
       dt.driver_name?.toLowerCase().includes(term) ||
       dt.trip_id_invoice_no?.toLowerCase().includes(term) ||
-      dt.pump_name_address?.toLowerCase().includes(term) ||
+      dt.mobile?.toLowerCase().includes(term) ||
       String(dt.capacity).includes(term) ||
       dt.type?.toLowerCase().includes(term) ||
       String(dt.quantity).includes(term) ||
@@ -713,14 +717,14 @@ const VendorList = () => {
 
     return matchesSearch && matchesDateRange;
   });
-  
+
   // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentVendor = filteredvendor.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(vendor.length / itemsPerPage);
-  
+
   // Table columns for Antd Table
   const columns = [
     {
@@ -733,7 +737,7 @@ const VendorList = () => {
       title: 'তারিখ',
       dataIndex: 'date',
       key: 'date',
-      render: (date) =>( tableFormatDate(date)),
+      render: (date) => (tableFormatDate(date)),
     },
     {
       title: 'নাম',
@@ -768,9 +772,9 @@ const VendorList = () => {
           <Link to={`/tramessy/UpdateVendorForm/${record.id}`}>
             <Button type="primary" icon={<RiEditLine />} size="small" className="!bg-white !text-primary !px-1 !shadow" />
           </Link>
-          <Button 
-            type="primary" 
-            icon={<FaTrashAlt className="!text-red-500"/>} 
+          <Button
+            type="primary"
+            icon={<FaTrashAlt className="!text-red-500" />}
             size="small"
             onClick={() => {
               setselectedvendorId(record.id);
@@ -807,30 +811,30 @@ const VendorList = () => {
             </Button> */}
           </div>
         </div>
-        
+
         {/* export */}
         <div className="md:flex justify-between items-center mb-5">
           <Space>
             <Button onClick={exportExcel} icon={<FaFileExcel />}
-            type="primary"
+              type="primary"
               className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-green-200 hover:!text-white"
             >
               এক্সেল
             </Button>
             <Button onClick={exportPDF} icon={<FaFileExcel />}
-            type="primary"
-            className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-amber-200 hover:!text-white"
+              type="primary"
+              className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-amber-200 hover:!text-white"
             >
               পিডিএফ
             </Button>
             <Button onClick={printTable} icon={<FaPrint />}
-            type="primary"
+              type="primary"
               className=" !text-primary !py-2 !px-5 hover:!bg-primary !bg-gray-50 !shadow-md !shadow-blue-200 hover:!text-white"
             >
               প্রিন্ট
             </Button>
           </Space>
-          
+
           {/* Search */}
           <div className="mt-3 md:mt-0">
             <Input
@@ -842,9 +846,21 @@ const VendorList = () => {
               }}
               style={{ width: 200 }}
             />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-6 top-[5.4rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
-        
+
         {/* Conditional Filter Section */}
         {/* {showFilter && (
           <Card className="my-5">
@@ -867,7 +883,7 @@ const VendorList = () => {
             </Space>
           </Card>
         )} */}
-        
+
         {/* Table */}
         <Table
           columns={columns}
@@ -905,7 +921,7 @@ const VendorList = () => {
           scroll={{ x: "max-content" }}
         />
       </div>
-      
+
       {/* Delete modal */}
       <Modal
         title="মুছে ফেলার নিশ্চয়তা"
@@ -915,10 +931,10 @@ const VendorList = () => {
           <Button key="cancel" onClick={toggleModal}>
             No
           </Button>,
-          <Button 
-            key="delete" 
-            type="primary" 
-            danger 
+          <Button
+            key="delete"
+            type="primary"
+            danger
             onClick={() => handleDelete(selectedvendorId)}
           >
             Yes

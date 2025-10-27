@@ -13,7 +13,7 @@ const GarageCustomer = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   // গ্রাহক ডাটা ফেচ
   useEffect(() => {
     api
@@ -34,9 +34,8 @@ const [searchTerm, setSearchTerm] = useState("");
   const handleDelete = async (id) => {
     try {
       const response = await api.delete(
-        `/customer/${id}`,
+        `/garageCustomer/${id}`,
       );
-      if (!response.ok) throw new Error("গ্রাহক ডিলিট ব্যর্থ হয়েছে!");
 
       setCustomer((prev) => prev.filter((customer) => customer.id !== id));
       toast.success("গ্রাহকের তথ্য সফলভাবে ডিলিট করা হয়েছে");
@@ -141,7 +140,7 @@ const [searchTerm, setSearchTerm] = useState("");
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">
             <FaUsers className="text-2xl" />
-            সকল কাস্টমার তথ্য
+            সকল গ্যারেজ কাস্টমার তথ্য
           </h1>
           <div>
             <Link to="/tramessy/GarageCustomerForm">
@@ -157,7 +156,7 @@ const [searchTerm, setSearchTerm] = useState("");
         </div>
         <div className="flex justify-end my-3">
           {/* search */}
-          <div className="mt-3 md:mt-0 relative">
+          <div className="mt-3 md:mt-0 ">
             <input
               type="text"
               value={searchTerm}
@@ -175,7 +174,7 @@ const [searchTerm, setSearchTerm] = useState("");
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-5 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                className="absolute right-10 top-[10.9rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
               >
                 ✕
               </button>

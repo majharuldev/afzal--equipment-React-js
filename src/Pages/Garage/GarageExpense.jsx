@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -6,29 +6,21 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import dayjs from "dayjs";
 import {
-  Edit,
-  FileText,
-  FileSpreadsheet,
-  FileImage,
-  Printer,
-  Plus,
-  Filter,
-  X,
-} from "lucide-react";
-import {
   FaFileExcel,
   FaFilePdf,
   FaFilter,
   FaPrint,
+  FaTrashAlt,
   FaTruck,
 } from "react-icons/fa";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import toast, { Toaster } from "react-hot-toast";
 import { FaPlus } from "react-icons/fa6";
-import { Link } from "react-router-dom";
-import BtnSubmit from "../../components/Button/BtnSubmit";
 import DatePicker from "react-datepicker";
 import api from "../../utils/axiosConfig";
+import { Button, Form, Input, Modal, Select, Space, Table } from "antd";
+import { AuthContext } from "../../providers/AuthProvider";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import { RiEditLine } from "react-icons/ri";
 
 const GarageExpense = () => {
   const [expenses, setExpenses] = useState([]);
@@ -36,17 +28,16 @@ const GarageExpense = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const printRef = useRef();
+  const [expenseForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({
-    date: "",
-    paid_to: "",
-    pay_amount: "",
-    payment_category: "",
-    branch_name: "",
-    remarks: "",
-  });
+  const {user} = useContext(AuthContext);
   const [errors, setErrors] = useState({});
+   // delete modal state
+    const [selectedExpenseId, setSelectedExpenseId] = useState(null)
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleModal = () => setIsOpen(!isOpen);
+  
   // Date filter state
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -55,54 +46,41 @@ const GarageExpense = () => {
 
   const salaryCategories = ["Utility"];
 
-  // modal show handler
-  const showModal = async (record = null) => {
-    if (record) {
-      try {
-        const res = await api.get(
-          `/garageExp/${record.id}`
-        );
-        const data = res.data?.data;
-        setFormData({
-          date: data?.date || "",
-          paid_to: data?.paid_to || "",
-          pay_amount: data?.pay_amount || "",
-          payment_category: data?.payment_category || "",
-          branch_name: data?.branch_name || "",
-          remarks: data?.remarks || "",
-        });
-        setEditingId(record.id);
-      } catch (err) {
-        // showToast("ডেটা লোড করতে সমস্যা হয়েছে", "error")
-        console.log("error show modal");
-      }
-    } else {
-      setFormData({
-        date: "",
-        paid_to: "",
-        pay_amount: "",
-        payment_category: "",
-        branch_name: "",
-        remarks: "",
-      });
-      setEditingId(null);
-    }
-    setIsModalVisible(true);
-  };
+// modal show handler
+const showModal = async (record = null) => {
+  if (record) {
+    try {
+      const res = await api.get(`/garageExp/${record.id}`);
+      const data = res.data?.data;
 
-  const handleCancel = () => {
-    setFormData({
-      date: "",
-      paid_to: "",
-      pay_amount: "",
-      payment_category: "",
-      branch_name: "",
-      remarks: "",
-    });
+      // Form field গুলো prefill করুন
+      expenseForm.setFieldsValue({
+        date: data?.date || "",
+        person_name: data?.person_name || "",
+        amount: data?.amount || "",
+        category: data?.category || "",
+        status: data?.status || "",
+        remarks: data?.remarks || "",
+      });
+
+      setEditingId(record.id);
+    } catch (err) {
+      console.log("Error loading data for modal", err);
+    }
+  } else {
+    expenseForm.resetFields(); // নতুন ফিল্ড খালি হবে
     setEditingId(null);
-    setIsModalVisible(false);
-    setErrors({});
-  };
+  }
+  setIsModalVisible(true);
+};
+
+// handle modal cancel
+const handleCancel = () => {
+  expenseForm.resetFields(); // সব ফিল্ড খালি হবে
+  setEditingId(null);
+  setIsModalVisible(false);
+};
+
 
   useEffect(() => {
     fetchExpenses();
@@ -115,11 +93,7 @@ const GarageExpense = () => {
         `/garageExp`
       );
       const allExpenses = response.data?.data || [];
-      const utilityExpenses = allExpenses.filter(
-        (expense) => expense.payment_category === "Utility"
-      );
-
-      setExpenses(utilityExpenses);
+      setExpenses(allExpenses);
       setLoading(false);
     } catch (err) {
       console.log("Data feching issue", "error");
@@ -127,29 +101,38 @@ const GarageExpense = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.date) newErrors.date = "Date is required";
-    if (!formData.paid_to) newErrors.paid_to = "Recipient is required";
-    if (!formData.pay_amount) newErrors.pay_amount = "Amount is required";
-    if (!formData.branch_name)
-      newErrors.branch_name = "Branch name is required";
-    if (!formData.payment_category)
-      newErrors.payment_category = "Category is required";
+   // delete by id
+    const handleDelete = async (id) => {
+      try {
+        const response = await api.delete(`/garageExp/${id}`);
+  
+        // Remove driver from local list
+        setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+        toast.success("গ্যারেজ খরচ সফলভাবে মুছে ফেলা হয়েছে", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+  
+        setIsOpen(false);
+        setSelectedExpenseId(null);
+      } catch (error) {
+        console.error("Delete error:", error.response || error);
+        toast.error("মুছে ফেলার অনুরোধ ব্যর্থ হয়েছে", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    };
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // form submit handler
+  const handleFormSubmit = async (values) => {
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
     setIsSubmitting(true);
     try {
       const payload = {
-        ...formData,
-        date: dayjs(formData.date).format("YYYY-MM-DD"),
+        ...values,
+        date: dayjs(values.date).format("YYYY-MM-DD"),
+        created_by: user.name,
       };
 
       if (editingId) {
@@ -176,12 +159,91 @@ const GarageExpense = () => {
     }
   };
 
-  const filteredData = expenses.filter((item) =>
-    [item.paid_to, item.pay_amount, item.payment_category, item.remarks]
+  const filteredData = expenses.filter((item) => {
+    // search filter
+    const matchesSearch = [item.person_name, item.amount, item.category, item.remarks]
       .join(" ")
       .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+      .includes(searchTerm.toLowerCase());
+  
+    // date filter
+    let matchesDate = true;
+    if (startDate) {
+      matchesDate = dayjs(item.date).isAfter(dayjs(startDate).subtract(1, 'day')); // startDate included
+    }
+    if (endDate) {
+      matchesDate = matchesDate && dayjs(item.date).isBefore(dayjs(endDate).add(1, 'day')); // endDate included
+    }
+  
+    return matchesSearch && matchesDate;
+  });
+
+  // column for table
+    const columns = [
+      {
+        title: "ক্রমিক",
+        dataIndex: "index",
+        key: "index",
+        render: (text, record, index) => index + 1,
+      },
+      {
+        title: "তারিখ",
+        dataIndex: "date",
+        key: "date",
+        render: (text) => tableFormatDate(text),
+      },
+      {
+        title: "যাকে প্রদান",
+        dataIndex: "person_name",
+        key: "person_name",
+      },
+      {
+        title: "পরিমাণ",
+        dataIndex: "amount",
+        key: "amount",
+      },
+      {
+        title: "ক্যাটাগরি",
+        dataIndex: "category",
+        key: "category",
+      },
+      {
+        title: "মন্তব্য",
+        dataIndex: "remarks",
+        key: "remarks",
+      },
+      {
+        title: "স্ট্যাটাস",
+        dataIndex: "status",
+        key: "status",
+      },
+      {
+        title: "ক্রিয়েটেড",
+        dataIndex: "created_by",
+        key: "created_by",
+      },
+      {
+        title: "অ্যাকশন",
+        key: "action",
+        render: (_, record) => (
+          <Space>
+            <Button onClick={() => showModal(record)} size="small" type="primary" className="!bg-white !text-primary !shadow-md">
+              <RiEditLine />
+            </Button>
+            <button
+              onClick={() => {
+                setSelectedExpenseId(record.id);
+                setIsOpen(true);
+              }}
+              className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+            >
+              <FaTrashAlt className="text-[12px]" />
+            </button>
+          </Space >
+        ),
+      },
+    ]
+  
   // csv
   const exportCSV = () => {
     const csvContent = [
@@ -204,12 +266,12 @@ const GarageExpense = () => {
   // excel
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
-      ক্রমিক: i + 1,
-      তারিখ: item.date,
-      "যাকে প্রদান": item.paid_to,
-      পরিমাণ: item.pay_amount,
-      ক্যাটাগরি: item.payment_category,
-      মন্তব্য: item.remarks,
+      Sl: i + 1,
+      Date: item.date,
+      "person name": item.paid_to,
+      Amount: item.pay_amount,
+      Category: item.payment_category,
+      Remarks: item.remarks,
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -235,28 +297,57 @@ const GarageExpense = () => {
     doc.save("general_expense.pdf");
   };
   // print
-  const printTable = () => {
-    const content = printRef.current.innerHTML;
-    const win = window.open("", "", "width=900,height=650");
-    win.document.write(`
-      <html>
-        <head>
-          <title>Print</title>
-          <style>
-            body { font-family: Arial, sans-serif; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f5f5f5; }
-          </style>
-        </head>
-        <body>${content}</body>
-      </html>
-    `);
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
-  };
+ // print function
+const printTable = () => {
+  // print columns (action column excluded)
+const printColumns = columns.filter(col => col.key !== "action");
+  const doc = document.createElement("table");
+  doc.style.borderCollapse = "collapse";
+  doc.style.width = "100%";
+
+  // Header
+  const thead = doc.createTHead();
+  const headRow = thead.insertRow();
+  printColumns.forEach(col => {
+    const th = document.createElement("th");
+    th.innerText = col.title;
+    th.style.border = "1px solid #ddd";
+    th.style.padding = "8px";
+    th.style.backgroundColor = "#f5f5f5";
+    th.style.textAlign = "left";
+    headRow.appendChild(th);
+  });
+
+  // Body
+  const tbody = doc.createTBody();
+  filteredData.forEach((item, i) => {
+    const row = tbody.insertRow();
+    printColumns.forEach(col => {
+      const cell = row.insertCell();
+      let value = item[col.dataIndex];
+      if(col.dataIndex === "date") value = tableFormatDate(value);
+      if(col.dataIndex === "index") value = i + 1;
+      cell.innerText = value ?? "";
+      cell.style.border = "1px solid #ddd";
+      cell.style.padding = "8px";
+    });
+  });
+
+  const win = window.open("", "", "width=900,height=650");
+  win.document.write(`
+    <html>
+      <head>
+        <title>Print</title>
+        <style>body{font-family:Arial,sans-serif;}</style>
+      </head>
+      <body>${doc.outerHTML}</body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  win.print();
+  win.close();
+};
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -265,16 +356,6 @@ const GarageExpense = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const filteredExpense = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
-  };
-  const handleNextPage = () => {
-    if (currentPage < totalPages)
-      setCurrentPage((currentPage) => currentPage + 1);
-  };
-  const handlePageClick = (number) => {
-    setCurrentPage(number);
-  };
 
   return (
     <div className=" min-h-screen">
@@ -348,6 +429,18 @@ const GarageExpense = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-14 top-[10rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
@@ -398,294 +491,135 @@ const GarageExpense = () => {
         )}
 
         {/* Table */}
-        <div
-          className="mt-5 overflow-x-auto rounded-xl border border-gray-200"
-          ref={printRef}
-        >
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
-              <tr className="">
-                <th className="px-3 py-3 text-left text-sm font-semibold w-16">
-                  ক্রমিক
-                </th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">
-                  তারিখ
-                </th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">
-                  প্রদত্ত ব্যক্তি
-                </th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">
-                  পরিমাণ
-                </th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">
-                  ক্যাটাগরি
-                </th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">
-                  মন্তব্য
-                </th>
-                <th className="px-3 py-3 text-left text-sm font-semibold w-24">
-                  অ্যাকশন
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan="7"
-                    className="px-3 py-10 text-center text-gray-500"
-                  >
-                    Loading...
-                  </td>
-                </tr>
-              ) : filteredExpense.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="8"
-                    className="text-center py-10 text-gray-500 italic"
-                  >
-                    <div className="flex flex-col items-center">
-                      <svg
-                        className="w-12 h-12 text-gray-300 mb-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9.75 9.75L14.25 14.25M9.75 14.25L14.25 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      No Expense data found.
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredExpense.map((item, index) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-gray-200 hover:bg-gray-50"
-                  >
-                    <td className="px-3 py-3 text-sm">{index + 1}</td>
-                    <td className="px-3 py-3 text-sm">{item.date}</td>
-                    <td className="px-3 py-3 text-sm">{item.paid_to}</td>
-                    <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
-                    <td className="px-3 py-3 text-sm">
-                      {item.payment_category}
-                    </td>
-                    <td className="px-3 py-3 text-sm">{item.remarks}</td>
-                    <td className="px-3 py-3 text-sm">
-                      <button
-                        onClick={() => showModal(item)}
-                        className="flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        <Edit size={12} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div ref={printRef}>
+          <Table
+            columns={columns}
+            dataSource={filteredExpense}
+            loading={loading}
+            rowKey="id"
+            pagination={{
+              current: currentPage,
+              pageSize: itemsPerPage,
+              total: filteredData.length,
+              onChange: (page) => setCurrentPage(page),
+              showSizeChanger: false,
+              position: ['bottomCenter'],
+            }}
+            locale={{
+              emptyText: "কোন ব্যয়ের তথ্য পাওয়া যায়নি",
+            }}
+          />
         </div>
-        {/* pagination */}
-        {filteredExpense.length === 0 ? (
-          ""
-        ) : (
-          <div className="mt-10 flex justify-center">
-            <div className="space-x-2 flex items-center">
-              <button
-                onClick={handlePrevPage}
-                className={`p-2 ${currentPage === 1 ? "bg-gray-300" : "bg-primary text-white"
-                  } rounded-sm`}
-                disabled={currentPage === 1}
-              >
-                <GrFormPrevious />
-              </button>
-              {[...Array(totalPages).keys()].map((number) => (
-                <button
-                  key={number + 1}
-                  onClick={() => handlePageClick(number + 1)}
-                  className={`px-3 py-1 rounded-sm ${currentPage === number + 1
-                    ? "bg-primary text-white hover:bg-gray-200 hover:text-primary transition-all duration-300 cursor-pointer"
-                    : "bg-gray-200 hover:bg-primary hover:text-white transition-all cursor-pointer"
-                    }`}
-                >
-                  {number + 1}
-                </button>
-              ))}
-              <button
-                onClick={handleNextPage}
-                className={`p-2 ${currentPage === totalPages
-                  ? "bg-gray-300"
-                  : "bg-primary text-white"
-                  } rounded-sm`}
-                disabled={currentPage === totalPages}
-              >
-                <GrFormNext />
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Modal */}
-      {isModalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
-          <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center p-5 ">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {editingId ? "আপডেট গ্যারেজ খরচ" : " দৈনিক গ্যারেজ খরচ"}
-              </h2>
-              <button
-                onClick={handleCancel}
-                className="p-1 hover:bg-gray-100 rounded transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
+      {/*Add/update expense Modal */}
+      <Modal
+        title={editingId ? "গ্যারেজ খরচ আপডেট করুন" : "নতুন গ্যারেজ খরচ যোগ করুন"}
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+        centered
+      >
+        <Form
+          form={expenseForm}
+          layout="vertical"
+          onFinish={handleFormSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-x-4"
+        >
+          <Form.Item
+            label="তারিখ"
+            name="date"
+            rules={[{ required: editingId, message: "তারিখ আবশ্যক" }]}
+          >
+            <Input type="date" />
+          </Form.Item>
+          <Form.Item
+            label="যাকে প্রদান"
+            name="person_name"
+            rules={[{ required: !editingId, message: "যাকে প্রদান করবেন তা আবশ্যক" }]}
+          >
+            <Input placeholder="শাখার নাম লিখুন" />
+          </Form.Item>
 
-            {/* Modal Body */}
-            <form onSubmit={handleFormSubmit}>
-              <div className="p-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      তারিখ <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.date}
-                      onChange={(e) =>
-                        setFormData({ ...formData, date: e.target.value })
-                      }
-                    />
-                    {errors.date && (
-                      <p className="text-red-500 text-xs mt-1">{errors.date}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      প্রদত্ত ব্যক্তি <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="প্রদত্ত ব্যক্তি"
-                      value={formData.person_name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, person_name: e.target.value })
-                      }
-                    />
-                    {errors.person_name && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.person_name}
-                      </p>
-                    )}
-                  </div>
-                </div>
+          <Form.Item
+            label="পরিমাণ"
+            name="amount"
+            rules={[{ required: !editingId, message: "পরিমাণ আবশ্যক" }]}
+          >
+            <Input type="number" placeholder="পরিমাণ লিখুন" />
+          </Form.Item>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      পরিমাণ <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="পরিমাণ"
-                      value={formData.amount}
-                      onChange={(e) =>
-                        setFormData({ ...formData, amount: e.target.value })
-                      }
-                    />
-                    {errors.amount && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.amount}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ক্যাটাগরি <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.category}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          category: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="">ক্যাটাগরি</option>
-                      {salaryCategories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.category && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.category}
-                      </p>
-                    )}
-                  </div>
-                </div>
+          <Form.Item
+            label="ক্যাটাগরি"
+            name="category"
+            rules={[{ required: !editingId, message: "ক্যাটাগরি নির্বাচন করুন" }]}
+          >
+            <Select placeholder="ক্যাটাগরি নির্বাচন করুন">
+              {salaryCategories.map((category) => (
+                <Select.Option key={category} value={category}>
+                  {category}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* নতুন Status ফিল্ড */}
+          <Form.Item
+            label="স্ট্যাটাস"
+            name="status"
+            rules={[
+              { required: !editingId, message: "স্ট্যাটাস নির্বাচন করুন" }
+            ]}
+          >
+            <Select placeholder="অবস্থা নির্বাচন করুন">
+              <Select.Option value="paid">Paid</Select.Option>
+              <Select.Option value="unpaid">Unpaid</Select.Option>
+            </Select>
+          </Form.Item>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      মন্তব্য
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="মন্তব্য"
-                      value={formData.remarks}
-                      onChange={(e) =>
-                        setFormData({ ...formData, remarks: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      মন্তব্য
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="মন্তব্য"
-                      value={formData.remarks}
-                      onChange={(e) =>
-                        setFormData({ ...formData, remarks: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
+          <Form.Item label="মন্তব্য" name="remarks">
+            <Input placeholder="মন্তব্য লিখুন" />
+          </Form.Item>
 
-              {/* Modal Footer */}
-              <div className="flex justify-end gap-3 p-5 ">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="mt-5 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  বাতিল করুন
-                </button>
-                <BtnSubmit loading={isSubmitting}>জমা দিন</BtnSubmit>
-              </div>
-            </form>
+          <div className="flex justify-end gap-3 mt-5 md:col-span-2">
+            <Button onClick={handleCancel}>বাতিল</Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={isSubmitting}
+              className="!bg-primary"
+            >
+              {editingId ? "আপডেট করুন" : "সংরক্ষণ করুন"}
+            </Button>
           </div>
+        </Form>
+      </Modal>
+      {/* Delete Modal */}
+      <Modal
+        open={isOpen}
+        onCancel={toggleModal}
+        footer={[
+          <Button key="cancel" onClick={toggleModal}>
+            না
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            onClick={() => handleDelete(selectedExpenseId)}
+          >
+            হ্যাঁ
+          </Button>,
+        ]}
+        title="গ্যারেজ খরচ মুছে ফেলুন"
+      >
+        <div className="flex justify-center mb-4 text-red-500 text-4xl">
+          <FaTrashAlt />
         </div>
-      )}
+        <p className="text-center">
+          আপনি কি নিশ্চিত যে আপনি এই গ্যারেজ খরচ মুছে ফেলতে চান?
+        </p>
+      </Modal>
     </div>
   );
 };

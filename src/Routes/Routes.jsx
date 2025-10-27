@@ -116,7 +116,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/vehicel",
+        path: "/tramessy/equipment",
         element: (
           <PrivateRoute>
             <CarList />
@@ -124,7 +124,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/add-vehicel-form",
+        path: "/tramessy/add-equipment-form",
         element: (
           <PrivateRoute>
             <AddCarForm />
@@ -132,16 +132,12 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/update-vehicel-form/:id",
+        path: "/tramessy/update-equipment-form/:id",
         element: (
           <PrivateRoute>
-            <UpdateCarForm />
+            <AddCarForm />
           </PrivateRoute>
         ),
-        loader: ({ params }) =>
-          fetch(
-            `${import.meta.env.VITE_BASE_URL}/api/vehicle/show/${params.id}`
-          ),
       },
       {
         path: "/tramessy/HR/DriverList",
@@ -168,7 +164,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/TripList",
+        path: "/tramessy/equipment-operation",
         element: (
           <PrivateRoute>
             <TripList />
@@ -176,7 +172,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/AddTripForm",
+        path: "/tramessy/add-equipment-operation-form",
         element: (
           <PrivateRoute>
             <AddTripForm />
@@ -184,16 +180,12 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/UpdateTripForm/:id",
+        path: "/tramessy/update-equipment-form/:id",
         element: (
           <PrivateRoute>
             <AddTripForm />
           </PrivateRoute>
         ),
-        loader: ({ params }) =>
-          fetch(
-            `${import.meta.env.VITE_BASE_URL}/api/trip/show/${params.id}`
-          ),
       },
       {
         path: "/tramessy/Fuel",
@@ -218,8 +210,6 @@ export const router = createBrowserRouter([
             <UpdateFuelForm />
           </PrivateRoute>
         ),
-        loader: ({ params }) =>
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/fuel/${params.id}`),
       },
       {
         path: "/tramessy/Parts",
@@ -236,34 +226,6 @@ export const router = createBrowserRouter([
             <UpdatePartsForm />
           </PrivateRoute>
         ),
-        loader: ({ params }) =>
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/parts/${params.id}`),
-      },
-      {
-        path: "/tramessy/Maintenance",
-        element: (
-          <PrivateRoute>
-            <Maintenance />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "/tramessy/MaintenanceForm",
-        element: (
-          <PrivateRoute>
-            <MaintenanceForm />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "/tramessy/UpdateMaintenanceForm/:id",
-        element: (
-          <PrivateRoute>
-            <UpdateMaintenanceForm />
-          </PrivateRoute>
-        ),
-        loader: ({ params }) =>
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/maintenance/${params.id}`),
       },
       {
         path: "/tramessy/VendorList",
@@ -330,7 +292,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/HR/HRM/daily-expense",
+        path: "/tramessy/HR/HRM/salary-expense",
         element: (
           <PrivateRoute>
             <DailyExpense />

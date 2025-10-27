@@ -12,6 +12,8 @@ import autoTable from "jspdf-autotable";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { FaFileExcel, FaFilePdf, FaPrint } from "react-icons/fa";
 import { Table, Button, Modal, Input, Space, Card } from "antd";
+import api from "../utils/axiosConfig";
+import { tableFormatDate } from "../components/Shared/formatDate";
 
 const CarList = () => {
   const [vehicles, setVehicle] = useState([]);
@@ -24,12 +26,10 @@ const CarList = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/vehicle/list`)
+    api
+      .get(`/vehicle`)
       .then((response) => {
-        if (response.data.status === "Success") {
-          setVehicle(response.data.data);
-        }
+          setVehicle(response.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -40,21 +40,19 @@ const CarList = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/vehicle/delete/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await api.delete(
+        `/vehicle/${id}`
       );
 
-      if (!response.ok) {
-        throw new Error("গাড়ি ডিলিট করতে ব্যর্থ!");
-      }
+      if (response.status === 200) {
       setVehicle((prev) => prev.filter((driver) => driver.id !== id));
       toast.success("গাড়ি সফলভাবে ডিলিট হয়েছে!", {
         position: "top-right",
         autoClose: 3000,
       });
+      } else {
+        throw new Error("গাড়ি ডিলিট করতে ব্যর্থ!");
+      }
 
       setIsDeleteModalOpen(false);
       setSelectedDriverId(null);
@@ -67,17 +65,41 @@ const CarList = () => {
     }
   };
 
+  // filter & search functionality
+    const filteredCarList = vehicles.filter((vehicle) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      vehicle.vehicle_name?.toLowerCase().includes(term) ||
+      vehicle.driver_name?.toLowerCase().includes(term) ||
+      vehicle.vehicle_category?.toLowerCase().includes(term) ||
+      vehicle.size?.toLowerCase().includes(term) ||
+      vehicle.reg_no?.toLowerCase().includes(term) ||
+      vehicle.reg_serial?.toLowerCase().includes(term) ||
+      vehicle.reg_zone?.toLowerCase().includes(term) ||
+      vehicle.reg_date?.toLowerCase().includes(term) ||
+      vehicle.text_date?.toLowerCase().includes(term) ||
+      vehicle.road_permit_date?.toLowerCase().includes(term) ||
+      vehicle.fitness_date?.toLowerCase().includes(term)
+    );
+  });
   if (loading) return <p className="text-center mt-16">গাড়ির তথ্য লোড হচ্ছে...</p>;
 
-  const csvData = vehicles.map((dt, index) => ({
+  const csvData = filteredCarList.map((dt, index) => ({
     index: index + 1,
     driver_name: dt.driver_name,
     vehicle_name: dt.vehicle_name,
-    category: dt.category,
+    "Equipment category": dt.vehicle_category,
     size: dt.size,
-    registration_zone: dt.registration_zone,
-    trip: 0,
-    registration_number: dt.registration_number,
+    "Equipment type": dt.vehicle_type,
+    "Registration Zone": dt.reg_zone,
+    "Fuel Capacity": dt.fuel_capcity,
+    "Registration no": dt.reg_no,
+    "Registration serial": dt.reg_serial,
+    "Registration date": dt.reg_date,
+    "Insurance date": dt.insurance_date,
+    "Fitness date": dt.fitness_date,
+    "Route Permit date": dt.route_per_date,
+    "Tax date": dt.text_date,
   }));
 
   const exportExcel = () => {
@@ -109,7 +131,7 @@ const CarList = () => {
       v.vehicle_name,
       v.vehicle_category,
       v.vehicle_size,
-      `${v.registration_zone} ${v.registration_number}`,
+      `${record.reg_serial} ${v.registration_zone} ${v.registration_number}`,
       v.status,
     ]);
 
@@ -150,6 +172,12 @@ const CarList = () => {
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #11375B; color: white; }
             tr:nth-child(even) { background-color: #f2f2f2; }
+            thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
           </style>
         </head>
         <body>
@@ -176,7 +204,7 @@ const CarList = () => {
                   <td>${vehicle.vehicle_name || "-"}</td>
                   <td>${vehicle.vehicle_category || "-"}</td>
                   <td>${vehicle.vehicle_size || "-"}</td>
-                  <td>${vehicle.registration_zone} ${vehicle.registration_number}</td>
+                  <td>${record.reg_serial} ${vehicle.reg_zone} ${vehicle.reg_no}</td>
                   <td>${vehicle.status || "-"}</td>
                 </tr>
               `
@@ -195,37 +223,18 @@ const CarList = () => {
 
   const handleViewCar = async (id) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/vehicle/show/${id}`
+      const response = await api.get(
+        `/vehicle/${id}`
       );
-      if (response.data.status === "Success") {
-        setselectedCar(response.data.data);
+
+        setselectedCar(response.data);
         setViewModalOpen(true);
-      } else {
-        toast.error("গাড়ির তথ্য পাওয়া যায়নি!.");
-      }
     } catch (error) {
       console.error("ভিউ এরর:", error);
       toast.error("গাড়ির তথ্য লোড করতে সমস্যা হয়েছে!");
     }
   };
 
-  const filteredCarList = vehicles.filter((vehicle) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      vehicle.vehicle_name?.toLowerCase().includes(term) ||
-      vehicle.driver_name?.toLowerCase().includes(term) ||
-      vehicle.category?.toLowerCase().includes(term) ||
-      vehicle.size?.toLowerCase().includes(term) ||
-      vehicle.registration_number?.toLowerCase().includes(term) ||
-      vehicle.registration_serial?.toLowerCase().includes(term) ||
-      vehicle.registration_zone?.toLowerCase().includes(term) ||
-      vehicle.registration_date?.toLowerCase().includes(term) ||
-      vehicle.text_date?.toLowerCase().includes(term) ||
-      vehicle.road_permit_date?.toLowerCase().includes(term) ||
-      vehicle.fitness_date?.toLowerCase().includes(term)
-    );
-  });
 
   const columns = [
     {
@@ -235,7 +244,7 @@ const CarList = () => {
       render: (text, record, index) => index + 1,
     },
     {
-      title: "নাম",
+      title: "অপারেটর/ড্রাইভার",
       dataIndex: "driver_name",
       key: "driver_name",
     },
@@ -249,16 +258,17 @@ const CarList = () => {
       dataIndex: "vehicle_category",
       key: "vehicle_category",
     },
-    {
-      title: "ইকুইপমেন্ট সাইজ",
-      dataIndex: "vehicle_size",
-      key: "vehicle_size",
-    },
+    // {
+    //   title: "ইকুইপমেন্ট সাইজ",
+    //   dataIndex: "vehicle_size",
+    //   key: "vehicle_size",
+    //   width: 120,
+    // },
     {
       title: "ইকুইপমেন্ট নম্বর",
       key: "registration",
       render: (record) => (
-        `${record.registration_serial}-${record.registration_zone} ${record.registration_number}`
+        `${record.reg_serial}-${record.reg_zone} ${record.reg_no}`
       ),
     },
     {
@@ -270,8 +280,8 @@ const CarList = () => {
       title: "অ্যাকশন",
       key: "action",
       render: (_, record) => (
-        <Space size="middle">
-          <Link to={`/tramessy/update-vehicel-form/${record.id}`}>
+        <Space size="small">
+          <Link to={`/tramessy/update-equipment-form/${record.id}`}>
             <Button type="text" icon={<FaPen />} className="text-primary" />
           </Link>
           <Button 
@@ -283,7 +293,7 @@ const CarList = () => {
           <Button 
             type="text" 
             icon={<FaTrashAlt />} 
-            className="text-red-500"
+            className="!text-red-500"
             onClick={() => {
               setSelectedDriverId(record.id);
               setIsDeleteModalOpen(true);
@@ -305,7 +315,7 @@ const CarList = () => {
           </div>
         }
         extra={
-          <Link to="/tramessy/add-vehicel-form">
+          <Link to="/tramessy/add-equipment-form">
             <Button type="primary" icon={<FaPlus />} className="!bg-primary">
              ইকুইপমেন্ট 
             </Button>
@@ -343,12 +353,30 @@ const CarList = () => {
             </Button>
           </Space>
           
-          <Input.Search
-            placeholder="গাড়ি খুঁজুন..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ width: 250 }}
-          />
+         {/* search */}
+         <div className="mt-3 md:mt-0">
+            <Input
+              placeholder="ভেন্ডর খুজন..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              style={{ width: 200 }}
+            />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-7 top-[5.9rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
 
         <Table
@@ -416,53 +444,57 @@ const CarList = () => {
       >
         {selectedCar && (
           <div className="grid grid-cols-2 gap-4">
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">ড্রাইভারের নাম:</p>
               <p>{selectedCar.driver_name}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">ইকুইপমেন্ট নাম:</p>
               <p>{selectedCar.vehicle_name}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">গাড়ির ক্যাটাগরি:</p>
-              <p>{selectedCar.vehicle_category}</p>
+              <p>{selectedCar.vehicle_category || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">গাড়ির সাইজ:</p>
-              <p>{selectedCar.vehicle_size}</p>
+              <p>{selectedCar.vehicle_size || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
+              <p className="font-semibold">গাড়ির সাইজ:</p>
+              <p>{selectedCar.vehicle_type || "N/A"}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">রেজিস্ট্রেশন নাম্বার:</p>
-              <p>{selectedCar.registration_number}</p>
+              <p>{selectedCar.reg_no || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">রেজিস্ট্রেশন সিরিয়াল:</p>
-              <p>{selectedCar.registration_serial}</p>
+              <p>{selectedCar.reg_serial ||"N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">রেজিস্ট্রেশন Area:</p>
-              <p>{selectedCar.registration_zone}</p>
+              <p>{selectedCar.reg_zone || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">রেজিস্ট্রেশন তারিখ:</p>
-              <p>{selectedCar.registration_date}</p>
+              <p>{tableFormatDate(selectedCar.reg_date) || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">ট্যাক্সের মেয়াদ তারিখ:</p>
-              <p>{selectedCar.text_date || "N/A"}</p>
+              <p>{tableFormatDate(selectedCar.tax_date) || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">রোড পারমিট তারিখ:</p>
-              <p>{selectedCar.road_permit_date}</p>
+              <p>{tableFormatDate(selectedCar.route_per_date) || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">ফিটনেস তারিখ:</p>
-              <p>{selectedCar.fitness_date}</p>
+              <p>{tableFormatDate(selectedCar.fitness_date) || "N/A"}</p>
             </div>
-            <div className="border p-2">
+            <div className="border p-2 border-gray-200">
               <p className="font-semibold">ইনস্যুরেন্স তারিখ:</p>
-              <p>{selectedCar.insurance_date}</p>
+              <p>{tableFormatDate(selectedCar.insurance_date) || "N/A"}</p>
             </div>
           </div>
         )}

@@ -427,7 +427,8 @@ const TripList = () => {
             ইকুইপমেন্ট রেকর্ড
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
-            <Link to="/tramessy/AddTripForm">
+            <Link to="/tramessy/add-equipment-operation-form
+            ">
               <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> অপারেশন করুন
               </button>

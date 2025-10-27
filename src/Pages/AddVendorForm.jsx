@@ -235,6 +235,7 @@ import { FiCalendar } from "react-icons/fi";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../utils/axiosConfig";
 
 const AddVendorForm = () => {
   const [loading, setLoading] = useState(false);
@@ -263,11 +264,11 @@ const AddVendorForm = () => {
       setIsEdit(true);
       const fetchVendor = async () => {
         try {
-          const response = await axios.get(
-            `${import.meta.env.VITE_BASE_URL}/api/vendor/show/${id}`
+          const response = await api.get(
+            `/vendor/${id}`
           );
-          if (response.data) {
-            methods.reset(response.data.data); // ফর্মে ডাটা বসানো
+          if (response.data.success) {
+            methods.reset(response.data.data); 
           }
         } catch (error) {
           toast.error("ডাটা লোড করতে ব্যর্থ হয়েছে!");
@@ -281,28 +282,28 @@ const AddVendorForm = () => {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
+      // const formData = new FormData();
+      // for (const key in data) {
+      //   formData.append(key, data[key]);
+      // }
 
       let response;
       if (isEdit) {
         // Update vendor
-        response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/vendor/update/${id}`,
-          formData
+        response = await api.put(
+          `/vendor/${id}`,
+          data
         );
       } else {
         // Create vendor
-        response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/vendor/create`,
-          formData
+        response = await api.post(
+          `/vendor`,
+          data
         );
       }
 
       const resData = response.data;
-      if (resData.status === "Success") {
+      if (resData.success) {
         toast.success(
           isEdit
             ? "ভেন্ডর সফলভাবে আপডেট হয়েছে!"

@@ -7,6 +7,7 @@ import axios from "axios";
 import useRefId from "../../hooks/useRef";
 import { FiCalendar } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../../utils/axiosConfig";
 
 const SupplyForm = () => {
   const [loading, setLoading] = useState(false);
@@ -22,10 +23,10 @@ const SupplyForm = () => {
   useEffect(() => {
     if (id) {
       setIsEdit(true);
-      axios
-        .get(`${import.meta.env.VITE_BASE_URL}/api/supply/show/${id}`)
+      api
+        .get(`/supplier/${id}`)
         .then((res) => {
-          if (res.data.status === "Success") {
+          if (res.data.success) {
             const supply = res.data.data;
             // ফর্মে ডিফল্ট ভ্যালু বসানো
             Object.keys(supply).forEach((key) => {
@@ -43,22 +44,23 @@ const SupplyForm = () => {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-      if (!isEdit) {
-        formData.append("ref_id", generateRefId());
-      }
+      const payload = { ...data };
+
+    // ref_id only generate if not in update mode
+    if (!id) {
+      payload.ref_id = generateRefId();
+    }
 
       const url = isEdit
-        ? `${import.meta.env.VITE_BASE_URL}/api/supply/update/${id}`
-        : `${import.meta.env.VITE_BASE_URL}/api/supply/create`;
+        ? `/supplier/${id}`
+        : `/supplier`;
 
-      const response = await axios.post(url, formData);
+       const response = id
+        ? await api.put(`/supplier/${id}`, payload)
+        : await api.post(`/supplier`, payload);
       const resData = response.data;
 
-      if (resData.status === "Success") {
+      if (resData.success) {
         toast.success(
           isEdit
             ? "সরবরাহকারীর তথ্য সফলভাবে হালনাগাদ হয়েছে!"
@@ -100,19 +102,19 @@ const SupplyForm = () => {
                   register("date").ref(e);
                   dateRef.current = e;
                 }}
-                icon={
-                  <span
-                    className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                    onClick={() => dateRef.current?.showPicker?.()}
-                  >
-                    <FiCalendar className="text-white cursor-pointer" />
-                  </span>
-                }
+                
               />
             </div>
             <div className="w-full">
-              <InputField name="business_name" label="ব্যবসার নাম" required />
+              <InputField name="supplier_name" label="সাপ্লায়ার নাম" required />
             </div>
+            <div className="w-full">
+                  <InputField
+                    name="business_category"
+                    label="বিজনেস ক্যাটাগরি"
+                    required
+                  />
+                </div>
             <div className="w-full">
               <InputField name="phone" label="ফোন নম্বর" required />
             </div>
@@ -123,7 +125,7 @@ const SupplyForm = () => {
               <InputField name="address" label="ঠিকানা" required />
             </div>
             <div className="w-full">
-              <InputField name="due_amount" label="বাকি টাকা" />
+              <InputField name="opening_balance" label="শুরুর ব্যালেন্স" />
             </div>
             <div className="w-full">
               <InputField

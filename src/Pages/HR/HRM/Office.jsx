@@ -17,7 +17,7 @@ const Office = () => {
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOfficeId, setSelectedOfficeId] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Fetch customer ledger data
   useEffect(() => {
     api
@@ -34,24 +34,27 @@ const Office = () => {
         setLoading(false);
       });
   }, []);
+
   // delete by id
   const handleDelete = async (id) => {
     try {
       const response = await api.delete(
         `/office/${id}`,
       );
-      if (!response.ok) {
-        throw new Error("শাখার তথ্য মুছে ফেলা ব্যর্থ হয়েছে");
-      }
-      // Remove office data from local list
-      setOffice((prev) => prev.filter((office) => office.id !== id));
-      toast.success("শাখার তথ্য সফলভাবে মুছে ফেলা হয়েছে", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      if (response.status === 200) {
 
-      setIsModalOpen(false);
-      setSelectedOfficeId(null);
+        // Remove office data from local list
+        setOffice((prev) => prev.filter((office) => office.id !== id));
+        toast.success("শাখার তথ্য সফলভাবে মুছে ফেলা হয়েছে", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setIsModalOpen(false);
+        setSelectedOfficeId(null);
+      } else {
+        throw new Error("মুছে ফেলার অনুরোধ ব্যর্থ হয়েছে");
+      }
     } catch (error) {
       console.error("Delete error:", error);
       toast.error("মুছতে সমস্যা হয়েছে!", {
@@ -70,8 +73,8 @@ const Office = () => {
     },
     {
       title: "তারিখ",
-      dataIndex: "date",
-      render: (text) => tableFormatDate(text),
+      dataIndex: "created_at",
+      render: (created_at) => tableFormatDate(created_at),
     },
     {
       title: "শাখা",
@@ -117,7 +120,7 @@ const Office = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentOffices = office.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(office.length / itemsPerPage);
- 
+
 
   if (loading) return <p className="text-center mt-16">Loading office...</p>;
   return (
@@ -140,11 +143,11 @@ const Office = () => {
 
         {/* table */}
         <Table
-        columns={columns}
-        dataSource={currentOffices}
-        rowKey="id"
-        loading={loading}
-        pagination={{
+          columns={columns}
+          dataSource={currentOffices}
+          rowKey="id"
+          loading={loading}
+          pagination={{
             current: currentPage,
             pageSize: itemsPerPage,
             total: office.length,
@@ -152,30 +155,30 @@ const Office = () => {
             showSizeChanger: false,
             position: ['bottomCenter'],
           }}
-        locale={{ emptyText: "কোনো শাখার তথ্য পাওয়া যায়নি" }}
-      />
+          locale={{ emptyText: "কোনো শাখার তথ্য পাওয়া যায়নি" }}
+        />
 
-      {/* Delete Modal */}
-      <Modal
-        title="মুছে ফেলার নিশ্চয়তা"
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        footer={[
-          <Button key="back" onClick={() => setIsModalOpen(false)}>
-            না
-          </Button>,
-          <Button
-            key="delete"
-            type="primary"
-            danger
-            onClick={() => handleDelete(selectedOfficeId)}
-          >
-            হ্যাঁ, মুছুন
-          </Button>,
-        ]}
-      >
-        <p>আপনি কি নিশ্চিত এই শাখার তথ্য মুছে ফেলতে চান?</p>
-      </Modal>
+        {/* Delete Modal */}
+        <Modal
+          title="মুছে ফেলার নিশ্চয়তা"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={[
+            <Button key="back" onClick={() => setIsModalOpen(false)}>
+              না
+            </Button>,
+            <Button
+              key="delete"
+              type="primary"
+              danger
+              onClick={() => handleDelete(selectedOfficeId)}
+            >
+              হ্যাঁ, মুছুন
+            </Button>,
+          ]}
+        >
+          <p>আপনি কি নিশ্চিত এই শাখার তথ্য মুছে ফেলতে চান?</p>
+        </Modal>
       </div>
     </div>
   );

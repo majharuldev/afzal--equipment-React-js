@@ -8,6 +8,7 @@ import { MdShop } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import { RiEditLine } from "react-icons/ri";
+import api from "../../utils/axiosConfig";
 
 const SupplierList = () => {
   const [supply, setSupply] = useState([]);
@@ -22,10 +23,10 @@ const SupplierList = () => {
   const [selectedSupply, setSelectedSupply] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/supply/list`)
+    api
+      .get(`/supplier`)
       .then((response) => {
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           setSupply(response.data.data);
         }
         setLoading(false);
@@ -39,16 +40,10 @@ const SupplierList = () => {
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/supply/delete/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await api.delete(
+        `/supplier/${id}`
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to delete supply");
-      }
       setSupply((prev) => prev.filter((item) => item.id !== id));
       toast.success("সরবরাহকারীর তথ্য সফলভাবে মুছে ফেলা হয়েছে");
 
@@ -63,10 +58,10 @@ const SupplierList = () => {
   // view by id
   const handleView = async (id) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/supply/show/${id}`
+      const response = await api.get(
+        `/supplier/${id}`
       );
-      if (response.data.status === "Success") {
+      if (response.data.success) {
         setSelectedSupply(response.data.data);
         setViewModalOpen(true);
       } else {
@@ -89,8 +84,12 @@ const SupplierList = () => {
       render: (date) => tableFormatDate(date),
     },
     {
-      title: "ব্যবসার নাম",
-      dataIndex: "business_name",
+      title: "সাপ্লায়ার নাম",
+      dataIndex: "supplier_name",
+    },
+    {
+      title: "বিজনেস ক্যাটাগরি",
+      dataIndex: "business_category",
     },
     {
       title: "ফোন",
@@ -101,8 +100,8 @@ const SupplierList = () => {
       dataIndex: "address",
     },
     {
-      title: "বাকি টাকা",
-      dataIndex: "due_amount",
+      title: "শুরুর ব্যালেন্স",
+      dataIndex: "opening_balance",
     },
     {
       title: "অবস্থা",
@@ -202,7 +201,10 @@ const SupplierList = () => {
         {selectedSupply && (
           <div className="space-y-2">
             <p>
-              <strong>ব্যবসার নাম:</strong> {selectedSupply.business_name}
+              <strong>সাপ্লায়ার নাম:</strong> {selectedSupply.supplier_name}
+            </p>
+             <p>
+              <strong>সাপ্লায়ার নাম:</strong> {selectedSupply.business_category}
             </p>
             <p>
               <strong>ফোন:</strong> {selectedSupply.phone}

@@ -1,5 +1,5 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+
+import { useEffect, useState } from "react";
 import {
   FaPlus,
   FaFilter,
@@ -11,17 +11,16 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 // export
-import { CSVLink } from "react-csv";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 //
 import toast, { Toaster } from "react-hot-toast";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { FaTruck } from "react-icons/fa6";
 import { Modal, Table, Button, Space } from "antd";
 import { RiEditLine } from "react-icons/ri";
+import api from "../utils/axiosConfig";
 
 const RentList = () => {
   const [fuel, setFuel] = useState([]);
@@ -42,10 +41,10 @@ const RentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // Fetch rent vehicle data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/rent/list`)
+    api
+      .get(`/rentVehicle`)
       .then((response) => {
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           setFuel(response.data.data);
         }
         setLoading(false);
@@ -55,6 +54,28 @@ const RentList = () => {
         setLoading(false);
       });
   }, []);
+
+// search
+  const filteredData = fuel.filter((dt) => {
+    const term = searchTerm.toLowerCase();
+    const fuelDate = dt.date;
+    const matchesSearch =
+      dt.date?.toLowerCase().includes(term) ||
+      dt.registration_number?.toLowerCase().includes(term) ||
+      dt.driver_name?.toLowerCase().includes(term) ||
+      dt.vehicle_category?.toLowerCase().includes(term) ||
+      dt.vendor_name?.toLowerCase().includes(term) ||
+      String(dt.capacity).includes(term) ||
+      dt.type?.toLowerCase().includes(term) ||
+      String(dt.quantity).includes(term) ||
+      dt.price?.toLowerCase().includes(term) ||
+      dt.total_price?.toLowerCase().includes(term);
+    const matchesDateRange =
+      (!startDate || new Date(fuelDate) >= new Date(startDate)) &&
+      (!endDate || new Date(fuelDate) <= new Date(endDate));
+
+    return matchesSearch && matchesDateRange;
+  });
 
   if (loading) return <p className="text-center mt-16">Loading data...</p>;
 
@@ -69,15 +90,15 @@ const RentList = () => {
     { label: "লিটার প্রতি খরচ", key: "price" },
     { label: "সকল খরচ", key: "total" },
   ];
-  const csvData = fuel.map((dt, index) => ({
+  const csvData = filteredData.map((dt, index) => ({
     index: index + 1,
-    driver_name: dt.driver_name,
-    vehicle_name: dt.vehicle_number,
-    type: dt.type,
-    date_time: dt.date_time,
-    quantity: dt.quantity,
-    price: dt.price,
-    total: dt.quantity * dt.price,
+    driver_name: dt.vendor_name,
+    vehicle_name: dt.vehicle_name_model,
+    "Vehicle Category": dt.vehicle_category,
+    "vehcile Size": dt.vehicle_size_capacity,
+    "Reg. No": dt.registration_number,
+    "Reg. Serial": dt.registration_serial,
+    "Reg. Zone": dt.registration_zone,
   }));
   // export
   const exportExcel = () => {
@@ -145,72 +166,61 @@ const RentList = () => {
   `);
     WinPrint.document.close();
     WinPrint.focus();
-    WinPrint.print();
+    WinPrint.onafterprint = () => {
+    actionColumns.forEach((col) => {
+      col.style.display = ""; // reset to default
+    });
     WinPrint.close();
+  };
+    WinPrint.print();
+    // Fallback if onafterprint doesn’t trigger properly
+  setTimeout(() => {
+    actionColumns.forEach((col) => {
+      col.style.display = "";
+    });
+  }, 1000);
+    // WinPrint.close();
   };
   // delete by id
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/rent/delete/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await api.delete(`/rentVehicle/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete trip");
+      // Axios er jonno check
+      if (response.status === 200) {
+        // UI update
+        setFuel((prev) => prev.filter((item) => item.id !== id));
+        toast.success("রেন্ট ভেহিকেল সফলভাবে মুছে ফেলা হয়েছে!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setIsModalOpen(false);
+        setselectedFuelId(null);
+      } else {
+        throw new Error("মুছে ফেলার অনুরোধ ব্যর্থ হয়েছে");
       }
-      // Remove fuel from local list
-      setFuel((prev) => prev.filter((driver) => driver.id !== id));
-      toast.success("Rent list deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      setIsOpen(false);
-      setselectedFuelId(null);
     } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("There was a problem deleting.!", {
+      console.error("মুছে ফেলার ত্রুটি:", error);
+      toast.error("মুছে ফেলার সময় একটি সমস্যা হয়েছে!", {
         position: "top-right",
         autoClose: 3000,
       });
     }
   };
-  // search
-  const filteredData = fuel.filter((dt) => {
-    const term = searchTerm.toLowerCase();
-    const fuelDate = dt.date_time;
-    const matchesSearch =
-      dt.date_time?.toLowerCase().includes(term) ||
-      dt.vehicle_number?.toLowerCase().includes(term) ||
-      dt.driver_name?.toLowerCase().includes(term) ||
-      dt.trip_id_invoice_no?.toLowerCase().includes(term) ||
-      dt.pump_name_address?.toLowerCase().includes(term) ||
-      String(dt.capacity).includes(term) ||
-      dt.type?.toLowerCase().includes(term) ||
-      String(dt.quantity).includes(term) ||
-      dt.price?.toLowerCase().includes(term) ||
-      dt.total_price?.toLowerCase().includes(term);
-    const matchesDateRange =
-      (!startDate || new Date(fuelDate) >= new Date(startDate)) &&
-      (!endDate || new Date(fuelDate) <= new Date(endDate));
-
-    return matchesSearch && matchesDateRange;
-  });
 
   const columns = [
     { title: "#", key: "index", render: (_, __, index) => index + 1 },
-    { title: "বিক্রেতা/ড্রাইভারের নাম", dataIndex: "vendor_name", key: "vendor_name" },
+    { title: "ভেন্ডর/ড্রাইভারের নাম", dataIndex: "vendor_name", key: "vendor_name" },
     { title: "গাড়ির নাম/মডেল", dataIndex: "vehicle_name_model", key: "vehicle_name_model" },
     { title: "গাড়ির শ্রেণী", dataIndex: "vehicle_category", key: "vehicle_category" },
     { title: "গাড়ির আকার/ধারণ ক্ষমতা", dataIndex: "vehicle_size_capacity", key: "vehicle_size_capacity" },
     { title: "রেজি. নম্বর", dataIndex: "registration_number", key: "registration_number" },
-    { title: "অবস্থা", dataIndex: "status", key: "status" },
+    { title: "স্ট্যাটাস", dataIndex: "status", key: "status" },
     {
       title: "অ্যাকশন",
       key: "action",
+      className: "action_column",
       render: (_, record) => (
         <Space>
           <Link to={`/tramessy/UpdateRentVehicleForm/${record.id}`}>
@@ -295,6 +305,18 @@ const RentList = () => {
               placeholder="খুজন..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-6 top-[5.4rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         {/* Conditional Filter Section */}

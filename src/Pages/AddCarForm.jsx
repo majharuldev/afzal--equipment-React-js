@@ -6,8 +6,10 @@ import toast, { Toaster } from "react-hot-toast";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import useRefId from "../hooks/useRef";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../utils/axiosConfig";
 const AddCarForm = () => {
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const methods = useForm();
   const { handleSubmit, register, reset, control, watch } = methods;
@@ -19,13 +21,21 @@ const AddCarForm = () => {
   const navigate = useNavigate();
   // select driver from api
   const [drivers, setDrivers] = useState([]);
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/api/driver/list`)
-      .then((response) => response.json())
-      .then((data) => setDrivers(data.data))
-      .catch((error) => console.error("ড্রাইভার ডাটা আনতে সমস্যা:", error));
-  }, []);
+ useEffect(() => {
+  const fetchDrivers = async () => {
+    try {
+      const response = await api.get("/driver"); 
+      const activeDrivers = response.data.filter(
+        (driver) => driver.status?.toLowerCase() === "active"
+      );
+      setDrivers(activeDrivers);
+    } catch (error) {
+      console.error("Error fetching driver data:", error);
+    }
+  };
 
+  fetchDrivers();
+}, []);
   const driverOptions = drivers.map((driver) => ({
     value: driver.driver_name,
     label: driver.driver_name,
@@ -159,6 +169,38 @@ const AddCarForm = () => {
     ],
   };
 
+  // যদি Update হয় → API থেকে পুরোনো ডেটা এনে reset করা
+  useEffect(() => {
+    const formatDateSafely = (value) => {
+  if (!value || value === "null" || value === "0000-00-00") return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+};
+    if (id) {
+      const fetchVehicle = async () => {
+        try {
+          const response = await api.get(`/vehicle/${id}`);
+          const vehicle = response.data;
+          // সব date ফিল্ডকে format করো
+         const formattedData = {
+          ...vehicle,
+          reg_date: formatDateSafely(vehicle.reg_date),
+          tax_date: formatDateSafely(vehicle.tax_date),
+          route_per_date: formatDateSafely(vehicle.route_per_date),
+          fitness_date: formatDateSafely(vehicle.fitness_date),
+          insurance_date: formatDateSafely(vehicle.insurance_date),
+          date: formatDateSafely(vehicle.date),
+        };
+
+        reset(formattedData);
+        } catch (error) {
+          console.error("Error fetching vehicle data:", error);
+        }
+      };
+      fetchVehicle();
+    }
+  }, [ id, reset]);
 
   // নির্বাচিত category ট্র্যাক
   const selectedCategory = watch("vehicle_category");
@@ -169,37 +211,33 @@ const AddCarForm = () => {
       setSelectedEquipment(selectedCategory);
     }
   }, [selectedCategory]);
-  // post vehicle
+
+   // add & update vehicle
   const generateRefId = useRefId();
-  const onSubmit = async (data) => {
-    setLoading(true);
-    // console.log("add car data", data);
+   const onSubmit = async (data) => {
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
-      formData.append("ref_id", generateRefId());
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/vehicle/create`,
-        formData
-      );
-      const resData = response.data;
-      // console.log("resData", resData);
-      if (resData.status === "Success") {
+      let response;
+      if (!id) {
+        const formData = new FormData();
+        for (const key in data) {
+          formData.append(key, data[key]);
+        }
+        formData.append("ref_id", generateRefId());
+
+        response = await api.post(`/vehicle`, formData);
         toast.success("গাড়ির তথ্য সফলভাবে সংরক্ষিত হয়েছে!", { position: "top-right" });
-        reset();
-        navigate("/tramessy/vehicel")
-      } else {
-        toast.error("সার্ভার ত্রুটি: " + (resData.message || "অজানা ত্রুটি"));
+      } else if (id) {
+        response = await api.put(`/vehicle/${id}`, data);
+        toast.success("গাড়ির তথ্য সফলভাবে হালনাগাদ করা হয়েছে!");
       }
+
+      reset();
+      navigate("/tramessy/equipment");
     } catch (error) {
       console.error(error);
       const errorMessage =
         error.response?.data?.message || error.message || "অজানা ত্রুটি";
-      toast.error("সার্ভার ত্রুটি:" + errorMessage);
-    } finally {
-      setLoading(false);
+      toast.error("সার্ভার ত্রুটি: " + errorMessage);
     }
   };
 
@@ -210,19 +248,19 @@ const AddCarForm = () => {
 
         <div className="mx-auto p-6 rounded-t-md rounded-b-md shadow border border-gray-200 ">
           <h3 className="pb-3 text-primary font-semibold text-lg">
-            ইকুইপমেন্ট তথ্য যোগ করুন
+            {!id? "ইকুইপমেন্ট তথ্য যোগ করুন": "ইকুইপমেন্ট তথ্য আপডেট  করুন"}
           </h3>
           {/* Vehicle & Driver Name */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
-              <InputField name="vehicle_name" label="গাড়ির নাম" required />
+              <InputField name="vehicle_name" label="গাড়ির নাম" required={!id} />
             </div>
             <div className="relative mt-2 md:mt-0 w-full">
               <SelectField
                 name="driver_name"
                 // label="ড্রাইভারের নাম"
-                label="অপারেটরের নাম"
-                required={true}
+                label="অপারেটরের/ড্রাইভারের নাম"
+                required={!id}
                 options={driverOptions}
                 control={control}
               />
@@ -235,7 +273,7 @@ const AddCarForm = () => {
               <SelectField
                 name="vehicle_category"
                 label="ইকুইপমেন্টের ধরণ"
-                required
+                required={!id}
                 options={[
                   { value: "", label: "ইকুইপমেন্টের ধরণ নির্বাচন করুন..." },
                   { value: "Exvator", label: "এক্সভেটর" },
@@ -254,7 +292,7 @@ const AddCarForm = () => {
             <div className="relative mt-2 md:mt-0 w-full">
               {/* ইকুইপমেন্ট অনুযায়ী সাইজ */}
               <SelectField
-                name="equipment_type"
+                name="vehicle_type"
                 label="ইকুইপমেন্টের টাইপ"
                 required={false}
                 options={equipmentTypes[selectedCategory] || []}
@@ -265,15 +303,15 @@ const AddCarForm = () => {
             <div className="relative mt-2 md:mt-0 w-full">
               {/* ইকুইপমেন্ট অনুযায়ী সাইজ */}
               <SelectField
-                name="equipment_size"
+                name="vehicle_size"
                 label="ইকুইপমেন্টের সাইজ/ক্ষমতা"
-                required
+                required={!id}
                 options={equipmentSizes[selectedEquipment] || []}
                 control={control}
               />
             </div>
             <div className="w-full">
-              <InputField name="fuel_capacity" label="ফুয়েল ধারণক্ষমতা" required />
+              <InputField name="fuel_capcity" label="ফুয়েল ধারণক্ষমতা" required={!id} />
             </div>
           </div>
 
@@ -281,16 +319,16 @@ const AddCarForm = () => {
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
               <InputField
-                name="registration_number"
+                name="reg_no"
                 label="রেজিস্ট্রেশন নাম্বার"
-                required
+                required={!id}
               />
             </div>
             <div className="mt-2 md:mt-0 w-full">
               <SelectField
-                name="registration_serial"
+                name="reg_serial"
                 label="নিবন্ধন সিরিয়াল"
-                required
+                required={!id}
                 options={[
                   { value: "KA", label: "কা" },
                   { value: "KHA", label: "খা" },
@@ -319,9 +357,9 @@ const AddCarForm = () => {
             </div>
             <div className="relative w-full">
               <SelectField
-                name="registration_zone"
+                name="reg_zone"
                 label="রেজিস্ট্রেশন এলাকা"
-                required
+                required={!id}
                 options={[
                   { value: "", label: "জোন নির্বাচন করুন..." },
                   { value: "Dhaka Metro", label: "ঢাকা মেট্রো" },
@@ -405,12 +443,12 @@ const AddCarForm = () => {
             {/* Registration Date */}
             <div className="relative w-full">
               <InputField
-                name="registration_date"
+                name="reg_date"
                 label="রেজিস্ট্রেশন তারিখ"
                 type="date"
-                required
+                required={!id}
                 inputRef={(e) => {
-                  register("registration_date").ref(e);
+                  register("reg_date").ref(e);
                   registrationDateRef.current = e;
                 }}
                 icon={
@@ -430,39 +468,24 @@ const AddCarForm = () => {
                 name="tax_date"
                 label="ট্যাক্সের মেয়াদ শেষের তারিখ"
                 type="date"
-                required
+                required={!id}
                 inputRef={(e) => {
                   register("tax_date").ref(e);
                   taxDateRef.current = e;
                 }}
-                icon={
-                  <span
-                    className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                    onClick={() => taxDateRef.current?.showPicker?.()}
-                  >
-                    <FiCalendar className="text-white cursor-pointer" />
-                  </span>
-                }
               />
             </div>
             <div className="w-full">
               <InputField
-                name="road_permit_date"
+                name="route_per_date"
                 label="রোড পারমিট তারিখ"
                 type="date"
-                required
+                required={!id}
                 inputRef={(e) => {
-                  register("road_permit_date").ref(e);
+                  register("route_per_date").ref(e);
                   roadPermitRef.current = e;
                 }}
-                icon={
-                  <span
-                    className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                    onClick={() => roadPermitRef.current?.showPicker?.()}
-                  >
-                    <FiCalendar className="text-white cursor-pointer" />
-                  </span>
-                }
+               
               />
               <label className="text-primary text-sm font-semibold"></label>
             </div>
@@ -475,19 +498,12 @@ const AddCarForm = () => {
                 name="fitness_date"
                 label="ফিটনেস মেয়াদ শেষের তারিখ"
                 type="date"
-                required
+                required={!id}
                 inputRef={(e) => {
                   register("fitness_date").ref(e);
                   fitnessDateRef.current = e;
                 }}
-                icon={
-                  <span
-                    className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                    onClick={() => fitnessDateRef.current?.showPicker?.()}
-                  >
-                    <FiCalendar className="text-white cursor-pointer" />
-                  </span>
-                }
+                
               />
             </div>
             <div className="mt-2 md:mt-0 w-full">
@@ -495,27 +511,20 @@ const AddCarForm = () => {
                 name="insurance_date"
                 label="ইন্সুরেন্স মেয়াদ শেষের তারিখ"
                 type="date"
-                required
+                required={!id}
                 inputRef={(e) => {
                   register("insurance_date").ref(e);
                   insuranceDateRef.current = e;
                 }}
-                icon={
-                  <span
-                    className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                    onClick={() => insuranceDateRef.current?.showPicker?.()}
-                  >
-                    <FiCalendar className="text-white cursor-pointer" />
-                  </span>
-                }
+               
               />
             </div>
 
             <div className="w-full relative">
               <SelectField
                 name="status"
-                label="অবস্থা"
-                required
+                label="স্ট্যাটাস"
+                required={!id}
                 options={[
                   { value: "Active", label: "সক্রিয়" },
                   { value: "Inactive", label: "নিষ্ক্রিয়" },

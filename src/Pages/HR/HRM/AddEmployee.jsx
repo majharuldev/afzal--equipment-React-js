@@ -269,6 +269,7 @@ import { IoMdClose } from "react-icons/io";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../../../utils/axiosConfig";
 
 const AddEmployeeForm = () => {
   const { id } = useParams(); // update এর জন্য id
@@ -284,8 +285,8 @@ const AddEmployeeForm = () => {
 
   // Branch list
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/office/list`)
+    api
+      .get(`/office`)
       .then((res) => setBranch(res.data.data))
       .catch((err) => console.error("Branch data error:", err));
   }, []);
@@ -298,13 +299,13 @@ const AddEmployeeForm = () => {
   // Fetch employee for update
   useEffect(() => {
     if (!id) return;
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/employee/show/${id}`)
+    api
+      .get(`/employee/${id}`)
       .then((res) => {
-        if (res.data.status === "Success") {
+        if (res.data.success) {
           const emp = res.data.data;
           reset(emp); // form set value
-          if (emp.image) setPreviewImage(`${import.meta.env.VITE_BASE_URL}/public/uploads/employee/${emp.image}`);
+          if (emp.image) setPreviewImage(`https://afzalcons.com/backend/uploads/employee/${emp.image}`);
         }
       })
       .catch((err) => console.error("Employee fetch error:", err));
@@ -318,11 +319,11 @@ const AddEmployeeForm = () => {
 
       if (id) {
         // Update employee
-        await axios.post(`${import.meta.env.VITE_BASE_URL}/api/employee/update/${id}`, formData);
+        await api.post(`/employee/${id}`, formData);
         toast.success("কর্মচারীর তথ্য সফলভাবে আপডেট হয়েছে");
       } else {
         // Add new employee
-        await axios.post(`${import.meta.env.VITE_BASE_URL}/api/employee/create`, formData);
+        await api.post(`/employee`, formData);
         toast.success("নতুন কর্মচারী সফলভাবে সংরক্ষিত হয়েছে");
       }
       navigate("/tramessy/HR/HRM/employee-list");
@@ -348,32 +349,41 @@ const AddEmployeeForm = () => {
           {/* Row 1 */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
-              <SelectField
-                name="branch_name"
-                label="শাখা নির্বাচন করুন"
-                required
-                options={branchOptions}
-                control={control}
-              />
+              <InputField name="employee_name" label="পূর্ণ নাম" required={!id} />
             </div>
+            
             <div className="w-full">
-              <InputField name="full_name" label="পূর্ণ নাম" required />
-            </div>
-            <div className="w-full">
-              <InputField name="email" label="ইমেইল" />
+                <InputField name="nid" label="Nid" required={!id} type="number" />
+              </div>
+              <div className="w-full">
+              <InputField name="mobile" label="মোবাইল" required={!id} />
             </div>
           </div>
 
           {/* Row 2 */}
           <div className="md:flex justify-between gap-3">
-            <div className="w-full">
-              <InputField name="mobile" label="মোবাইল" required />
-            </div>
+            <div className="w-full relative">
+                <SelectField
+                  name="blood_group"
+                  label="Blood Group"
+                  required={!id}
+                  options={[
+                    { value: "A+", label: "A+" },
+                    { value: "A-", label: "A-" },
+                    { value: "B+", label: "B+" },
+                    { value: "B-", label: "B-" },
+                    { value: "AB+", label: "AB+" },
+                    { value: "AB-", label: "AB-" },
+                    { value: "O+", label: "O+" },
+                    { value: "O-", label: "O-" },
+                  ]}
+                />
+              </div>
             <div className="w-full">
               <SelectField
                 name="gender"
                 label="লিঙ্গ"
-                required
+                required={!id}
                 options={[
                   { value: "", label: "লিঙ্গ নির্বাচন করুন" },
                   { value: "Male", label: "পুরুষ" },
@@ -387,7 +397,7 @@ const AddEmployeeForm = () => {
                 name="birth_date"
                 label="জন্ম তারিখ"
                 type="date"
-                required
+                required={!id}
                 inputRef={(e) => {
                   register("birth_date").ref(e);
                   dateRef.current = e;
@@ -411,7 +421,7 @@ const AddEmployeeForm = () => {
                 name="join_date"
                 label="যোগদানের তারিখ"
                 type="date"
-                required
+                required={!id}
                 inputRef={(e) => {
                   register("join_date").ref(e);
                   joinDateRef.current = e;
@@ -427,17 +437,20 @@ const AddEmployeeForm = () => {
               />
             </div>
             <div className="w-full">
-              <InputField name="designation" label="পদবী" required />
+              <InputField name="designation" label="পদবী" required={!id} />
             </div>
             <div className="w-full">
-              <InputField name="salary" label="বেতন" required />
+              <InputField name="salary" label="বেতন" required={!id} />
             </div>
           </div>
 
           {/* Row 4 */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
-              <InputField name="address" label="ঠিকানা" required />
+              <InputField name="address" label="ঠিকানা" required={!id} />
+            </div>
+            <div className="w-full">
+              <InputField name="email" label="ইমেইল" required={false} />
             </div>
             <div className="w-full">
               <SelectField

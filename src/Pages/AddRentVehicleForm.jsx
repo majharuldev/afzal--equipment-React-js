@@ -35,7 +35,7 @@
 //         reset();
 //         navigate("/tramessy/RentList")
 //       } else {
-//         toast.error("Server Error: " + (resData.message || "Unknown issue"));
+//         toast.error("Server Error: " + (resData.message || "অজানা ত্রুটি"));
 //       }
 //     } catch (error) {
 //       console.error(error);
@@ -259,6 +259,7 @@ import { InputField, SelectField } from "../components/Form/FormFields";
 import useRefId from "../hooks/useRef";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import api from "../utils/axiosConfig";
 
 const AddRentVehicleForm = () => {
   const [loading, setLoading] = useState(false);
@@ -273,8 +274,8 @@ const AddRentVehicleForm = () => {
   useEffect(() => {
     if (id) {
       setLoading(true);
-      axios
-        .get(`${import.meta.env.VITE_BASE_URL}/api/rent/show/${id}`)
+      api
+        .get(`/rentVehicle/${id}`)
         .then((res) => {
           const vehicle = res.data?.data;
           if (vehicle) {
@@ -288,29 +289,24 @@ const AddRentVehicleForm = () => {
     }
   }, [id, setValue]);
 
+  // submit handler
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const formData = new FormData();
-      for (const key in data) {
-        formData.append(key, data[key]);
-      }
+      const payload = { ...data };
 
-      if (!id) {
-        // Add mode → নতুন গাড়ি
-        formData.append("ref_id", generateRefId());
-      }
+    // ref_id only generate if not in update mode
+    if (!id) {
+      payload.ref_id = generateRefId();
+    }
 
-      const url = id
-        ? `${import.meta.env.VITE_BASE_URL}/api/rent/update/${id}`
-        : `${import.meta.env.VITE_BASE_URL}/api/rent/create`;
+      const response = id
+        ? await api.put(`/rentVehicle/${id}`, payload)
+        : await api.post(`/rentVehicle`, payload);
 
-      const method = id ? "post" : "post";
-
-      const response = await axios[method](url, formData);
       const resData = response.data;
 
-      if (resData.status === "Success") {
+      if (resData.success) {
         toast.success(
           id ? "গাড়ির তথ্য সফলভাবে আপডেট হয়েছে!" : "গাড়ির তথ্য সফলভাবে সংরক্ষিত হয়েছে!",
           { position: "top-right" }
@@ -321,10 +317,11 @@ const AddRentVehicleForm = () => {
         toast.error("সার্ভার ত্রুটি: " + (resData.message || "অজানা ত্রুটি"));
       }
     } catch (error) {
+      console.error(error);
       const errorMessage =
         error.response?.data?.message || error.message || "অজানা ত্রুটি";
       toast.error("সার্ভার ত্রুটি: " + errorMessage);
-    } finally {
+    }finally {
       setLoading(false);
     }
   };
@@ -417,14 +414,28 @@ const AddRentVehicleForm = () => {
                     label="রেজিস্ট্রেশন সিরিয়াল"
                     required
                     options={[
-                      { value: "Ta", label: "Ta" },
-                      { value: "Tha", label: "Tha" },
-                      { value: "Da", label: "Da" },
-                      { value: "Dha", label: "Dha" },
-                      { value: "Na", label: "Na" },
-                      { value: "M", label: "M" },
-                      { value: "Sh", label: "Sh" },
-                    ]}
+                  { value: "KA", label: "কা" },
+                  { value: "KHA", label: "খা" },
+                  { value: "GA", label: "গা" },
+                  { value: "GHA", label: "ঘা" },
+                  { value: "CHA", label: "চা" },
+                  { value: "JA", label: "জা" },
+                  { value: "JHA", label: "ঝা" },
+                  { value: "TA", label: "টা" },
+                  { value: "THA", label: "ঠা" },
+                  { value: "DA", label: "ডা" },
+                  { value: "DHA", label: "ঢা" },
+                  { value: "NA", label: "না" },
+                  { value: "PA", label: "পা" },
+                  { value: "FA", label: "ফা" },
+                  { value: "BA", label: "বা" },
+                  { value: "MA", label: "মা" },
+                  { value: "SHA", label: "শা" },
+                  { value: "LA", label: "লা" },
+                  { value: "RA", label: "রা" },
+                  { value: "RO", label: "রো" },
+                  { value: "HA", label: "হা" },
+                ]}
                   />
                 </div>
                 <div className="w-full">
@@ -432,14 +443,80 @@ const AddRentVehicleForm = () => {
                     name="registration_zone"
                     label="রেজিস্ট্রেশন এলাকা"
                     required
-                    options={[
-                      { value: "", label: "জোন নির্বাচন করুন..." },
-                      { value: "Dhaka Metro", label: "ঢাকা মেট্রো" },
-                      { value: "Chattogram", label: "চট্টগ্রাম" },
-                      { value: "Khulna", label: "খুলনা" },
-                      { value: "Rajshahi", label: "রাজশাহী" },
-                      { value: "Sylhet", label: "সিলেট" },
-                    ]}
+                   options={[
+                  { value: "", label: "জোন নির্বাচন করুন..." },
+                  { value: "Dhaka Metro", label: "ঢাকা মেট্রো" },
+                  { value: "Chatto Metro", label: "চট্টগ্রাম মেট্রো" },
+                  { value: "Sylhet Metro", label: "সিলেট মেট্রো" },
+                  { value: "Rajshahi Metro", label: "রাজশাহী মেট্রো" },
+                  { value: "Khulna Metro", label: "খুলনা মেট্রো" },
+                  { value: "Rangpur Metro", label: "রংপুর মেট্রো" },
+                  { value: "Barisal Metro", label: "বরিশাল মেট্রো" },
+                  { value: "Dhaka", label: "ঢাকা" },
+                  { value: "Narayanganj", label: "নারায়ণগঞ্জ" },
+                  { value: "Gazipur", label: "গাজীপুর" },
+                  { value: "Tangail", label: "টাঙ্গাইল" },
+                  { value: "Manikgonj", label: "মানিকগঞ্জ" },
+                  { value: "Munshigonj", label: "মুন্সিগঞ্জ" },
+                  { value: "Faridpur", label: "ফরিদপুর" },
+                  { value: "Rajbari", label: "রাজবাড়ি" },
+                  { value: "Narsingdi", label: "নরসিংদী" },
+                  { value: "Kishorgonj", label: "কিশোরগঞ্জ" },
+                  { value: "Shariatpur", label: "শরীয়তপুর" },
+                  { value: "Gopalgonj", label: "গোপালগঞ্জ" },
+                  { value: "Madaripur", label: "মাদারীপুর" },
+                  { value: "Chattogram", label: "চট্টগ্রাম" },
+                  { value: "Cumilla", label: "কুমিল্লা" },
+                  { value: "Feni", label: "ফেনী" },
+                  { value: "Brahmanbaria", label: "ব্রাহ্মণবাড়িয়া" },
+                  { value: "Noakhali", label: "নোয়াখালী" },
+                  { value: "Chandpur", label: "চাঁদপুর" },
+                  { value: "Lokkhipur", label: "লক্ষ্মীপুর" },
+                  { value: "Bandarban", label: "বান্দরবান" },
+                  { value: "Rangamati", label: "রাঙ্গামাটি" },
+                  { value: "CoxsBazar", label: "কক্সবাজার" },
+                  { value: "Khagrasori", label: "খাগড়াছড়ি" },
+                  { value: "Barisal", label: "বরিশাল" },
+                  { value: "Barguna", label: "বরগুনা" },
+                  { value: "Bhola", label: "ভোলা" },
+                  { value: "Patuakhali", label: "পটুয়াখালী" },
+                  { value: "Pirojpur", label: "পিরোজপুর" },
+                  { value: "Jhalokati", label: "ঝালকাঠি" },
+                  { value: "Khulna", label: "খুলনা" },
+                  { value: "Kustia", label: "কুষ্টিয়া" },
+                  { value: "Jashore", label: "যশোর" },
+                  { value: "Chuadanga", label: "চুয়াডাঙ্গা" },
+                  { value: "Satkhira", label: "সাতক্ষীরা" },
+                  { value: "Bagerhat", label: "বাগেরহাট" },
+                  { value: "Meherpur", label: "মেহেরপুর" },
+                  { value: "Jhenaidah", label: "ঝিনাইদহ" },
+                  { value: "Norail", label: "নড়াইল" },
+                  { value: "Magura", label: "মাগুরা" },
+                  { value: "Rangpur", label: "রংপুর" },
+                  { value: "Ponchogor", label: "পঞ্চগড়" },
+                  { value: "Thakurgaon", label: "ঠাকুরগাঁও" },
+                  { value: "Kurigram", label: "কুড়িগ্রাম" },
+                  { value: "Dinajpur", label: "দিনাজপুর" },
+                  { value: "Nilfamari", label: "নীলফামারী" },
+                  { value: "Lalmonirhat", label: "লালমনিরহাট" },
+                  { value: "Gaibandha", label: "গাইবান্ধা" },
+                  { value: "Rajshahi", label: "রাজশাহী" },
+                  { value: "Pabna", label: "পাবনা" },
+                  { value: "Bagura", label: "বগুড়া" },
+                  { value: "Joypurhat", label: "জয়পুরহাট" },
+                  { value: "Nouga", label: "নওগাঁ" },
+                  { value: "Natore", label: "নাটোর" },
+                  { value: "Sirajgonj", label: "সিরাজগঞ্জ" },
+                  { value: "Chapainawabganj", label: "চাঁপাইনবাবগঞ্জ" },
+                  { value: "Sylhet", label: "সিলেট" },
+                  { value: "Habiganj", label: "হবিগঞ্জ" },
+                  { value: "Moulvibazar", label: "মৌলভীবাজার" },
+                  { value: "Sunamgonj", label: "সুনামগঞ্জ" },
+                  { value: "Mymensingh", label: "ময়মনসিংহ" },
+                  { value: "Netrokona", label: "নেত্রকোনা" },
+                  { value: "Jamalpur", label: "জামালপুর" },
+                  { value: "Sherpur", label: "শেরপুর" },
+                ]}
                   />
                 </div>
               </div>
