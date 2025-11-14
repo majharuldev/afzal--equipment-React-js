@@ -30,10 +30,11 @@ const Sidebar = () => {
   const location = useLocation();
   const isAdmin = useAdmin();
   const [openKeys, setOpenKeys] = useState([]);
-  const isActive = (path) => location.pathname === path;
+   const isActive = (path) => location.pathname === path;
 
+  //  একাধিক Submenu একসাথে খুলতে পারবে
   const handleOpenChange = (keys) => {
-    setOpenKeys(keys.length > 0 ? [keys[keys.length - 1]] : []);
+    setOpenKeys(keys);
   };
 
   // Admin menu items
@@ -143,8 +144,25 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-      ],
+      {
+  key: "payroll",
+  label: "পেরোল ব্যবস্থাপনা",
+  children: [
+    {
+      key: "attendance",
+      label: <Link to="/tramessy/HR/Payroll/Attendance">উপস্থিতি</Link>,
     },
+    {
+      key: "salary-advance",
+      label: <Link to="/tramessy/HR/Payroll/Advance-Salary">অগ্রিম বেতন</Link>,
+    },
+    {
+      key: "salary-sheet",
+      label: <Link to="/tramessy/HR/Payroll/salary-sheet">বেতন শীট</Link>,
+    },
+  ],
+}
+  ]},
 
     // Purchase
     {
@@ -193,6 +211,13 @@ const Sidebar = () => {
           key: "customer-list",
           label: <Link to="/tramessy/Customer"> কাস্টমার তালিকা </Link>,
           className: isActive("/tramessy/Customer")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        {
+          key: "route-pricing",
+          label: <Link to="/tramessy/route-pricing"> রুটভিত্তিক মূল্য </Link>,
+          className: isActive("/tramessy/route-pricing")
             ? "ant-menu-item-selected"
             : "",
         },

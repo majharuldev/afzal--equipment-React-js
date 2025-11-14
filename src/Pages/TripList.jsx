@@ -1,5 +1,4 @@
-import axios from "axios";
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   FaTruck,
@@ -63,6 +62,7 @@ const TripList = () => {
     },
   })
 
+  // print
   const handlePrintClick = (tripData) => {
     const formatted = {
       voucherNo: tripData.id,
@@ -116,117 +116,182 @@ const TripList = () => {
       });
   }, []);
 
-  // excel
+  //  Excel Export Function
   const exportTripsToExcel = () => {
-    const tableData = filteredTrips.map((dt, index) => ({
-      "SL.": index + 1,
-      Date: dt.date,
-      "Driver Name": dt.driver_name || "N/A",
-      "Driver Mobile": dt.driver_mobile || "N/A",
-      Commission: dt.driver_commission || "0",
-      "Load Point": dt.load_point,
-      "Unload Point": dt.unload_point,
-      "Trip Fare": toNumber(dt.total_rent) || 0,
-      "Trip Cost": toNumber(dt.total_exp) || 0,
-      "Total Profit":
-        toNumber(dt.total_rent || 0) - toNumber(dt.total_exp || 0),
-    }));
+    try {
+      const data = filteredTrips.map((dt, index) => ({
+        SL: index + 1,
+        Date: tableFormatDate(dt.date),
+        Customer: dt.customer || "N/A",
+        "Vehicle No": dt.vehicle_no || "N/A",
+        Driver: dt.driver_name || "N/A",
+        "Work Place": dt.work_place || "--",
+        "Load Point": dt.load_point || "--",
+        "Unload Point": dt.unload_point || "--",
+        "Total Rent": dt.total_rent || "0",
+        "Total Exp": dt.total_exp || "0",
+        "Profit": parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0),
+      }));
 
-    const worksheet = XLSX.utils.json_to_sheet(tableData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "trip_report.xlsx");
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Trips");
+      XLSX.writeFile(wb, "Trip_Report.xlsx");
+      toast.success("Excel file downloaded");
+    } catch (error) {
+      console.error(error);
+      toast.error("Excel export failed");
+    }
   };
-  // pdf
+
+  //  PDF Export Function
   const exportTripsToPDF = () => {
-    const doc = new jsPDF("landscape");
+    try {
+      const doc = new jsPDF("l", "pt", "a4");
 
-    const tableColumn = [
-      "SL.",
-      "Date",
-      "Driver Name",
-      "Mobile",
-      "Commission",
-      "Load Point",
-      "Unload Point",
-      "Trip Cost",
-      "Trip Fare",
-      "Profit",
-    ];
+      doc.setFontSize(14);
+      doc.text("Trip Report", 40, 40);
 
-    const tableRows = filteredTrips.map((dt, index) => [
-      index + 1,
-      dt.date,
-      dt.driver_name || "N/A",
-      dt.driver_mobile || "N/A",
-      dt.driver_commission || "0",
-      dt.load_point,
-      dt.unload_point,
-      dt.total_exp || "0",
-      dt.total_rent || "0",
-      parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0),
-    ]);
+      const rows = filteredTrips.map((dt, index) => [
+        index + 1,
+        tableFormatDate(dt.date),
+        dt.customer || "N/A",
+        dt.vehicle_no || "N/A",
+        dt.driver_name || "N/A",
+        dt.work_place || "--",
+        dt.load_point || "--",
+        dt.unload_point || "--",
+        dt.total_rent || "0",
+        dt.total_exp || "0",
+        parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0),
+      ]);
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
-      styles: {
-        fontSize: 10,
-      },
-      headStyles: {
-        fillColor: [17, 55, 91],
-        textColor: [255, 255, 255],
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240],
-      },
-      theme: "grid",
-    });
+      autoTable(doc, {
+        startY: 60,
+        head: [
+          [
+            "SL",
+            "Date",
+            "Customer",
+            "Vehicle No",
+            "Driver",
+            "Work Place",
+            "Load Point",
+            "Unload Point",
+            "Total Rent",
+            "Total Exp",
+            "Profit",
+          ],
+        ],
+        body: rows,
+        theme: "grid",
+        headStyles: { fillColor: [17, 55, 91] },
+        styles: { fontSize: 8 },
+      });
 
-    doc.save("trip_report.pdf");
+      doc.save("Trip_Report.pdf");
+      toast.success("PDF file downloaded");
+    } catch (error) {
+      console.error(error);
+      toast.error("PDF export failed");
+    }
   };
   // print
   const printTripsTable = () => {
-    const actionColumns = document.querySelectorAll(".action_column");
-    actionColumns.forEach((col) => (col.style.display = "none"));
+    try {
+      // ১️⃣ — Action column hide
+      const actionColumns = document.querySelectorAll(".action_column");
+      actionColumns.forEach((col) => (col.style.display = "none"));
 
-    const printContent = document.querySelector("table").outerHTML;
-    const WinPrint = window.open("", "", "width=900,height=650");
+      // ২️⃣ — Table body থেকে filteredTrips data দিয়ে নতুন HTML table বানানো (pagination ছাড়া)
+      const rowsHTML = filteredTrips
+        .map((dt, index) => {
+          const profit =
+            parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0);
+          return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${tableFormatDate(dt.date)}</td>
+            <td>${dt.customer || "N/A"}</td>
+            <td>${dt.vehicle_no || "N/A"}</td>
+            <td>${dt.driver_name || "N/A"}</td>
+            <td>${dt.work_place || "--"}</td>
+            <td>${dt.load_point || "--"}</td>
+            <td>${dt.unload_point || "--"}</td>
+            <td>${dt.total_rent || "0"}</td>
+            <td>${dt.total_exp || "0"}</td>
+            <td>${profit}</td>
+          </tr>
+        `;
+        })
+        .join("");
 
-    WinPrint.document.write(`
-    <html>
-    <head>
-      <title>Print</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-        thead { background-color: #11375B; color: white; }
-        tbody tr:nth-child(even) { background-color: #f3f4f6; }
-      </style>
-    </head>
-    <body>
-      <h3>Trip Report</h3>
-      ${printContent}
-    </body>
-    </html>
-  `);
+      // ৩️⃣ — Table Header
+      const headerHTML = `
+      <thead>
+        <tr style="background-color:#11375B;color:white;">
+          <th>SL.</th>
+          <th>তারিখ</th>
+          <th>কাস্টমার</th>
+          <th>ইকুইপমেন্ট নং</th>
+          <th>অপারেটর/ড্রাইভার</th>
+          <th>কাজের জায়গা</th>
+          <th>লোডিং পয়েন্ট</th>
+          <th>আনলোডিং পয়েন্ট</th>
+          <th>ট্রিপ ভাড়া</th>
+          <th>ট্রিপ খরচ</th>
+          <th>মোট লাভ</th>
+        </tr>
+      </thead>
+    `;
 
-    WinPrint.document.close();
-    WinPrint.focus();
-    WinPrint.print();
-    WinPrint.close();
+      // ৪️⃣ — নতুন print HTML তৈরি
+      const printHTML = `
+      <html>
+        <head>
+          <title>Trip Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h3 { text-align: center; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 6px; font-size: 12px; text-align: left; }
+            tbody tr:nth-child(even) { background-color: #f3f4f6; }
+            thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+          </style>
+        </head>
+        <body>
+          <h3>Trip Report</h3>
+          <table>
+            ${headerHTML}
+            <tbody>
+              ${rowsHTML}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
 
-    actionColumns.forEach((col) => (col.style.display = ""));
+      // ৫️⃣ — Print window খুলে print করা
+      const WinPrint = window.open("", "", "width=900,height=650");
+      WinPrint.document.write(printHTML);
+      WinPrint.document.close();
+      WinPrint.focus();
+      WinPrint.print();
+      WinPrint.close();
+
+      // ৬️⃣ — Action column restore
+      actionColumns.forEach((col) => (col.style.display = ""));
+    } catch (error) {
+      console.error("Print error:", error);
+      toast.error("Print failed");
+    }
   };
+
 
   // delete by id
   const handleDelete = async (id) => {
@@ -270,19 +335,56 @@ const TripList = () => {
   };
 
   // Filter by date
-  const filteredTrips = trip.filter((trip) => {
-    const tripDate = new Date(trip.date);
+  // const filteredTrips = trip.filter((trip) => {
+  //   const tripDate = new Date(trip.date);
+  //   const start = startDate ? new Date(startDate) : null;
+  //   const end = endDate ? new Date(endDate) : null;
+
+  //   if (start && end) {
+  //     return tripDate >= start && tripDate <= end;
+  //   } else if (start) {
+  //     return tripDate.toDateString() === start.toDateString();
+  //   } else {
+  //     return true; // no filter applied
+  //   }
+  // });
+  // Filtered Trips with Search, Date, Customer & Transport Type
+  const filteredTrips = trip.filter((t) => {
+    const tripDate = new Date(t.date);
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
 
-    if (start && end) {
-      return tripDate >= start && tripDate <= end;
-    } else if (start) {
-      return tripDate.toDateString() === start.toDateString();
-    } else {
-      return true; // no filter applied
-    }
+    // Date filter
+    const dateMatch =
+      !start && !end
+        ? true
+        : start && end
+          ? tripDate >= start && tripDate <= end
+          : start
+            ? tripDate.toDateString() === start.toDateString()
+            : true;
+
+    // Customer filter
+    const customerMatch = selectedCustomer
+      ? t.customer?.toLowerCase().includes(selectedCustomer.toLowerCase())
+      : true;
+
+    // Transport Type filter
+    const transportMatch = transportType
+      ? t.transport_type === transportType
+      : true;
+
+    // Search filter (checks multiple fields)
+    const searchMatch = searchTerm
+      ? Object.values(t)
+        .some((val) =>
+          String(val).toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : true;
+
+    return dateMatch && customerMatch && transportMatch && searchMatch;
   });
+
 
   const [currentPage, setCurrentPage] = useState([1])
   // pagination
@@ -342,18 +444,24 @@ const TripList = () => {
     },
     {
       title: "কাজের জায়গা",
-      dataIndex: "working_area",
-      key: "working_area",
+      dataIndex: "work_place",
+      key: "work_place",
     },
     {
       title: "লোডিং পয়েন্ট",
       dataIndex: "load_point",
       key: "load_point",
+      render: (_, record) => (
+        record.load_point ? record.load_point : "--"
+      ),
     },
     {
       title: "আনলোডিং পয়েন্ট",
       dataIndex: "unload_point",
       key: "unload_point",
+      render: (_, record) => (
+        record.unload_point ? record.unload_point : "--"
+      ),
     },
     {
       title: "ট্রিপ ভাড়া",
@@ -364,7 +472,7 @@ const TripList = () => {
       title: "ট্রিপ খরচ",
       key: "trip_cost",
       render: (_, record) => (
-        record.transport_type === "vendor_transport" ? record.trip_rent : record.total_exp
+        record.total_exp
       ),
     },
     {
@@ -379,6 +487,7 @@ const TripList = () => {
       key: "action",
       fixed: "right",
       width: 100,
+      className: "action_column",
       render: (_, record) => (
         <Space size="small">
           {/* <Link to={`/tramessy/UpdateTripForm/${record.id}`}>
@@ -388,7 +497,7 @@ const TripList = () => {
               icon={<EditOutlined />}
             />
           </Link> */}
-          <Link to={`/tramessy/UpdateTripForm/${record.id}`}>
+          <Link to={`/tramessy/update-equipment-operation-form/${record.id}`}>
             <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
               <RiEditLine className="text-[16px]" />
             </button>
@@ -427,8 +536,7 @@ const TripList = () => {
             ইকুইপমেন্ট রেকর্ড
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
-            <Link to="/tramessy/add-equipment-operation-form
-            ">
+            <Link to="/tramessy/add-equipment-operation-form">
               <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> অপারেশন করুন
               </button>
@@ -487,7 +595,7 @@ const TripList = () => {
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-5 top-[5.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                className="absolute right-3 top-[1rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
               >
                 ✕
               </button>
@@ -659,7 +767,7 @@ const TripList = () => {
         title="ট্রিপ বিবরণ"
         width={800}
       >
-        {selectedTrip && (
+        {/* {selectedTrip && (
           <Row gutter={16}>
             <Col span={12}>
               <p><strong>কাস্টমার:</strong> {selectedTrip.customer}</p>
@@ -678,6 +786,218 @@ const TripList = () => {
               <p><strong>আনলোড চার্জ:</strong> {selectedTrip.unload_charge}</p>
             </Col>
           </Row>
+        )} */}
+
+        {selectedTrip ? (
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-[14px] text-gray-700">
+            <div>
+              <p className="font-semibold text-gray-900">তারিখ:</p>
+              <p>{tableFormatDate(selectedTrip.date)}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">কাস্টমার:</p>
+              <p>{selectedTrip.customer || "—"}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">ইকুইপমেন্ট নং:</p>
+              <p>{selectedTrip.vehicle_no || "—"}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">ড্রাইভার / অপারেটর:</p>
+              <p>{selectedTrip.driver_name || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ড্রাইভার / অপারেটর মোবাইল:</p>
+              <p>{selectedTrip.driver_mobile || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">কাজের স্থান:</p>
+              <p>{selectedTrip.work_place || "—"}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">লোড পয়েন্ট:</p>
+              <p>{selectedTrip.load_point || "—"}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">আনলোড পয়েন্ট:</p>
+              <p>{selectedTrip.unload_point || "—"}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">ট্রিপ ধরণ:</p>
+              <p>{selectedTrip.transport_type || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ভেন্ডর নাম:</p>
+              <p>{selectedTrip.vendor_name || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">যানবাহনের ধরন:</p>
+              <p>{selectedTrip.vehicle_category || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">যানবাহনের সাইজ:</p>
+              <p>{selectedTrip.vehicle_size || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ওয়ার্ক টাইম:</p>
+              <p>{selectedTrip.work_time || "—"}</p>
+            </div>
+             <div>
+              <p className="font-semibold text-gray-900">ভেন্ডর ভাড়া:</p>
+              <p>{selectedTrip.transport_type==="vendor_trasport"? selectedTrip.total_exp:"--"}</p>
+            </div>
+             <div>
+              <p className="font-semibold text-gray-900">ভেন্ডর অগ্রিম:</p>
+              <p>{selectedTrip.advance || "—"}</p>
+            </div>
+             <div>
+              <p className="font-semibold text-gray-900">ভেন্ডর বাকি পরিমাণ:</p>
+              <p>{selectedTrip.due_amount || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ফুয়েল খরচ:</p>
+              <p>
+                {selectedTrip.fuel_cost || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">চালান খরচ:</p>
+              <p>
+                {selectedTrip.challan_cost || "—"}
+              </p>
+            </div>
+             <div>
+              <p className="font-semibold text-gray-900">শ্রমিক খরচ:</p>
+              <p>
+                {selectedTrip.labor || "—"}
+              </p>
+            </div>
+             <div>
+              <p className="font-semibold text-gray-900">চাদা খরচ:</p>
+              <p>
+                {selectedTrip.chada || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">পুলিশ খরচ:</p>
+              <p>
+                {selectedTrip.police_cost || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">টোল খরচ:</p>
+              <p>
+                {selectedTrip.toll_cost || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ফেরি খরচ:</p>
+              <p>
+                {selectedTrip.feri_cost || "—"}
+              </p>
+            
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">নাইট গার্ড খরচ:</p>
+              <p>
+                {selectedTrip.night_guard || "—"}
+              </p>
+              
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">পার্কিং খরচ:</p>
+              <p>
+                {selectedTrip.parking_cost || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">অন্যান্য খরচ:</p>
+              <p>
+                {selectedTrip.others_cost || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ট্রান্সপোর্ট খরচ:</p>
+              <p>
+                {selectedTrip.trans_cost || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ডেমারেজ দিন:</p>
+              <p>{selectedTrip.d_day || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ডেমারেজ পরিমাণ:</p>
+              <p>{selectedTrip.d_amount || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">ডেমারেজ মোট:</p>
+              <p>
+                {selectedTrip.d_total || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">রেট:</p>
+              <p>{selectedTrip.rate || "—"}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">ট্রিপ ভাড়া:</p>
+              <p>{selectedTrip.total_rent || "—"}</p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">ট্রিপ খরচ:</p>
+              <p>
+                {selectedTrip.total_exp || "—"}
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">মোট লাভ:</p>
+              <p>
+                {parseFloat(selectedTrip.total_rent || 0) -
+                  parseFloat(selectedTrip.total_exp || 0)}
+              </p>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">মন্তব্য:</p>
+              <p>{selectedTrip.remarks || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">লগ রেফারেন্স:</p>
+              <p>{selectedTrip.log_ref || "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">লগ স্বাক্ষর:</p>
+              <p>{selectedTrip.log_sign|| "—"}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">তৈরী করেছেন:</p>
+              <p>{selectedTrip.created_by || "—"}</p>
+            </div>
+            {/* Trip Image */}
+      <div className="flex justify-center items-start">
+        {selectedTrip.image ? (
+          <img
+            src={`https://afzalcons.com/backend/uploads/trip/${selectedTrip.image}`}
+            alt="Trip"
+            className="max-w-full max-h-64 object-contain border border-gray-300 rounded-md shadow-md"
+          />
+        ) : (
+          <p className="text-gray-400">No image available</p>
+        )}
+      </div>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500 py-6">লোড হচ্ছে...</p>
         )}
       </Modal>
     </main>

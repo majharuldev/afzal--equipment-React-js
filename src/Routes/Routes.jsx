@@ -101,6 +101,8 @@ import GarageCustomer from "../Pages/Garage/GarageCustomer";
 import GarageExpense from "../Pages/Garage/GarageExpense";
 import GarageCustomerLedger from "../Pages/Account/GarageCustomerLedger";
 import GarageReceiveAmount from "../Pages/Garage/GarageReceiveAmount";
+import RoutePricing from "../Pages/Customer/RoutePricing";
+import SalarySheet from "../Pages/HR/Payroll/SalarySheet";
 
 export const router = createBrowserRouter([
   {
@@ -180,7 +182,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/update-equipment-form/:id",
+        path: "/tramessy/update-equipment-operation-form/:id",
         element: (
           <PrivateRoute>
             <AddTripForm />
@@ -395,28 +397,36 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      {
-        path: "/tramessy/HR/Attendance/AttendanceList",
+     {
+        path: "/tramessy/HR/Payroll/Attendance",
         element: <AttendanceList />,
       },
 
       {
-        path: "/tramessy/HR/HRM/Attendance/AttendanceForm",
+        path: "/tramessy/HR/payroll/AttendanceForm",
+        element: <AttendanceForm />,
+      },
+      {
+        path: "/tramessy/HR/Payroll/update-attendence/:id",
         element: <AttendanceForm />,
       },
       // payroll
-      // {
-      //   path: "/tramessy/HRM/Payroll/Advance-Salary",
-      //   element: <AdvanceSalary />,
-      // },
-      // {
-      //   path: "/tramessy/HRM/Payroll/Advance-Salary-Form",
-      //   element: <AdvanceSalaryForm />,
-      // },
-      // {
-      //   path: "/tramessy/HRM/payroll/generate-salary",
-      //   element: <GenerateSalary />,
-      // },
+      {
+        path: "/tramessy/HR/Payroll/Advance-Salary",
+        element: <AdvanceSalary />,
+      },
+      {
+        path: "/tramessy/HRM/Payroll/Advance-Salary-Form",
+        element: <AdvanceSalaryForm />,
+      },
+      {
+        path: "/tramessy/HR/Payroll/update-advance/:id",
+        element: <AdvanceSalaryForm />,
+      },
+      {
+        path: "/tramessy/HR/payroll/salary-sheet",
+        element: <SalarySheet />,
+      },
       // {
       //   path: "/tramessy/HRM/payroll/generate-salary-form",
       //   element: <GenerateSalaryForm />,
@@ -522,6 +532,10 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/Customer",
         element: <Customer />,
+      },
+      {
+        path: "/tramessy/route-pricing",
+        element: <RoutePricing />,
       },
       {
         path: "/tramessy/AddCustomer",

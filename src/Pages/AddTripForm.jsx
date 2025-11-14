@@ -1,14 +1,15 @@
 
-import { useForm, FormProvider, useWatch } from "react-hook-form";
+import { useForm, FormProvider, useWatch, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
-import { FiCalendar } from "react-icons/fi";
-import { add, format } from "date-fns";
 import api from "../utils/axiosConfig";
 import { toNumber } from "../hooks/toNumber";
+import FormSkeleton from "../components/Form/FormSkeleton";
+import { IoMdClose } from "react-icons/io";
+import axios from "axios";
 
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,10 @@ export default function AddTripForm() {
   const [vehicleSizes, setVehicleSizes] = useState([]);
   const [unloadpoints, setUnloadpoints] = useState([]);
   const [branch, setBranch] = useState([]);
+
+  // Preview image
+  const [previewImage, setPreviewImage] = useState(null);
+  const [existingImage, setExistingImage] = useState(null);
 
   const methods = useForm({
     defaultValues: {
@@ -122,8 +127,10 @@ export default function AddTripForm() {
     d_day,
     d_amount,
     additional_cost,
+    trans_cost,
   ] = watch([
     "fuel_cost",
+    "trans_cost",
     "toll_cost",
     "police_cost",
     "driver_commission",
@@ -153,6 +160,7 @@ export default function AddTripForm() {
       (toNumber(foodCost) || 0) +
       (toNumber(chadaCost) || 0) +
       (toNumber(fuelCost) || 0) +
+      (toNumber(trans_cost) || 0) +
       (toNumber(additional_cost) || 0) +
       (toNumber(othersCost) || 0);
 
@@ -187,13 +195,20 @@ export default function AddTripForm() {
     setValue("due_amount", due, { shouldValidate: true });
   }, [vendorRent, vendorAdvance, setValue]);
 
+  const [workTime, rate] = watch(["work_time", "rate"]);
+useEffect(() => {
+  const totalRent = (toNumber(workTime) || 0) * (toNumber(rate) || 0);
+  setValue("total_rent", totalRent, { shouldValidate: true });
+}, [workTime, rate, setValue]);
+
   // সকল প্রয়োজনীয় ডেটা ফেচ করা
   useEffect(() => {
     const fetchAllData = async () => {
       try {
+        setLoading(true)
         // প্রথমে রেট ডেটা ফেচ করা
         const ratesRes = await api.get(`/rate`);
-        const ratesData = await ratesRes.json();
+        const ratesData = ratesRes.data;
         setRates(ratesData.data);
 
         // রেট থেকে ইউনিক লোড পয়েন্ট, আনলোড পয়েন্ট, গাড়ির ক্যাটাগরি এবং সাইজ বের করা
@@ -228,8 +243,8 @@ export default function AddTripForm() {
         ] = await Promise.all([
           api.get(`/vehicle`),
           api.get(`/driver`),
-          api.get(`/rent`),
-          api.get(`/api/rent`),
+          api.get(`/rentVehicle`),
+          api.get(`/rentVehicle`),
           api.get(`/customer`),
           api.get(`/vendor`),
           api.get(`/office`),
@@ -239,15 +254,15 @@ export default function AddTripForm() {
         setDriver(driverRes.data)
         setVendorVehicle(vendorVehicleRes.data.data)
         setVendorDrivers(vendorDriversRes.data.data)
-        setCustomer(customerRes.data)
+        setCustomer(customerRes.data || [])
         setVendors(vendorRes.data.data)
         setBranch(branchRes.data.data)
 
         if (id) {
-          const tripRes = await fetch(
+          const tripRes = await api.get(
             `/trip/${id}`
           );
-           if (tripRes.data) {
+          if (tripRes.data) {
             const tripData = tripRes.data
 
             if (tripData.date) {
@@ -266,6 +281,7 @@ export default function AddTripForm() {
               night_guard: toNumber(tripData.night_guard) || 0,
               feri_cost: toNumber(tripData.feri_cost) || 0,
               chada: toNumber(tripData.chada) || 0,
+              trans_cost: toNumber(tripData.trans_cost) || 0,
               food_cost: toNumber(tripData.food_cost) || 0,
               d_day: toNumber(tripData.d_day) || 0,
               d_amount: toNumber(tripData.d_amount) || 0,
@@ -278,11 +294,18 @@ export default function AddTripForm() {
               driver_adv: toNumber(tripData.driver_adv) || 0,
             };
             reset(parsedTripData);
+            if (tripData.image) {
+              const imageUrl = `https://afzalcons.com/backend/uploads/trip/${tripData.image}`
+              setPreviewImage(imageUrl)
+              setExistingImage(tripData.image)
+            }
           }
         }
       } catch (error) {
         console.error("ডেটা লোড করতে ত্রুটি:", error);
         toast.error("ফর্ম ডেটা লোড করতে ব্যর্থ");
+      } finally {
+        setLoading(false); //  সবশেষে loading বন্ধ
       }
     };
 
@@ -291,8 +314,8 @@ export default function AddTripForm() {
 
   // ড্রপডাউনগুলির জন্য অপশন জেনারেট করা
   const vehicleOptions = vehicle.map((v) => ({
-    value: `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`,
-    label: `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`,
+    value: `${v.reg_zone} ${v.reg_serial} ${v.reg_no}`,
+    label: `${v.reg_zone} ${v.reg_serial} ${v.reg_no}`,
     category: v.vehicle_category,
     size: v.vehicle_size,
   }));
@@ -355,7 +378,7 @@ export default function AddTripForm() {
   useEffect(() => {
     if (selectedTransport === "own_transport" && selectedVehicle) {
       const vehicleData = vehicle.find(v =>
-        `${v.registration_zone} ${v.registration_serial} ${v.registration_number}` === selectedVehicle
+        `${v.reg_zone} ${v.reg_serial} ${v.reg_no}` === selectedVehicle
       );
 
       if (vehicleData) {
@@ -554,6 +577,31 @@ export default function AddTripForm() {
     }
   }, [selectedDriver, driverOptions, setValue]);
 
+ //  Load & Unload point এর জন্য state
+const [upazilas, setUpazilas] = useState([]);
+
+//  Fetch Upazilas API (load & unload point option এ ব্যবহার হবে)
+useEffect(() => {
+  axios
+    .get("https://bdapis.vercel.app/geo/v2.0/upazilas")
+    .then((res) => {
+      if (res.data && res.data.data) {
+        // ডুপ্লিকেট বাদ দিয়ে শুধু upazila name নেয়া হচ্ছে
+        const uniqueUpazilas = [
+          ...new Set(res.data.data.map((u) => u.upazila)),
+        ].filter(Boolean);
+
+        setUpazilas(uniqueUpazilas);
+      }
+    })
+    .catch((error) => console.error("Upazila API Error:", error));
+}, []);
+
+//  Dropdown options বানানো
+const upazilaOptions = upazilas.map((u) => ({
+  value: u,
+  label: u,
+}));
   // ফর্ম সাবমিশন হ্যান্ডেল করা
   // const generateRefId = useRefId();
   const onSubmit = async (data) => {
@@ -562,30 +610,39 @@ export default function AddTripForm() {
     try {
       setLoading(true);
       //শুধুমাত্র বৈধ হলে তারিখ ফরম্যাটিং
-      if (data.date) {
-        const parsedDate = new Date(data.date);
-        if (!isNaN(parsedDate)) {
-          data.date = format(parsedDate, "yyyy-MM-dd");
+      // if (data.date) {
+      //   const parsedDate = new Date(data.date);
+      //   if (!isNaN(parsedDate)) {
+      //     data.date = format(parsedDate, "yyyy-MM-dd");
+      //   }
+      // }
+
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
         }
-      }
+      });
 
       const url = id
-        ? `${import.meta.env.VITE_BASE_URL}/api/trip/update/${id}`
-        : `${import.meta.env.VITE_BASE_URL}/api/trip/create`;
+        ? `/trip/${id}`
+        : `/trip`;
 
       // if (!id) {
       //   data.ref_id = refId;
       // }
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = id
+        ? await api.post(url, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        }) // update
+        : await api.post(url, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
-      if (res.ok) {
+      if (res.data.success) {
         toast.success(id ? "ট্রিপ সফলভাবে আপডেট হয়েছে!" : "ট্রিপ সফলভাবে তৈরি হয়েছে!");
-        navigate("/tramessy/tripList");
+        navigate("/tramessy/equipment-operation");
       } else {
         throw new Error(id ? "ট্রিপ আপডেট করতে ব্যর্থ" : "ট্রিপ তৈরি করতে ব্যর্থ");
       }
@@ -600,7 +657,11 @@ export default function AddTripForm() {
   return (
     <FormProvider {...methods}>
       <Toaster />
-      <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen p-2">
+      {loading ? (
+        <div className="p-4 bg-white rounded-md shadow border-t-2 border-primary">
+          <FormSkeleton />
+        </div>
+      ) : (<form onSubmit={handleSubmit(onSubmit)} className="min-h-screen p-2">
 
         <div className="rounded-b-md pt-5 shadow rounded-t-md border border-gray-200">
           {/* ফর্ম হেডার */}
@@ -776,7 +837,7 @@ export default function AddTripForm() {
                 <div className="relative mt-2 md:mt-0 w-full">
                   {/* ইকুইপমেন্ট অনুযায়ী সাইজ */}
                   <SelectField
-                    name="equipment_size"
+                    name="vehicle_size"
                     label="ইকুইপমেন্টের সাইজ/ক্ষমতা"
                     required
                     options={equipmentSizes[selectedEquipment] || []}
@@ -785,7 +846,7 @@ export default function AddTripForm() {
                 </div>
                 {!["Dump Truck", "Trailer"].includes(watch("vehicle_category")) ? (<><div className="w-full">
                   <InputField
-                    name="total_rent"
+                    name="work_time"
                     label="কাজের সময়"
                     type="number"
                     required={id ? false : true}
@@ -793,7 +854,7 @@ export default function AddTripForm() {
                 </div>
                   <div className="w-full">
                     <InputField
-                      name="total_rent"
+                      name="rate"
                       label="প্রতি ঘণ্টার দর"
                       type="number"
                       required={id ? false : true}
@@ -804,36 +865,41 @@ export default function AddTripForm() {
                     name="total_rent"
                     label="মোট ভাড়া/বিল পরিমাণ"
                     type="number"
+                    readOnly
                     required={id ? false : true}
                   />
                 </div>
-                <InputField name="working_area" label="কাজের জায়গা" />
-
+                <InputField name="work_place" label="কাজের জায়গা" />
                 <InputField name="challan" label="চালান নম্বর" />
               </div>
-              <div className="flex gap-x-6 mt-2">
-                {["Dump Truck", "Trailer"].includes(watch("vehicle_category")) && (
-                  <>
-                    <div className="w-full relative">
-                      <InputField
-                        name="load_point"
-                        label="লোড পয়েন্ট"
-                        required={true}
-                        control={control}
-                      />
+              <div className="">
+
+                {(selectedCategory === "Trailer" || selectedCategory === "Payloader") && (
+                  <div className="flex gap-5">
+                   <div className="w-full">
+                     <SelectField
+                      name="load_point"
+                      label="লোড পয়েন্ট (উপজেলা)"
+                      options={upazilaOptions}
+                      control={control}
+                      required={!id}
+                      isCreatable={false}
+                    />
+                   </div>
+
+                    <div className="w-full">
+                      <SelectField
+                      name="unload_point"
+                      label="আনলোড পয়েন্ট (উপজেলা)"
+                      options={upazilaOptions}
+                      control={control}
+                      required={!id}
+                      isCreatable={false}
+                    />
                     </div>
-                    <div className="w-full relative">
-                      <InputField
-                        name="unload_point"
-                        label="আনলোড পয়েন্ট"
-                        required={true}
-                        control={control}
-                      />
-                    </div>
-                  </>
+                  </div>
                 )}
               </div>
-
             </div>
 
             {/* নিজস্ব ট্রান্সপোর্ট খরচ সেকশন */}
@@ -862,6 +928,7 @@ export default function AddTripForm() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="chada" label="চাঁদা" type="number" />
                   <InputField name="food_cost" label="খাবার খরচ" type="number" />
+                  <InputField name="trans_cost" label="ট্রান্সপোর্ট খরচ" type="number" />
                   <InputField name="others_cost" label="অন্যান্য খরচ" type="number" />
                   <InputField name="total_exp" label="মোট খরচ" readOnly />
                 </div>
@@ -882,6 +949,88 @@ export default function AddTripForm() {
               </div>
             )}
 
+            <div className="md:flex justify-between gap-3">
+              <div className="w-full">
+                <label className="text-gray-700 text-sm font-semibold">
+                  ইমেজ
+                </label>
+                <Controller
+                  name="image"
+                  control={control}
+                  // rules={id ? {} : { required: "This field is required" }}
+                  render={({
+                    field: { onChange, ref },
+                    fieldState: { error },
+                  }) => (
+                    <div className="relative">
+                      <label
+                        htmlFor="image"
+                        className="border p-2 rounded w-[50%] block bg-white text-gray-300 text-sm cursor-pointer"
+                      >
+                        {previewImage ? "Image selected" : "Choose image"}
+                      </label>
+                      <input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        ref={ref}
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const url = URL.createObjectURL(file);
+                            setPreviewImage(url);
+                            onChange(file);
+                          } else {
+                            setPreviewImage(null);
+                            onChange(null);
+                          }
+                        }}
+                      />
+                      {error && (
+                        <span className="text-red-600 text-sm">
+                          {error.message}
+                        </span>
+                      )}
+                      {id && existingImage && (
+                        <span className="text-green-600 text-sm">
+                          Current image: {existingImage}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Preview */}
+            {previewImage && (
+              <div className="mt-2 relative flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviewImage(null);
+                    setValue("image", null);
+                    const fileInput = document.getElementById("image");
+                    if (fileInput) fileInput.value = "";
+
+                    if (!id) {
+                      setExistingImage(null);
+                    }
+                  }}
+                  className="absolute top-2 right-2 text-red-600 bg-white shadow rounded-sm hover:text-white hover:bg-secondary transition-all duration-300 cursor-pointer font-bold text-xl p-[2px]"
+                  title="Remove image"
+                >
+                  <IoMdClose />
+                </button>
+                <img
+                  src={previewImage}
+                  alt="Bill Preview"
+                  className="max-w-xs h-auto rounded border border-gray-300"
+                />
+              </div>
+            )}
+
             {/* সাবমিট বাটন */}
             <div className="flex justify-start mt-6">
               <BtnSubmit loading={loading}>
@@ -890,7 +1039,7 @@ export default function AddTripForm() {
             </div>
           </div>
         </div>
-      </form>
+      </form>)}
     </FormProvider>
   );
 }

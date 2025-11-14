@@ -1,179 +1,173 @@
-import { useEffect, useState } from "react";
-import { toast, Toaster } from "react-hot-toast";
+import React, { useContext, useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import BtnSubmit from "../../../components/Button/BtnSubmit";
+import { InputField, SelectField } from "../../../components/Form/FormFields";
+import toast from "react-hot-toast";
+import { AuthContext } from "../../../providers/AuthProvider";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../../../utils/axiosConfig";
 
-const AttendanceForm = () => {
-  const [employee, setEmployee] = useState([]);
-  const [currentDate, setCurrentDate] = useState("");
-  const [attendance, setAttendance] = useState({});
+const AdvanceSalaryForm = () => {
+  const methods = useForm();
+  const { handleSubmit, reset, control, setValue } = methods;
+  const [employees, setEmployees] = useState([]);
+  const [userName, setUserName] = useState("");
+  const { user } = useContext(AuthContext);
+  const userId = user?.id;
+  const { id } = useParams();
+  const navigate = useNavigate()
+  console.log(user)
 
-  // Set today's date & load employee list
+  // Fetch employees & user info
   useEffect(() => {
-    const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0];
-    setCurrentDate(formattedDate);
+    const fetchData = async () => {
+      try {
+        const [empRes, userRes] = await Promise.all([
+          api.get(`/employee`),
+          api.get(`/user/${userId}`),
+        ]);
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/api/employee/list`)
-      .then((res) => res.json())
-      .then((data) => setEmployee(data.data))
-      .catch((err) => console.error("Error loading employees:", err));
-  }, []);
+        if (empRes.data?.data) setEmployees(empRes.data.data);
+        if (userRes.data?.name) setUserName(userRes.data.name);
+      } catch (err) {
+        console.error("ডাটা লোড করতে সমস্যা হয়েছে:", err);
+      }
+    };
+    fetchData();
+  }, [userId]);
 
-  // Handle checkbox toggle
-  const handleSelect = (id, type) => {
-    setAttendance((prev) => ({
-      ...prev,
-      [id]: prev[id] === type ? null : type,
-    }));
-  };
+  useEffect(() => {
+    if (id && employees.length > 0) {
+      api
+        .get(`/attendence/${id}`)
+        .then((res) => {
+          const data = res.data?.data;
+          if (data) {
+            setValue("employee_id", data.employee_id);
+            setValue("working_day", data.working_day);
+            setValue("month", data.month);
+            setValue("created_by", data.created_by);
+          }
+        })
+        .catch(() => toast.error("অ্যাটেনডেন্স লোড করতে ব্যর্থ!"));
+    }
+  }, [id, employees, setValue]);
 
-  // Submit handler
-  const handleSubmit = async () => {
-    toast.loading("Submitting attendance...", {
-      id: "attendance",
-      position: "top-right",
-    });
+  // Submit handler (Add or Update)
+  const onSubmit = async (data) => {
+    const payload = {
+      employee_id: data.employee_id,
+      working_day: data.working_day,
+      month: data.month,
+      created_by: user.name,
+    };
 
     try {
-      const existingRes = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/attendance/list`
-      );
-      const existingData = await existingRes.json();
+      const res = id
+        ? await api.put(`/attendence/${id}`, payload)
+        : await api.post(`/attendence`, payload);
 
-      const alreadySubmittedIds = existingData.data
-        .filter((item) => item.date === currentDate)
-        .map((item) => String(item.employee_id));
-
-      let submittedCount = 0;
-
-      for (const empId of Object.keys(attendance)) {
-        const status = attendance[empId];
-
-        if (!status) continue;
-
-        if (alreadySubmittedIds.includes(empId)) {
-          toast.error(`Attendance already submitted for ID: ${empId}`, {
-            position: "top-right",
-          });
-          continue;
-        }
-
-        const payload = {
-          employee_id: empId,
-          date: currentDate,
-          present: status === "present" ? "1" : "0",
-          absent: status === "absent" ? "1" : "0",
-        };
-
-        const res = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/api/attendance/create`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }
+      // Success check
+      if (res?.data?.status === "Success") {
+        toast.success(
+          id
+            ? "অ্যাটেনডেন্স সফলভাবে আপডেট হয়েছে!"
+            : "অ্যাটেনডেন্স সফলভাবে যোগ করা হয়েছে!"
         );
-
-        const result = await res.json();
-
-        if (result.status === "Success") {
-          submittedCount++;
-        } else {
-          toast.error(`Failed for ID: ${empId}`);
-        }
+        reset();
+        navigate("/tramessy/HR/Payroll/Attendance");
+        return;
       }
 
-      if (submittedCount > 0) {
-        toast.success("Attendance submitted successfully!", {
-          id: "attendance",
-          position: "top-right",
-        });
-      } else {
-        toast.dismiss("attendance");
+      toast.error(res?.data?.message || "কিছু সমস্যা হয়েছে!");
+    } catch (err) {
+      if (!err.response) {
+        toast.error("অ্যাটেনডেন্স সাবমিট করতে ব্যর্থ!");
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong", {
-        id: "attendance",
-        position: "top-right",
-      });
+      console.error("ফর্ম সাবমিট এরর:", err);
     }
   };
 
   return (
-    <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
-      <Toaster />
-      <div className="md:flex items-center justify-between mb-6">
-        <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-          Attendance Form
-        </h1>
-        <div className="relative">
-          <label className="block mb-1 text-sm font-medium">Date</label>
-          <input
-            type="date"
-            value={currentDate}
-            onChange={(e) => setCurrentDate(e.target.value)}
-            className="text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-          />
-        </div>
-      </div>
+    <div className="p-2">
+      <FormProvider {...methods}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mx-auto p-6 border-t-2 border-primary rounded-md shadow space-y-4 max-w-3xl bg-white"
+        >
+          <h3 className="pb-4 text-primary font-semibold text-lg">
+            {id
+              ? "অ্যাটেনডেন্স তথ্য আপডেট করুন"
+              : "অ্যাটেনডেন্স তথ্য যোগ করুন"}
+          </h3>
 
-      <div className="mt-5 overflow-x-auto">
-        <table className="min-w-full text-sm text-left text-gray-900">
-          <thead className="capitalize text-sm">
-            <tr>
-              <th className="border border-gray-700 px-2 py-1">SL.</th>
-              <th className="border border-gray-700 px-2 py-1">
-                Employee Name & Id
-              </th>
-              <th className="border border-gray-700 px-2 py-1 text-center">
-                Present
-              </th>
-              <th className="border border-gray-700 px-2 py-1 text-center">
-                Absent
-              </th>
-            </tr>
-          </thead>
-          <tbody className="font-semibold">
-            {employee.map((emp, index) => (
-              <tr key={emp.id} className="hover:bg-gray-50 transition-all">
-                <td className="border border-gray-700 p-1 font-bold">
-                  {index + 1}.
-                </td>
-                <td className="border border-gray-700 p-1">
-                  {emp.full_name} - {emp.id}
-                </td>
-                <td className="border border-gray-700 p-1 text-center">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4"
-                    checked={attendance[emp.id] === "present"}
-                    onChange={() => handleSelect(String(emp.id), "present")}
-                  />
-                </td>
-                <td className="border border-gray-700 p-1 text-center">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4"
-                    checked={attendance[emp.id] === "absent"}
-                    onChange={() => handleSelect(String(emp.id), "absent")}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          {/* Employee + Working Day */}
+          <div className="md:flex justify-between gap-3">
+            <div className="w-full">
+              <label className="block text-sm font-medium mb-1">
+                কর্মচারী নির্বাচন করুন <span className="text-red-500">*</span>
+              </label>
+              <select
+                {...methods.register("employee_id", { required: "কর্মচারী নির্বাচন আবশ্যক" })}
+                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
+              >
+                <option value="">কর্মচারী নির্বাচন করুন</option>
+                {employees
+                  .filter(emp => emp.status === 'Active') // শুধু Active Status Employee
+                  .map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.employee_name || emp.email}
+                    </option>
+                  ))
+                }
+              </select>
+              {methods.formState.errors.employee_id && (
+                <p className="text-xs text-red-500 mt-1">
+                  {methods.formState.errors.employee_id.message}
+                </p>
+              )}
+            </div>
 
-        <div className="flex justify-end mt-5">
-          <button
-            onClick={handleSubmit}
-            className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 cursor-pointer"
-          >
-            Save Change
-          </button>
-        </div>
-      </div>
+            <div className="w-full">
+              <InputField
+                name="working_day"
+                label="কার্যদিবস"
+                type="number"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Salary Month */}
+          <div className="md:flex justify-between gap-3">
+            <div className="w-[50%]">
+              <InputField
+                name="month"
+                label="মাস (YYYY-MM)"
+                placeholder="2025-09"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Created By */}
+          <div className="md:flex justify-between gap-3">
+            <div className="w-full hidden">
+              <InputField
+                name="created_by"
+                label="তৈরি করেছেন"
+                value={userName}
+                readOnly
+              />
+            </div>
+          </div>
+
+          {/* Submit */}
+          <BtnSubmit> {id ? "আপডেট করুন" : "সাবমিট করুন"} </BtnSubmit>
+        </form>
+      </FormProvider>
     </div>
   );
 };
 
-export default AttendanceForm;
+export default AdvanceSalaryForm;
