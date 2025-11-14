@@ -1025,18 +1025,18 @@ const PurchaseList = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-2xl" />
-            Maintenance Information
+            মেইনটেনেন্স তালিকা
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
               className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> ফিল্টার
             </button>
             <Link to="/tramessy/Purchase/add-maintenance">
-              <button className="bg-gradient-to-r from-primary to-[#115e15]  text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus />Maintentance
+              <button className="bg-primary  text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <FaPlus />মেইনটেনেন্স
               </button>
             </Link>
           </div>
@@ -1048,7 +1048,7 @@ const PurchaseList = () => {
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Excel
+              এক্সেল
             </button>
             {/* <button
               onClick={exportPDF}
@@ -1060,7 +1060,7 @@ const PurchaseList = () => {
               onClick={printTable}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
-              Print
+              প্রিন্ট
             </button>
           </div>
           {/* search */}
