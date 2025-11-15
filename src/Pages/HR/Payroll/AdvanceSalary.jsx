@@ -7,6 +7,7 @@ import * as XLSX from "xlsx";
 import { Table, Button } from "antd";
 import api from "../../../utils/axiosConfig";
 import { tableFormatDate } from "../../../components/Shared/formatDate";
+import { RiEditLine } from "react-icons/ri";
 
 const AdvanceSalary = () => {
   const [advanceSalary, setAdvanceSalary] = useState([]);
@@ -140,8 +141,8 @@ const AdvanceSalary = () => {
             </thead>
             <tbody>
               ${filteredData
-                .map(
-                  (item, index) => `<tr>
+        .map(
+          (item, index) => `<tr>
                     <td>${index + 1}</td>
                     <td>${tableFormatDate(item.created_at)}</td>
                     <td>${getEmployeeName(item.employee_id)}</td>
@@ -151,8 +152,8 @@ const AdvanceSalary = () => {
                     <td>${item.status}</td>
                     <td>${item.created_by}</td>
                   </tr>`
-                )
-                .join("")}
+        )
+        .join("")}
             </tbody>
           </table>
         </body>
@@ -171,7 +172,7 @@ const AdvanceSalary = () => {
     { title: "কর্মচারীর নাম", dataIndex: "employee_id", render: (id) => getEmployeeName(id) },
     { title: "পরিমাণ", dataIndex: "amount", render: (amt) => `${amt} ৳` },
     { title: "বেতন মাস", dataIndex: "salary_month" },
-    { title: "সংশোধনের পরে", dataIndex: "adjustment", render: (adj) => `${adj} ৳` },
+    { title: "পরিশোধের পরে", dataIndex: "adjustment", render: (adj) => `${adj} ৳` },
     { title: "অবস্থা", dataIndex: "status" },
     { title: "তৈরি করেছেন", dataIndex: "created_by" },
     {
@@ -179,7 +180,10 @@ const AdvanceSalary = () => {
       render: (_, record) => (
         <div className="flex gap-2">
           <Link to={`/tramessy/HR/Payroll/update-advance/${record.id}`}>
-            <Button type="primary" size="small" icon={<FaPen />} />
+            <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+              <RiEditLine className="text-[16px]" />
+            </button>
+
           </Link>
           <Button
             type="primary"
@@ -198,7 +202,7 @@ const AdvanceSalary = () => {
 
   return (
     <div className="p-2">
-      <Toaster/>
+      <Toaster />
       <div className="max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-4 border border-gray-200">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -208,7 +212,7 @@ const AdvanceSalary = () => {
           </h1>
           <div>
             <Link to="/tramessy/HR/Payroll/Advance-Salary-Form">
-              <Button type="primary" icon={<FaPlus />}>অগ্রিম</Button>
+              <Button type="primary" className="!bg-primary" icon={<FaPlus />}>অগ্রিম</Button>
             </Link>
           </div>
         </div>

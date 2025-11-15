@@ -10,8 +10,6 @@ import AddTripForm from "../Pages/AddTripForm";
 import Fuel from "../Pages/Fuel";
 import FuelForm from "../Pages/FuelForm";
 import Parts from "../Pages/Parts";
-import Maintenance from "../Pages/Maintenance";
-import MaintenanceForm from "../Pages/MaintenanceForm";
 import DailyIncome from "../Pages/DailyIncome";
 import DailyExpense from "../Pages/DailyExpense";
 import AllUsers from "../Pages/AllUsers";
@@ -19,12 +17,7 @@ import AddUserForm from "../Pages/AddUserForm";
 import Login from "../components/Form/Login";
 import ResetPass from "../components/Form/ResetPass";
 import PrivateRoute from "./PrivateRoute";
-import UpdateTripForm from "../Pages/updateForm/UpdateTripForm";
-import UpdateFuelForm from "../Pages/updateForm/UpdateFuelForm";
 import UpdatePartsForm from "../Pages/updateForm/UpdatePartsForm";
-import UpdateUsersForm from "../Pages/updateForm/UpdateUsersForm";
-import UpdateMaintenanceForm from "../Pages/updateForm/UpdateMaintenanceForm";
-import UpdateDriverForm from "../Pages/updateForm/UpdateDriverForm";
 import UpdateDailyIncomeForm from "../Pages/updateForm/UpdateDailyIncomeForm";
 import UpdateExpenseForm from "../Pages/updateForm/UpdateExpenseForm";
 import AdminRoute from "./AdminRoute";
@@ -206,14 +199,6 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/UpdateFuelForm/:id",
-        element: (
-          <PrivateRoute>
-            <UpdateFuelForm />
-          </PrivateRoute>
-        ),
-      },
-      {
         path: "/tramessy/Parts",
         element: (
           <PrivateRoute>
@@ -278,7 +263,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/tramessy/DailyIncome",
+        path: "/tramessy/daily-income",
         element: (
           <AdminRoute>
             <DailyIncome />
@@ -342,16 +327,6 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/ResetPass",
         element: <ResetPass />,
-      },
-      {
-        path: "/tramessy/UpdateDailyIncomeForm/:id",
-        element: (
-          <AdminRoute>
-            <UpdateDailyIncomeForm />
-          </AdminRoute>
-        ),
-        loader: ({ params }) =>
-          fetch(`${import.meta.env.VITE_BASE_URL}/api/trip/${params.id}`),
       },
       {
         path: "/tramessy/UpdateExpenseForm/:id",
@@ -452,7 +427,7 @@ export const router = createBrowserRouter([
           ),
       },
       {
-        path: "/tramessy/Purchase/PurchaseList",
+        path: "/tramessy/Purchase/maintenance",
         element: <PurchaseList />,
       },
       {
@@ -490,6 +465,10 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/Purchase/fuel",
         element: <Fuel />,
+      },
+      {
+        path: "/tramessy/Purchase/update-fuel/:id",
+        element: <FuelForm />,
       },
       {
         path: "/tramessy/Purchase/official-product",
@@ -589,26 +568,6 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/billing",
         element: <Bill />,
-      },
-      {
-        path: "/tramessy/billing/Yamaha",
-        element: <Yamaha />,
-      },
-      {
-        path: "/tramessy/billing/Hatim",
-        element: <Hatim />,
-      },
-      {
-        path: "/tramessy/billing/HatimPubail",
-        element: <HatimPubail />,
-      },
-      {
-        path: "/tramessy/billing/Suzuki",
-        element: <Suzuki />,
-      },
-      {
-        path: "/tramessy/billing/Honda",
-        element: <Honda />,
       },
       // Account
       {

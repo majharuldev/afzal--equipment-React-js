@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { FaEye, FaFilter, FaPen, FaTrashAlt, FaPlus, FaUserSecret, FaPrint, FaFilePdf, FaFileExcel } from "react-icons/fa";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
@@ -12,7 +11,8 @@ import { Table, Modal, Button, Select, Input, DatePicker as AntDatePicker, Card 
 import { DownloadOutlined, PrinterOutlined, SearchOutlined } from "@ant-design/icons";
 import { RiEditLine } from "react-icons/ri";
 import { tableFormatDate } from "../components/Shared/formatDate";
-
+import api from "../utils/axiosConfig";
+import { toNumber } from "../hooks/toNumber";
 const { Option } = Select;
 const { RangePicker } = AntDatePicker;
 
@@ -29,8 +29,8 @@ const Fuel = () => {
   const [vehicleFilter, setVehicleFilter] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/purchase/list`)
+    api
+      .get(`/purchase`)
       .then((response) => {
         if (response.data.status === "Success") {
           setfuel(response.data.data);
@@ -86,8 +86,8 @@ const Fuel = () => {
   // view car by id
   const handleViewCar = async (id) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/purchase/show/${id}`
+      const response = await api.get(
+        `/purchase/${id}`
       );
       if (response.data.status === "Success") {
         setSelectedfuel(response.data.data);
@@ -115,166 +115,241 @@ const Fuel = () => {
 
   // Excel Export Function
   const exportExcel = () => {
-    const dataToExport = filteredfuel.map((item, index) => ({
-      "SL No": index + 1,
-      "Product ID": item.id,
-      "Supplier Name": item.supplier_name,
-      "Driver Name": item.driver_name !== "null" ? item.driver_name : "N/A",
-      "Vehicle No": item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
-      "Category": item.category,
-      "Item Name": item.item_name,
-      "Quantity": item.quantity,
-      "Unit Price": item.unit_price,
-      "Total": item.fuel_amount,
-      "Date": item.date,
-      "Remarks": item.remarks || "N/A"
-    }));
+  const dataToExport = filteredfuel.map((dt, index) => ({
+    "SL No": index + 1,
+    "Date": tableFormatDate(dt.date),
+    "Category": dt.category,
+    "Supplier Name": dt.supplier_name,
+    "Branch Name": dt.branch_name,
+    "Driver": dt.driver_name !== "null" ? dt.driver_name : "N/A",
+    "Equipment No": dt.vehicle_no || "N/A",
+    "Item Name": dt.items?.map(i => i.item_name).join(", "),
+    "Quantity (Litter)": dt.items?.map(i => toNumber(i.quantity)).join(", "),
+    "Unit Price": dt.items?.map(i => toNumber(i.unit_price)).join(", "),
+    "Service Charge": toNumber(dt.service_charge),
+    "Total Amount": toNumber(dt.purchase_amount),
+    "Remarks": toNumber(dt.remarks) || "N/A",
+    "Created By": dt.created_by
+  }));
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "fuel List");
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Fuel List");
 
-    XLSX.writeFile(workbook, "fuel_List.xlsx");
-    toast.success("Excel ফাইল ডাউনলোড সম্পন্ন হয়েছে!");
-  };
+  XLSX.writeFile(workbook, "Fuel_List.xlsx");
+  toast.success("Excel ফাইল ডাউনলোড সম্পন্ন হয়েছে!");
+};
+
 
   // PDF Export Function
-  const exportPDF = () => {
-    const doc = new jsPDF();
+  // PDF Export Function
+const exportPDF = () => {
+  const doc = new jsPDF("p", "pt", "a4");
 
-    doc.setFontSize(18);
-    doc.text("মেইনটেনেন্স তালিকা", 14, 15);
+  doc.setFontSize(16);
+  doc.text("Fuel List", 40, 40);
 
-    if (startDate || endDate) {
-      doc.setFontSize(10);
-      doc.text(
-        `তারিখ: ${startDate || "শুরু"} থেকে ${endDate || "শেষ"}`,
-        14,
-        22
-      );
+  if (startDate || endDate) {
+    doc.setFontSize(10);
+    doc.text(
+      `Date: ${startDate || "Start"} to ${endDate || "End"}`,
+      40,
+      55
+    );
+  }
+
+  // Convert table data exactly as shown like AntD table
+  const tableData = filteredfuel.flatMap((item, index) => {
+    if (item.items && item.items.length > 0) {
+      return item.items.map((subItem) => [
+        index + 1,
+        tableFormatDate(item.date),
+        item.supplier_name,
+        item.driver_name !== "null" ? item.driver_name : "N/A",
+        item.vehicle_no || "N/A",
+        subItem.item_name,
+        subItem.quantity,
+        subItem.unit_price,
+        item.service_charge,
+        item.purchase_amount,
+      ]);
     }
 
-    const tableData = filteredfuel.map((item, index) => [
-      index + 1,
-      item.id,
-      item.supplier_name,
-      item.driver_name !== "null" ? item.driver_name : "N/A",
-      item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
-      item.category,
-      item.item_name,
-      item.quantity,
-      item.unit_price,
-      item.fuel_amount,
-    ]);
-
-    autoTable(doc, {
-      head: [
-        [
-          "ক্রমিক",
-          "প্রোডাক্ট আইডি",
-          "সাপ্লায়ার",
-          "ড্রাইভার",
-          "ইকুইপমেন্ট নম্বর",
-          "ক্যাটাগরি",
-          "আইটেম",
-          "পরিমাণ",
-          "একক মূল্য",
-          "মোট",
-        ],
+    // Default (no items array)
+    return [
+      [
+        index + 1,
+        tableFormatDate(item.date),
+        item.supplier_name,
+        item.driver_name !== "null" ? item.driver_name : "N/A",
+        item.vehicle_no || "N/A",
+        item.item_name,
+        item.quantity,
+        item.unit_price,
+        item.service_charge,
+        item.purchase_amount,
       ],
-      body: tableData,
-      startY: 30,
-      theme: "grid",
-      headStyles: {
-        fillColor: [17, 55, 91],
-        textColor: 255,
-      },
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-      },
-      margin: { top: 30 },
-    });
+    ];
+  });
 
-    doc.save("fuel_List.pdf");
-    toast.success("PDF ফাইল ডাউনলোড সম্পন্ন হয়েছে!");
-  };
+  autoTable(doc, {
+    head: [
+      [
+        "SL",
+        "Date",
+        "Supplier",
+        "Driver",
+        "Vehicle No",
+        "Item Name",
+        "Quantity",
+        "Unit Price",
+        "Service Charge",
+        "Total Cost",
+      ],
+    ],
+    body: tableData,
+    startY: 70,
+    theme: "grid",
+    headStyles: {
+      fillColor: [17, 55, 91],
+      textColor: 255,
+    },
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+    },
+    margin: { top: 30 },
+  });
 
+  doc.save("Fuel_List.pdf");
+  toast.success("PDF downloaded successfully!");
+};
   // Print Function
-  const printTable = () => {
-    const tableHeader = `
+ // Print Function (Updated)
+const printTable = () => {
+  // Create table header (English Header)
+  const tableHeader = `
     <thead>
       <tr>
-        <th>ক্রমিক</th>
-        <th>প্রোডাক্ট আইডি</th>
-        <th>সাপ্লায়ার</th>
-        <th>ড্রাইভার</th>
-        <th>ইকুইপমেন্ট নম্বর</th>
-        <th>ক্যাটাগরি</th>
-        <th>আইটেম</th>
-        <th>পরিমাণ</th>
-        <th>একক মূল্য</th>
-        <th>মোট</th>
+        <th>SL</th>
+        <th>Date</th>
+        <th>Supplier</th>
+        <th>Driver</th>
+        <th>Vehicle No</th>
+        <th>Item name</th>
+        <th>Quantity</th>
+        <th>Unit Price</th>
+        <th>Service Charge</th>
+        <th>Total Cost</th>
       </tr>
     </thead>
   `;
 
-    const tableRows = filteredfuel
-      .map(
-        (item, index) => `
+  // Generate table rows exactly like AntD table
+  const tableRows = filteredfuel
+    .flatMap((item, index) => {
+      if (item.items && item.items.length > 0) {
+        return item.items.map(
+          (sub) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${tableFormatDate(item.date)}</td>
+              <td>${item.supplier_name}</td>
+              <td>${item.driver_name !== "null" ? item.driver_name : "N/A"}</td>
+              <td>${item.vehicle_no || "N/A"}</td>
+              <td>${sub.item_name}</td>
+              <td>${sub.quantity}</td>
+              <td>${sub.unit_price}</td>
+              <td>${item.service_charge}</td>
+              <td>${item.purchase_amount}</td>
+            </tr>
+        `
+        );
+      }
+
+      return [
+        `
         <tr>
           <td>${index + 1}</td>
-          <td>${item.id}</td>
+          <td>${tableFormatDate(item.date)}</td>
           <td>${item.supplier_name}</td>
           <td>${item.driver_name !== "null" ? item.driver_name : "N/A"}</td>
-          <td>${item.vehicle_no !== "null" ? item.vehicle_no : "N/A"}</td>
-          <td>${item.category}</td>
-          <td>${item.item_name}</td>
+          <td>${item.vehicle_no || "N/A"}</td>
           <td>${item.quantity}</td>
           <td>${item.unit_price}</td>
-          <td>${item.fuel_amount}</td>
+          <td>${item.service_charge}</td>
+          <td>${item.purchase_amount}</td>
         </tr>
-      `
-      )
-      .join("");
+      `,
+      ];
+    })
+    .join("");
 
-    const printContent = `<table>${tableHeader}<tbody>${tableRows}</tbody></table>`;
+  const printContent = `<table>${tableHeader}<tbody>${tableRows}</tbody></table>`;
 
-    const printWindow = window.open("", "", "width=1000,height=700");
-    printWindow.document.write(`
+  // Create Print Window
+  const printWindow = window.open("", "", "width=1000,height=700");
+  printWindow.document.write(`
     <html>
       <head>
-        <title>মেইনটেনেন্স তালিকা</title>
+        <title>Fuel List</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h2 { color: #11375B; text-align: center; font-size: 22px; margin-bottom: 10px; }
+
           table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+
           thead tr {
             background: linear-gradient(to right, #11375B, #1e4a7c);
             color: white;
           }
-          th, td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-          td { color: #11375B; }
+
+          th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+          }
+
           tr:nth-child(even) { background-color: #f9f9f9; }
           tr:hover { background-color: #f1f5f9; }
-          .footer { margin-top: 20px; text-align: right; font-size: 12px; color: #555; }
-          @media print { body { margin: 0; } }
+
+          .footer {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 12px;
+            color: #555;
+          }
+
+          @media print {
+            body { margin: 0; }
+          }
+            thead th {
+            color: #000000 !important;
+            background-color: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
         </style>
       </head>
+
       <body>
-        <h2>মেইনটেনেন্স তালিকা</h2>
+        <h2>Fuel List</h2>
+
         ${printContent}
+
         <div class="footer">
-          মুদ্রণের তারিখ: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
+          Printed On: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
         </div>
       </body>
     </html>
   `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  };
+
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+};
+
 
   // Ant Design Table Columns
   const columns = [
@@ -312,252 +387,266 @@ const Fuel = () => {
       title: "ইকুইপমেন্ট নম্বর",
       dataIndex: "vehicle_no",
       key: "vehicle_no",
-      render: (vehicle) => vehicle !== "null" ? vehicle : "N/A",
+      render: (_, record) => record?.vehicle_no || "N/A",
     },
-    { title: "ফুয়েল টাইপ", dataIndex: "type", key: "type" },
-    { title: "গ্যালন/লিটার", dataIndex: "quantity", key: "quantity" },
-    { title: "লিটার প্রতি খরচ", dataIndex: "price", key: "price" },
-    {
-      title: "সর্বমোট খরচ",
-      render: (_, record) => record.quantity * record.price,
+  // { title: "ফুয়েল টাইপ", dataIndex: "type", key: "type" },
+  {
+    title: "লিটার পরিমাণ", dataIndex: "quantity",
+    render: (_, dt) => {
+      return dt.items?.map((item, i) => (
+        <div key={i}>{item.quantity}</div>
+      ));
+    }
+
     },
-    {
-      title: "অ্যাকশন",
-      key: "action",
+{
+  title: "লিটার প্রতি মূল্য", dataIndex: "unit_price",
+    render: (_, dt) => {
+      return dt.items?.map((item, i) => (
+        <div key={i}>{item.unit_price}</div>
+      ));
+    }
+
+},
+{ title: "সার্ভিস চার্জ", dataIndex: "service_charge" },
+{ title: "সর্বমোট খরচ", dataIndex: "purchase_amount" },
+{
+  title: "অ্যাকশন",
+    key: "action",
       width: 80,
-      render: (_, record) => (
-        <div className="flex gap-2">
-          <Link to={`/tramessy/fuel/update-maintenance/${record.id}`}>
-            <Button 
-              type="primary" 
-              size="small" 
-              icon={<RiEditLine />}
+        render: (_, record) => (
+          <div className="flex gap-2">
+            <Link to={`/tramessy/Purchase/update-fuel/${record.id}`}>
+              <Button
+                type="primary"
+                size="small"
+                icon={<RiEditLine />}
+                className="!bg-white !text-primary !shadow-md"
+              />
+            </Link>
+            <Button
+              type="primary"
+              size="small"
+              icon={<FaEye />}
               className="!bg-white !text-primary !shadow-md"
+              onClick={() => handleViewCar(record.id)}
             />
-          </Link>
-          <Button 
-            type="primary" 
-            size="small" 
-            icon={<FaEye />}
-            className="!bg-white !text-primary !shadow-md"
-            onClick={() => handleViewCar(record.id)}
-          />
-        </div>
-      ),
+          </div>
+        ),
     },
   ];
 
-  return (
-    <div className="md:p-2">
-      <Card 
-        title={
-          <div className="flex items-center">
-            <FaUserSecret className="text-primary text-2xl mr-2" />
-            <span className="text-xl font-bold">ফুয়েল তালিকা</span>
-          </div>
-        }
-        extra={
-          <div className="flex gap-2">
-            <Button 
-              icon={<FaFilter />}
-              onClick={() => setShowFilter((prev) => !prev)}
+return (
+  <div className="md:p-2">
+    <Card
+      title={
+        <div className="flex items-center">
+          <FaUserSecret className="text-primary text-2xl mr-2" />
+          <span className="text-xl font-bold">ফুয়েল তালিকা</span>
+        </div>
+      }
+      extra={
+        <div className="flex gap-2">
+          <Button
+            icon={<FaFilter />}
+            onClick={() => setShowFilter((prev) => !prev)}
+          >
+            ফিল্টার
+          </Button>
+          <Link to="/tramessy/FuelForm">
+            <Button
+              type="primary"
+              icon={<FaPlus />}
+              className="!bg-primary"
             >
-              ফিল্টার
+              ফুয়েল
             </Button>
-            <Link to="/tramessy/FuelForm">
-              <Button 
-                type="primary" 
-                icon={<FaPlus />}
-                className="!bg-primary"
-              >
-                ফুয়েল 
-              </Button>
-            </Link>
-          </div>
-        }
-        className="w-full shadow-xl rounded-xl"
-      >
-        <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
-          <div className="flex gap-2">
-            <Button icon={<FaFileExcel />} onClick={exportExcel}
+          </Link>
+        </div>
+      }
+      className="w-full shadow-xl rounded-xl"
+    >
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
+        <div className="flex gap-2">
+          <Button icon={<FaFileExcel />} onClick={exportExcel}
             type="primary"
-              className="!py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-green-200 hover:!text-white"
-            >
-              এক্সেল
-            </Button>
-            <Button icon={<FaFilePdf />} onClick={exportPDF}
+            className="!py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-green-200 hover:!text-white"
+          >
+            এক্সেল
+          </Button>
+          <Button icon={<FaFilePdf />} onClick={exportPDF}
             type="primary"
             className=" !py-2 !px-5 !text-primary hover:!bg-primary !bg-gray-50 !shadow-md !shadow-amber-200 hover:!text-white"
-            >
-              পিডিএফ
-            </Button>
-            <Button icon={<FaPrint />} onClick={printTable}
+          >
+            পিডিএফ
+          </Button>
+          <Button icon={<FaPrint />} onClick={printTable}
             type="primary"
-              className=" !text-primary !py-2 !px-5 hover:!bg-primary !bg-gray-50 !shadow-md !shadow-blue-200 hover:!text-white"
-            >
-              প্রিন্ট
-            </Button>
-          </div>
-          
-          <Input
-            placeholder="সার্চ করুন..."
-            prefix={<SearchOutlined />}
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            style={{ width: 250 }}
-            allowClear
-          />
+            className=" !text-primary !py-2 !px-5 hover:!bg-primary !bg-gray-50 !shadow-md !shadow-blue-200 hover:!text-white"
+          >
+            প্রিন্ট
+          </Button>
         </div>
 
-        {showFilter && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border border-gray-200 rounded-md mb-4">
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              selectsStart
-              startDate={startDate}
-              endDate={endDate}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="শুরুর তারিখ"
-              locale="en-GB"
-              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-              isClearable
-            />
-            
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date)}
-              selectsEnd
-              startDate={startDate}
-              endDate={endDate}
-              minDate={startDate}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="শেষ তারিখ"
-              locale="en-GB"
-              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-              isClearable
-            />
-            
-            <Select
-              value={vehicleFilter}
-              onChange={(value) => {
-                setVehicleFilter(value);
-                setCurrentPage(1);
-              }}
-              placeholder="সব গাড়ির নম্বর"
-              allowClear
-              style={{ width: '100%' }}
-            >
-              {uniqueVehicles.map((v, index) => (
-                <Option key={index} value={v}>
-                  {v}
-                </Option>
-              ))}
-            </Select>
-            
-            <Button 
-            type="primary"
-              onClick={() => {
-                setStartDate("");
-                setEndDate("");
-                setVehicleFilter("");
-                setShowFilter(false);
-              }}
-              icon={<FaFilter />}
-              className="!bg-primary !text-white"
-            >
-              মুছে ফেলুন
-            </Button>
-          </div>
-        )}
-
-        <Table
-          columns={columns}
-          dataSource={currentfuel}
-          rowKey="id"
-          pagination={{
-            current: currentPage,
-            pageSize: itemsPerPage,
-            total: filteredfuel.length,
-            onChange: (page) => setCurrentPage(page),
-            showSizeChanger: false,
-            showQuickJumper: true,
-           position: ['bottomCenter'],
+        <Input
+          placeholder="সার্চ করুন..."
+          prefix={<SearchOutlined />}
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
           }}
-          locale={{ emptyText: "কোন ডেটা পাওয়া যায়নি" }}
-          scroll={{ x: 1000 }}
+          style={{ width: 250 }}
+          allowClear
         />
-      </Card>
+      </div>
 
-      <Modal
-        title="মেইনটেনেন্স তথ্য"
-        open={viewModalOpen}
-        onCancel={() => setViewModalOpen(false)}
-        footer={[
-          <Button key="close" onClick={() => setViewModalOpen(false)}>
-            বন্ধ
+      {showFilter && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border border-gray-200 rounded-md mb-4">
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="শুরুর তারিখ"
+            locale="en-GB"
+            className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+            isClearable
+          />
+
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="শেষ তারিখ"
+            locale="en-GB"
+            className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+            isClearable
+          />
+
+          <Select
+            value={vehicleFilter}
+            onChange={(value) => {
+              setVehicleFilter(value);
+              setCurrentPage(1);
+            }}
+            placeholder="সব গাড়ির নম্বর"
+            allowClear
+            style={{ width: '100%' }}
+          >
+            {uniqueVehicles.map((v, index) => (
+              <Option key={index} value={v}>
+                {v}
+              </Option>
+            ))}
+          </Select>
+
+          <Button
+            type="primary"
+            onClick={() => {
+              setStartDate("");
+              setEndDate("");
+              setVehicleFilter("");
+              setShowFilter(false);
+            }}
+            icon={<FaFilter />}
+            className="!bg-primary !text-white"
+          >
+            মুছে ফেলুন
           </Button>
-        ]}
-        width={700}
-      >
-        {selectedfuel && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="flex justify-between p-2">
-              <span className="font-medium">প্রোডাক্ট আইডি:</span>
-              <span>{selectedfuel.id}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">সরবরাহকারীর নাম:</span>
-              <span>{selectedfuel.supplier_name}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">ড্রাইভারের নাম:</span>
-              <span>{selectedfuel.driver_name}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">গাড়ির ক্যাটাগরি:</span>
-              <span>{selectedfuel.vehicle_category}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">গাড়ির নম্বর:</span>
-              <span>{selectedfuel.vehicle_no}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">ক্যাটাগরি:</span>
-              <span>{selectedfuel.category}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">আইটেমের নাম:</span>
-              <span>{selectedfuel.item_name}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">পরিমাণ:</span>
-              <span>{selectedfuel.quantity}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">একক মূল্য:</span>
-              <span>{selectedfuel.unit_price}</span>
-            </div>
-            <div className="flex justify-between p-2">
-              <span className="font-medium">মোট:</span>
-              <span>{selectedfuel.fuel_amount}</span>
-            </div>
-            <div className="col-span-2 flex flex-col items-center p-2">
-              <span className="font-medium mb-2">বিলের ছবি:</span>
-              <img
-                src={`${import.meta.env.VITE_BASE_URL}/public/uploads/fuel/${selectedfuel.bill_image}`}
-                alt="Bill"
-                className="w-48 h-48 object-contain rounded-lg border"
-              />
-            </div>
+        </div>
+      )}
+
+      <Table
+        columns={columns}
+        dataSource={currentfuel}
+        rowKey="id"
+        pagination={{
+          current: currentPage,
+          pageSize: itemsPerPage,
+          total: filteredfuel.length,
+          onChange: (page) => setCurrentPage(page),
+          showSizeChanger: false,
+          showQuickJumper: true,
+          position: ['bottomCenter'],
+        }}
+        locale={{ emptyText: "কোন ডেটা পাওয়া যায়নি" }}
+        scroll={{ x: 1000 }}
+      />
+    </Card>
+
+    <Modal
+      title="মেইনটেনেন্স তথ্য"
+      open={viewModalOpen}
+      onCancel={() => setViewModalOpen(false)}
+      footer={[
+        <Button key="close" onClick={() => setViewModalOpen(false)}>
+          বন্ধ
+        </Button>
+      ]}
+      width={700}
+    >
+      {selectedfuel && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="flex justify-between p-2">
+            <span className="font-medium">প্রোডাক্ট আইডি:</span>
+            <span>{selectedfuel.id}</span>
           </div>
-        )}
-      </Modal>
-    </div>
-  );
+          <div className="flex justify-between p-2">
+            <span className="font-medium">সরবরাহকারীর নাম:</span>
+            <span>{selectedfuel.supplier_name}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">ড্রাইভারের নাম:</span>
+            <span>{selectedfuel.driver_name}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">গাড়ির ক্যাটাগরি:</span>
+            <span>{selectedfuel.vehicle_category}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">গাড়ির নম্বর:</span>
+            <span>{selectedfuel.vehicle_no}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">ক্যাটাগরি:</span>
+            <span>{selectedfuel.category}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">আইটেমের নাম:</span>
+            <span>{selectedfuel.item_name}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">পরিমাণ:</span>
+            <span>{selectedfuel.quantity}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">একক মূল্য:</span>
+            <span>{selectedfuel.unit_price}</span>
+          </div>
+          <div className="flex justify-between p-2">
+            <span className="font-medium">মোট:</span>
+            <span>{selectedfuel.fuel_amount}</span>
+          </div>
+          <div className="col-span-2 flex flex-col items-center p-2">
+            <span className="font-medium mb-2">বিলের ছবি:</span>
+            <img
+              src={`${import.meta.env.VITE_BASE_URL}/public/uploads/fuel/${selectedfuel.bill_image}`}
+              alt="Bill"
+              className="w-48 h-48 object-contain rounded-lg border"
+            />
+          </div>
+        </div>
+      )}
+    </Modal>
+  </div>
+);
 };
 
 export default Fuel;

@@ -231,16 +231,16 @@
 // export default SalarySheet;
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FaPlus } from "react-icons/fa6"
 import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTruck } from "react-icons/fa"
 import { useReactToPrint } from 'react-to-print';
-import { BiEdit, BiPrinter } from "react-icons/bi"
 import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import api from '../../../utils/axiosConfig';
 import PaySlipPrint from '../HRM/PaySlipPrint';
+import Pagination from '../../../components/Shared/Pagination';
+import { toNumber } from '../../../hooks/toNumber';
 const SalarySheet = () => {
   const [employees, setEmployees] = useState([]);
   const [salaryAdvances, setSalaryAdvances] = useState([]);
@@ -278,7 +278,7 @@ const SalarySheet = () => {
         setLoanData(loanRes.data.data || []); 
       setBonusData(bonusRes.data.data || []);
       } catch (err) {
-        toast.error("Failed to fetch data");
+        toast.error("ডাটা লোড করতে সমস্যা হয়েছে");
         console.error(err);
       } finally {
       setLoading(false); // stop loading
@@ -292,8 +292,8 @@ const SalarySheet = () => {
 //   
   useEffect(() => {
   if (employees.length === 0) return;
-
-  const merged = employees.map((emp) => {
+const activeEmployees = employees.filter(emp => emp.status === "Active"); 
+  const merged = activeEmployees.map((emp) => {
     const empSalary = salaryAdvances.find(s => s.employee_id == emp.id) || {};
     const empAttend = attendences.find(a => a.employee_id == emp.id) || {};
 
@@ -327,12 +327,12 @@ const SalarySheet = () => {
       .reduce((sum, b) => sum + Number(b.amount), 0);
 
     //  Salary অংশ
-    const basic = emp.basic ? Number(emp.basic) : 0;
+    const salary = emp.salary ? Number(emp.salary) : 0;
     const rent = emp.house_rent ? Number(emp.house_rent) : 0;
     const conv = emp.conv ? Number(emp.conv) : 0;
     const medical = emp.medical ? Number(emp.medical) : 0;
     const allowance = emp.allowan ? Number(emp.allowan) : 0;
-    const totalEarnings = basic + rent + conv + medical + allowance + empBonus;
+    const totalEarnings = salary + rent + conv + medical + allowance + empBonus;
 
     //  Deduction হিসাব
     const advance = empSalary.amount ? Number(empSalary.amount) : 0;
@@ -347,12 +347,12 @@ const SalarySheet = () => {
       designation: emp.designation || "",
       days: empAttend.working_day || "",
       monthYear,
-      basic,
+      salary,
       rent,
       conv,
       medical,
       allowance,
-      total: basic + rent + conv + medical + allowance,
+      total: salary + rent + conv + medical + allowance,
       bonus: empBonus,
       advance,
       monthly_deduction: loanDeduction,
@@ -406,72 +406,87 @@ const SalarySheet = () => {
   }
 
   // Excel export
-  const exportExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Salary Sheet");
-    XLSX.writeFile(workbook, "SalarySheet.xlsx");
-  };
+const exportExcel = () => {
+  const excelData = filteredData.map((d, i) => ({
+    SL: i + 1,
+    Month: d.monthYear,
+    Name: d.name,
+    Designation: d.designation,
+    WorkingDay: toNumber(d.days),
+    Salary: toNumber(d.salary),
+    Advance: toNumber(d.advance),
+    NetPay: toNumber(d.netPay),
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Salary Sheet");
+  XLSX.writeFile(workbook, "SalarySheet.xlsx");
+};
 
   // PDF export
   const exportPDF = () => {
     const doc = new jsPDF();
     autoTable(doc, {
-      head: [['Name', 'Designation', 'Days', 'Basic', 'H/Rent', 'Conv', 'Medical', 'Allowance', 'Total', 'Advance', 'NetPay']],
-      body: filteredData.map(d => [d.name, d.designation, d.days, d.basic, d.rent, d.conv, d.medical, d.allowance, d.total, d.advance, d.netPay]),
+      head: [['Month', 'Name', 'Designation', 'Days', 'salary', 'Advance', 'NetPay']],
+      body: filteredData.map(d => [d.monthYear, d.name, d.designation, d.days, d.salary, d.advance, d.netPay]),
     });
     doc.save('SalarySheet.pdf');
   };
+
 // Full filtered table print function
 const handlePrintTable = () => {
-  // Get the table element
-  const table = document.getElementById('salary-table');
-  if (!table) return;
+  if (filteredData.length === 0) return;
 
-  // Clone the table to remove unwanted columns (Action)
-  const clone = table.cloneNode(true);
+  // Build HTML table for all filtered data
+  let tableHTML = `
+    <table style="width:100%; border-collapse: collapse; font-size:12px;">
+      <thead>
+        <tr>
+          <th style="border:1px solid #333; padding:4px;">SL</th>
+          <th style="border:1px solid #333; padding:4px;">Month</th>
+          <th style="border:1px solid #333; padding:4px;">Name</th>
+          <th style="border:1px solid #333; padding:4px;">Designation</th>
+          <th style="border:1px solid #333; padding:4px;">Working Day</th>
+          <th style="border:1px solid #333; padding:4px;">Salary</th>
+          <th style="border:1px solid #333; padding:4px;">Advance</th>
+          <th style="border:1px solid #333; padding:4px;">Net Pay</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredData.map((row, i) => `
+          <tr>
+            <td style="border:1px solid #333; padding:4px;">${i+1}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.monthYear}</td>
+            <td style="border:1px solid #333; padding:4px; text-align:left;">${row.name}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.designation}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.days}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.salary?.toLocaleString()}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.advance?.toLocaleString()}</td>
+            <td style="border:1px solid #333; padding:4px; font-weight:bold;">${row.netPay?.toLocaleString()}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5" style="border:1px solid #333; padding:4px; font-weight:bold;">Grand Total</td>
+          <td style="border:1px solid #333; padding:4px;">${grandTotal.toLocaleString()}</td>
+          <td style="border:1px solid #333; padding:4px;"></td>
+          <td style="border:1px solid #333; padding:4px;">${grandNetPay.toLocaleString()}</td>
+        </tr>
+      </tfoot>
+    </table>
+  `;
 
-  // Remove Action column from header
-  const headerRow = clone.querySelector('thead tr:last-child'); // last header row
-  if (headerRow) {
-    const actionTh = headerRow.querySelector('th:last-child');
-    if (actionTh) actionTh.remove();
-  }
-  // Remove Action column from all header rows
-  clone.querySelectorAll('thead tr').forEach(tr => {
-    const ths = tr.querySelectorAll('th');
-    ths.forEach(th => {
-      if (th.innerText.toLowerCase().includes('action')) {
-        th.remove();
-      }
-    });
-  });
-
-  // Remove Action column from each body row
-  clone.querySelectorAll('tbody tr').forEach(tr => {
-    const actionTd = tr.querySelector('td:last-child');
-    if (actionTd) actionTd.remove();
-  });
-
-  // Remove pagination if exists
-  const pag = document.querySelector('.pagination');
-  if (pag) pag.remove();
-
-  // Open new window for print
   const newWin = window.open('', '', 'width=900,height=700');
   newWin.document.write(`
     <html>
       <head>
         <title>Salary Sheet</title>
-        <style>
-          table { width: 100%; border-collapse: collapse; font-size: 12px; }
-          th, td { border: 1px solid #333; padding: 4px; text-align: center; }
-          th { background-color: #f0f0f0; }
-        </style>
       </head>
       <body>
         <h3>Salary Sheet</h3>
-        ${clone.outerHTML}
+        ${tableHTML}
       </body>
     </html>
   `);
@@ -489,7 +504,7 @@ const handlePrintTable = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             {/* <FaTruck className="text-gray-800 text-2xl" /> */}
-            Salary Sheet
+            বেতন শিট
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             {/* <Link to="/tramessy/AddSallaryExpenseForm">
@@ -514,7 +529,7 @@ const handlePrintTable = () => {
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow  hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaFileExcel className="" />
-              Excel
+              এক্সেল
             </button>
 
             <button
@@ -522,7 +537,7 @@ const handlePrintTable = () => {
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow  hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
-              PDF
+             পিডিএফ
             </button>
 
             <button
@@ -530,7 +545,7 @@ const handlePrintTable = () => {
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaPrint className="" />
-              Print
+              প্রিন্ট
             </button>
           </div>
 
@@ -561,13 +576,13 @@ const handlePrintTable = () => {
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
            <select value={selectedMonth} onChange={e => { setSelectedMonth(e.target.value); setCurrentPage(1); }}
               className="border px-3 py-2 rounded-md w-full">
-              <option value="">-- Select Month --</option>
+              <option value="">-- মাস নির্বাচন করুন --</option>
               {months.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
 
             <select value={selectedEmployee} onChange={e => { setSelectedEmployee(e.target.value); setCurrentPage(1); }}
               className="border px-3 py-2 rounded-md w-full">
-              <option value="">-- Select Employee --</option>
+              <option value="">-- কর্মচারী নির্বাচন করুন --</option>
               {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.employee_name}</option>)}
             </select>
             <div className="mt-3 md:mt-0 flex gap-2">
@@ -592,36 +607,36 @@ const handlePrintTable = () => {
               {/* Sub header row for SL numbers - merged for names */}
               <tr className=" text-black text-center">
                 <th className="border border-gray-400 px-2 py-1" rowSpan={2}>SL</th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={2}>Month</th>
                 <th className="border border-gray-400 px-2 py-1" colSpan={1} rowSpan={2}>
                   Name &<br />Designation
                 </th>
                 <th className="border border-gray-400 px-2 py-1" rowSpan={3}>Working<br />DAY</th>
                 <th className="border border-gray-400 px-2 py-1" rowSpan={3}>Designation</th>
-                <th className="border border-gray-400 px-2 py-1 " colSpan={7} >
+                <th className="border border-gray-400 px-2 py-1 " colSpan={1} >
                   E A R N I N G S
                 </th>
-                <th className="border border-gray-400 px-2 py-1 " colSpan={3}>
+                <th className="border border-gray-400 px-2 py-1 " colSpan={1}>
                   D E D U C T I O N
                 </th>
-                <th className="border border-gray-400 px-2 py-1">By CEO</th>
+                {/* <th className="border border-gray-400 px-2 py-1">By CEO</th> */}
                 <th className="border border-gray-400 px-2 py-1">Net Pay Half</th>
-                <th className="border border-gray-400 px-2 py-1">Action</th>
+                {/* <th className="border border-gray-400 px-2 py-1">Action</th> */}
               </tr>
               {/* Main header row */}
               <tr className=" text-black text-center">
-                <th className="border border-gray-400 px-2 py-1">Basic</th>
-                <th className="border border-gray-400 px-2 py-1">H/Rent</th>
-                <th className="border border-gray-400 px-2 py-1">Conv</th>
-                <th className="border border-gray-400 px-2 py-1">Medical</th>
-                <th className="border border-gray-400 px-2 py-1">Allowan Ce/Ot</th>
-                <th className="border border-gray-400 px-2 py-1">Bonus</th>
-                <th className="border border-gray-400 px-2 py-1 ">Total</th>
+                <th className="border border-gray-400 px-2 py-1">Salary</th>
+                {/* <th className="border border-gray-400 px-2 py-1">H/Rent</th> */}
+                {/* <th className="border border-gray-400 px-2 py-1">Conv</th> */}
+                {/* <th className="border border-gray-400 px-2 py-1">Medical</th> */}
+                {/* <th className="border border-gray-400 px-2 py-1">Allowan Ce/Ot</th> */}
+                {/* <th className="border border-gray-400 px-2 py-1">Bonus</th> */}
+                {/* <th className="border border-gray-400 px-2 py-1 ">Total</th> */}
                 <th className="border border-gray-400 px-2 py-1">Advance</th>
-                <th className="border border-gray-400 px-2 py-1">Loan</th>
-                <th className="border border-gray-400 px-2 py-1">Total</th>
+                {/* <th className="border border-gray-400 px-2 py-1">Loan</th> */}
+                {/* <th className="border border-gray-400 px-2 py-1">Total</th> */}
                 <th className="border border-gray-400 px-2 py-1"></th>
-                <th className="border border-gray-400 px-2 py-1 "></th>
-                <th className="border border-gray-400 px-2 py-1 "></th>
+            
               </tr>
             </thead>
             <tbody>
@@ -635,26 +650,27 @@ const handlePrintTable = () => {
                 currentItems.map((row, i) => (
                   <tr key={i} className="text-center hover:bg-gray-100">
                     <td className="border border-gray-400 px-2 py-1">{i + 1}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row.monthYear}</td>
                     <td className="border border-gray-400 px-2 py-1 text-left">{row.name}</td>
                     <td className="border border-gray-400 px-2 py-1">{row.days}</td>
                     <td className="border border-gray-400 px-2 py-1">{row.designation}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.basic?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.rent?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.conv?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.medical?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.allowance?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.bonus?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1 font-semibold">
+                    <td className="border border-gray-400 px-2 py-1">{row?.salary?.toLocaleString()}</td>
+                    {/* <td className="border border-gray-400 px-2 py-1">{row?.rent?.toLocaleString()}</td> */}
+                    {/* <td className="border border-gray-400 px-2 py-1">{row?.conv?.toLocaleString()}</td> */}
+                    {/* <td className="border border-gray-400 px-2 py-1">{row?.medical?.toLocaleString()}</td> */}
+                    {/* <td className="border border-gray-400 px-2 py-1">{row?.allowance?.toLocaleString()}</td> */}
+                    {/* <td className="border border-gray-400 px-2 py-1">{row?.bonus?.toLocaleString()}</td> */}
+                    {/* <td className="border border-gray-400 px-2 py-1 font-semibold">
                       {row?.total?.toLocaleString()}
-                    </td>
+                    </td> */}
                     <td className="border border-gray-400 px-2 py-1">{row?.advance?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.monthly_deduction?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">{row?.deductionTotal?.toLocaleString()}</td>
-                    <td className="border border-gray-400 px-2 py-1">C</td>
+                    {/* <td className="border border-gray-400 px-2 py-1">{row?.monthly_deduction?.toLocaleString()}</td> */}
+                    {/* <td className="border border-gray-400 px-2 py-1">{row?.deductionTotal?.toLocaleString()}</td> */}
+                    {/* <td className="border border-gray-400 px-2 py-1">C</td> */}
                     <td className="border border-gray-400 px-2 py-1  font-bold">
                       {row?.netPay?.toLocaleString()}
                     </td>
-                    <td className="border border-gray-400 px-2 py-1 action_column flex items-center gap-2">
+                    {/* <td className="border border-gray-400 px-2 py-1 action_column flex items-center gap-2">
                       <button
                         onClick={() => {
                           // setSelectedSlip(row);
@@ -665,19 +681,19 @@ const handlePrintTable = () => {
                         <BiPrinter className="mr-1 h-4 w-4" />
                         PaySlip
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
             </tbody>
             <tfoot>
               <tr className=" font-bold text-center">
-                <td className="border border-gray-400 px-2 py-1" colSpan={10}>
+                <td className="border border-gray-400 px-2 py-1" colSpan={5}>
                   Grand Total
                 </td>
                 <td className="border border-gray-400 px-2 py-1">
                   {grandTotal.toLocaleString()}
                 </td>
-                <td className="border border-gray-400 px-2 py-1" colSpan={4}></td>
+                <td className="border border-gray-400 px-2 py-1" colSpan={1}></td>
                 <td className="border border-gray-400 px-2 py-1">
                   {grandNetPay.toLocaleString()}
                 </td>
@@ -695,11 +711,11 @@ const handlePrintTable = () => {
           )}
         </div>
         {/* Hidden Component for Printing */}
-        <div style={{ display: "none" }} >
+        {/* <div style={{ display: "none" }} >
           {selectedSlip &&
             <div ref={printRef}><PaySlipPrint data={selectedSlip} /></div>
           }
-        </div>
+        </div> */}
       </div>
     </div>
 

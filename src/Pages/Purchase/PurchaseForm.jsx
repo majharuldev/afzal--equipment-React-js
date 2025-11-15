@@ -5,11 +5,11 @@ import { Controller, FormProvider, useFieldArray, useForm, useWatch } from "reac
 import { InputField, SelectField } from "../../components/Form/FormFields";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../../../utils/axiosConfig";
 import useAdmin from "../../hooks/useAdmin";
 import { AuthContext } from "../../providers/AuthProvider";
 import { IoMdClose } from "react-icons/io";
 import FormSkeleton from "../../components/Form/FormSkeleton";
+import api from "../../utils/axiosConfig";
 
 const PurchaseForm = () => {
   const navigate = useNavigate();
@@ -35,18 +35,18 @@ const PurchaseForm = () => {
 
   const selectedCategory = watch("category");
   const selectedVehicle = watch("vehicle_no");
-  // Calculate Total Expense
+  // মোট খরচ হিসাব
   const quantity = parseFloat(watch("quantity") || 0);
   const unitPrice = parseFloat(watch("unit_price") || 0);
   const totalPrice = quantity * unitPrice;
 
-  // Dynamic item fields
+  // ডাইনামিক আইটেম ফিল্ড
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
   });
 
-  // সব items এবং service charge এর হিসাব করার জন্য
+  // সব আইটেম এবং সার্ভিস চার্জের হিসাব করার জন্য
   const items = useWatch({ control, name: "items" });
   const serviceCharge = useWatch({ control, name: "service_charge" });
 
@@ -75,40 +75,40 @@ const PurchaseForm = () => {
   }, [vehicle, watch("vehicle_no"), setValue])
 
 
-  // Preview image
+  // ইমেজ প্রিভিউ
   const [previewImage, setPreviewImage] = useState(null);
 
-  // Fetch data for dropdowns
+  // ড্রপডাউনের জন্য ডেটা ফেচ
   useEffect(() => {
-    // Fetch drivers
+    // ড্রাইভার ফেচ
     api.get(`/driver`)
       .then((res) => setDrivers(res.data))
-      .catch((error) => console.error("Error fetching driver data:", error));
+      .catch((error) => console.error("ড্রাইভার ডেটা লোড করতে সমস্যা:", error));
 
-    // Fetch vehicles
+    // গাড়ি ফেচ
     api.get(`/vehicle`)
       .then((res) => setVehicle(res.data))
-      .catch((error) => console.error("Error fetching vehicle data:", error));
+      .catch((error) => console.error("গাড়ির ডেটা লোড করতে সমস্যা:", error));
 
-    // Fetch branches
+    // ব্রাঞ্চ ফেচ
     api.get(`/office`)
       .then((res) => setBranch(res.data.data))
-      .catch((error) => console.error("Error fetching branch data:", error));
+      .catch((error) => console.error("ব্রাঞ্চ ডেটা লোড করতে সমস্যা:", error));
 
-    // Fetch suppliers
+    // সাপ্লায়ার ফেচ
     api.get(`/supplier`)
       .then((res) => setSupplier(res.data.data))
-      .catch((error) => console.error("Error fetching supply data:", error));
+      .catch((error) => console.error("সাপ্লায়ার ডেটা লোড করতে সমস্যা:", error));
   }, []);
 
-  // Fetch purchase data if in edit mode
+  // এডিট মোড হলে পারচেজ ডেটা ফেচ
   useEffect(() => {
     if (isEditMode && vehicle.length > 0) {
       const fetchPurchaseData = async () => {
         try {
           const response = await api.get(`/purchase/${id}`)
           const purchaseData = response.data.data
-          console.log("Fetched purchase data:", purchaseData)
+          console.log("ফেচ করা পারচেজ ডেটা:", purchaseData)
 
           const formValues = {
             date: purchaseData.date,
@@ -139,15 +139,15 @@ const PurchaseForm = () => {
           reset(formValues)
 
           if (purchaseData.image) {
-            const imageUrl = `https://ajenterprise.tramessy.com/backend/uploads/purchase/${purchaseData.image}`
+            const imageUrl = `https://afzalcons.com/backend/uploads/purchase/${purchaseData.image}`
             setPreviewImage(imageUrl)
             setExistingImage(purchaseData.image)
           }
 
           setIsLoading(false)
         } catch (error) {
-          console.error("Error fetching purchase data:", error)
-          toast.error("Failed to load purchase data")
+          console.error("পারচেজ ডেটা লোড করতে সমস্যা:", error)
+          toast.error("পারচেজ ডেটা লোড করতে ব্যর্থ")
           setIsLoading(false)
         }
       }
@@ -177,10 +177,10 @@ const PurchaseForm = () => {
   }));
 
 
-  // Handle form submission for both add and update
+  // ফর্ম সাবমিশন হ্যান্ডেল (এডিট এবং অ্যাড উভয়ের জন্য)
   const onSubmit = async (data) => {
     try {
-      //  Date fields localize করা
+      // তারিখ ফিল্ডগুলো লোকালাইজ করা
       ["date", "service_date", "next_service_date"].forEach((field) => {
         if (data[field]) {
           const d = new Date(data[field]);
@@ -189,18 +189,18 @@ const PurchaseForm = () => {
         }
       });
 
-    const createdByValue = user?.name || user?.email || "Unknown";
-      //  items array আলাদা করে নেওয়া
+    const createdByValue = user?.name || user?.email || "অজানা";
+      // আইটেম অ্যারে আলাদা করে নেওয়া
       const item_name = data.items.map((item) => item.item_name);
       const quantity = data.items.map((item) => Number(item.quantity));
       const unit_price = data.items.map((item) => Number(item.unit_price));
       const total = data.items.map((item) => Number(item.quantity) * Number(item.unit_price));
 
-      //  purchase_amount হিসাব করা
+      // মোট পারচেজ অ্যামাউন্ট হিসাব
       const purchase_amount =
         total.reduce((sum, val) => sum + val, 0) + Number(data.service_charge || 0);
 
-      //  FormData তৈরি
+      // ফর্মডেটা তৈরি
       const formData = new FormData();
 
       formData.append("date", data.date || "");
@@ -221,7 +221,7 @@ const PurchaseForm = () => {
       formData.append("next_km", data.next_km || 0);
       formData.append("created_by", createdByValue);
 
-      //  items গুলো আলাদা array হিসেবে append করা
+      // আইটেমগুলো আলাদা অ্যারে হিসেবে অ্যাপেন্ড
       item_name.forEach((name, i) => formData.append("item_name[]", name));
       quantity.forEach((q, i) => formData.append("quantity[]", q));
       unit_price.forEach((u, i) => formData.append("unit_price[]", u));
@@ -234,7 +234,7 @@ const PurchaseForm = () => {
       }
 
 
-      //  API Call
+      // API কল
       const response = isEditMode
         ? await api.post(`/purchase/${id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -244,55 +244,55 @@ const PurchaseForm = () => {
         });
 
       if (response.data.success) {
-        toast.success(isEditMode ? "Purchase updated!" : "Purchase submitted!");
-        //  Only send SMS if it's a new trip and sms_sent = "yes"
-        if (!id && !isAdmin && data.sms_sent === "yes") {
-          const purchase = response.data.data; // Assuming your backend returns created trip data
-          const purchaseId = purchase.id;
-          const purchaseDate = purchase.date || "";
-          const supplierName = purchase.supplier_name || "";
-          const userName = user.name || "";
-          const purchaseCategory = purchase?.category || "";
-          const vehicleNo = purchase?.vehicle_no || "";
-        // Build message content
-     const messageContent = `Dear Sir, A new Maintenance created by ${userName}.\nPurchase Id: ${purchaseId}\nPurchase Date: ${purchaseDate}\nSupplier: ${supplierName}\nVehicle: ${vehicleNo}\nPurchase Name: ${purchaseCategory}`;
-         // SMS Config
-          const adminNumber = "01872121862"; // or multiple separated by commas
-          const API_KEY = "3b82495582b99be5";
-          const SECRET_KEY = "ae771458";
-          const CALLER_ID = "1234";
-           // Correct URL (same structure as your given example)
-          const smsUrl = `http://smpp.revesms.com:7788/sendtext?apikey=${API_KEY}&secretkey=${SECRET_KEY}&callerID=${CALLER_ID}&toUser=${adminNumber}&messageContent=${encodeURIComponent(messageContent)}`;
-          try {
-            await fetch(smsUrl);
-            toast.success("SMS sent to admin!");
-          } catch (smsError) {
-            // console.error("SMS sending failed:", smsError);
-            // toast.error("Trip saved, but SMS failed to send.");
-          }
-        }
+        toast.success(isEditMode ? "পারচেজ আপডেট করা হয়েছে!" : "পারচেজ সাবমিট করা হয়েছে!");
+        // নতুন ট্রিপ হলে এবং এসএমএস সেন্ট = "হ্যাঁ" হলে এসএমএস পাঠানো
+    //     if (!id && !isAdmin && data.sms_sent === "yes") {
+    //       const purchase = response.data.data; // ব্যাকএন্ড থেকে ক্রিয়েটেড ট্রিপ ডেটা রিটার্ন করে
+    //       const purchaseId = purchase.id;
+    //       const purchaseDate = purchase.date || "";
+    //       const supplierName = purchase.supplier_name || "";
+    //       const userName = user.name || "";
+    //       const purchaseCategory = purchase?.category || "";
+    //       const vehicleNo = purchase?.vehicle_no || "";
+    //     // মেসেজ কন্টেন্ট বিল্ড
+    //  const messageContent = `প্রিয় স্যার, ${userName} দ্বারা একটি নতুন মেইনটেনেন্স তৈরি করা হয়েছে।\nপারচেজ আইডি: ${purchaseId}\nপারচেজ তারিখ: ${purchaseDate}\nসাপ্লায়ার: ${supplierName}\nগাড়ি: ${vehicleNo}\nপারচেজ নাম: ${purchaseCategory}`;
+    //      // এসএমএস কনফিগ
+    //       const adminNumber = "01872121862"; // বা কমা দিয়ে আলাদা করা একাধিক নাম্বার
+    //       const API_KEY = "3b82495582b99be5";
+    //       const SECRET_KEY = "ae771458";
+    //       const CALLER_ID = "1234";
+    //        // সঠিক URL (আপনার দেওয়া উদাহরণের মতো স্ট্রাকচার)
+    //       const smsUrl = `http://smpp.revesms.com:7788/sendtext?apikey=${API_KEY}&secretkey=${SECRET_KEY}&callerID=${CALLER_ID}&toUser=${adminNumber}&messageContent=${encodeURIComponent(messageContent)}`;
+    //       try {
+    //         await fetch(smsUrl);
+    //         toast.success("এডমিনকে এসএমএস পাঠানো হয়েছে!");
+    //       } catch (smsError) {
+    //         // console.error("এসএমএস পাঠাতে ব্যর্থ:", smsError);
+    //         // toast.error("ট্রিপ সেভ হয়েছে, কিন্তু এসএমএস পাঠানো যায়নি।");
+    //       }
+    //     }
      navigate("/tramessy/Purchase/maintenance");
         reset();
       } else {
-        throw new Error("Failed to save purchase");
+        throw new Error("পারচেজ সেভ করতে ব্যর্থ");
       }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error(error.response?.data?.message || "Server error");
+      console.error("সমস্যা:", error);
+      toast.error(error.response?.data?.message || "সার্ভার সমস্যা");
     }
   };
 
 
   // if (isLoading) {
-  //   return <div className="flex justify-center items-center h-64">Loading purchase data...</div>;
+  //   return <div className="flex justify-center items-center h-64">পারচেজ ডেটা লোড হচ্ছে...</div>;
   // }
 
   return (
     <div className="mt-5 md:p-2">
       <Toaster />
-      <div className="mx-auto p-6 border-t-2 border-primary  rounded-md shadow">
+      <div className="mx-auto p-6  rounded-md shadow">
         <h3 className=" pb-4 text-primary font-semibold">
-          {isEditMode ? "Update Maintenance Purchase " : "Add Maintenance Purchase"}
+          {isEditMode ? "মেইনটেনেন্স পারচেজ আপডেট করুন" : "মেইনটেনেন্স পারচেজ যোগ করুন"}
         </h3>
         <FormProvider {...methods}>
           {isLoading  ? (
@@ -305,18 +305,18 @@ const PurchaseForm = () => {
           >
             <h5 className="text-2xl font-bold text-center text-[#EF9C07]">
               {selectedCategory === "fuel"
-                ? "Fuel Purchase"
+                ? "জ্বালানি পারচেজ"
                 : selectedCategory === "engine_oil" || selectedCategory === "parts"
-                  ? "Maintenance"
+                  ? "মেইনটেনেন্স"
                   : ""}
             </h5>
 
-            {/* Form fields */}
+            {/* ফর্ম ফিল্ড */}
             <div className="flex flex-col lg:flex-row justify-between gap-x-3">
               <div className="w-full">
                 <InputField
                   name="date"
-                  label="Purchase Date"
+                  label="পারচেজ তারিখ"
                   type="date"
                   required={!isEditMode}
                   inputRef={(e) => {
@@ -329,7 +329,7 @@ const PurchaseForm = () => {
               <div className="w-full">
                 <SelectField
                   name="branch_name"
-                  label="Branch Name"
+                  label="ব্রাঞ্চ নাম"
                   required={!isEditMode}
                   options={branchOptions}
                   control={control}
@@ -338,7 +338,7 @@ const PurchaseForm = () => {
               <div className="w-full">
                 <SelectField
                   name="supplier_name"
-                  label="Supplier Name"
+                  label="সাপ্লায়ার নাম"
                   required={!isEditMode}
                   options={supplyOptions}
                   control={control}
@@ -350,7 +350,7 @@ const PurchaseForm = () => {
               <div className="w-full">
                 <SelectField
                   name="vehicle_no"
-                  label="Vehicle No."
+                  label="গাড়ি নম্বর"
                   required={!isEditMode}
                   options={vehicleOptions}
                   control={control}
@@ -360,24 +360,24 @@ const PurchaseForm = () => {
               <div className="w-full">
                 <SelectField
                   name="category"
-                  label="Category"
+                  label="ক্যাটাগরি"
                   required={!isEditMode}
                   options={[
-                    { value: "engine_oil", label: "Engine Oil" },
-                    { value: "parts", label: "Parts" },
-                    { value: "documents", label: "Documents" },
+                    { value: "engine_oil", label: "ইঞ্জিন অয়েল" },
+                    { value: "parts", label: "পার্টস" },
+                    { value: "documents", label: "ডকুমেন্টস" },
                   ]}
                 />
               </div>
               {/* {selectedCategory === "parts" || selectedCategory==="documents" && (
                 <div className="w-full">
-                  <InputField name="item_name" label="Item Name" required={!isEditMode} />
+                  <InputField name="item_name" label="আইটেম নাম" required={!isEditMode} />
                 </div>
               )} */}
               <div className="w-full">
                 <InputField
                   name="service_charge"
-                  label="Service Charge"
+                  label="সার্ভিস চার্জ"
                   type="number"
                   required={!isEditMode}
                 />
@@ -386,17 +386,17 @@ const PurchaseForm = () => {
               <div className="w-full hidden">
                 <InputField
                   name="driver_name"
-                  label="Driver Name"
+                  label="ড্রাইভার নাম"
                   required={!isEditMode}
                   // options={driverOptions}
                   control={control}
                 />
               </div>
-              {/* Hidden field for vehicle category */}
+              {/* গাড়ি ক্যাটাগরি লুকানো ফিল্ড */}
               <div className="w-full hidden">
                 <InputField
                   name="vehicle_category"
-                  label="Vehicle Category"
+                  label="গাড়ি ক্যাটাগরি"
                   value={watch("vehicle_category") || ""}
                   readOnly
                   {...register("vehicle_category")}
@@ -404,9 +404,9 @@ const PurchaseForm = () => {
               </div>
             </div>
             <div>
-              {/*  Dynamic Item Fields */}
+              {/* ডাইনামিক আইটেম ফিল্ড */}
               {(<div className="space-y-4">
-                <h4 className="text-lg font-semibold text-primary">Items</h4>
+                <h4 className="text-lg font-semibold text-primary">আইটেমসমূহ</h4>
 
                 {fields.map((field, index) => {
                   const quantity = watch(`items.${index}.quantity`) || 0;
@@ -415,10 +415,10 @@ const PurchaseForm = () => {
 
                   return (
                     <div key={field.id} className="flex flex-col md:flex-row gap-3 border border-gray-300 p-3 rounded-md relative">
-                      <InputField name={`items.${index}.item_name`} label="Item Name" required={!isEditMode} className="!w-full" />
-                      <InputField name={`items.${index}.quantity`} label="Quantity" type="number" required={!isEditMode} className="!w-full" />
-                      <InputField name={`items.${index}.unit_price`} label="Unit Price" type="number" required={!isEditMode} className="!w-full" />
-                      <InputField name={`items.${index}.total`} label="Total" readOnly value={total} className="!salw-full" />
+                      <InputField name={`items.${index}.item_name`} label="আইটেম নাম" required={!isEditMode} className="!w-full" />
+                      <InputField name={`items.${index}.quantity`} label="পরিমাণ" type="number" required={!isEditMode} className="!w-full" />
+                      <InputField name={`items.${index}.unit_price`} label="ইউনিট প্রাইস" type="number" required={!isEditMode} className="!w-full" />
+                      <InputField name={`items.${index}.total`} label="মোট" readOnly value={total} className="!salw-full" />
 
                       <button
                         type="button"
@@ -436,7 +436,7 @@ const PurchaseForm = () => {
                   onClick={() => append({ item_name: "", quantity: 0, unit_price: 0, total: 0 })}
                   className="bg-primary text-white px-3 py-1 rounded-md hover:bg-primary/80"
                 >
-                  + Add Item
+                  + আইটেম যোগ করুন
                 </button>
               </div>)}
             </div>
@@ -445,7 +445,7 @@ const PurchaseForm = () => {
               <div className="w-full">
                 <InputField
                   name="purchase_amount"
-                  label="Total Purchase Amount"
+                  label="মোট পারচেজ অ্যামাউন্ট"
                   readOnly
                   value={watch("purchase_amount") || 0}
                   required={!isEditMode}
@@ -455,7 +455,7 @@ const PurchaseForm = () => {
                 <div className="w-full">
                   <InputField
                     name="service_date"
-                    label="Service Date"
+                    label="সার্ভিস তারিখ"
                     type="date"
                     required={!isEditMode}
                     inputRef={(e) => {
@@ -468,7 +468,7 @@ const PurchaseForm = () => {
                 <div className="w-full">
                   <InputField
                     name="next_service_date"
-                    label="Next Service Date"
+                    label="পরবর্তী সার্ভিস তারিখ"
                     type="date"
                     required={!isEditMode}
                     inputRef={(e) => {
@@ -484,7 +484,7 @@ const PurchaseForm = () => {
                 <div className="w-full">
                   <InputField
                     name="service_date"
-                    label="Document Renew Date"
+                    label="ডকুমেন্ট রিনিউ তারিখ"
                     type="date"
                     required={!isEditMode}
                     inputRef={(e) => {
@@ -497,7 +497,7 @@ const PurchaseForm = () => {
                 <div className="w-full">
                   <InputField
                     name="next_service_date"
-                    label="Document Next Expire Date"
+                    label="ডকুমেন্ট এক্সপায়ার তারিখ"
                     type="date"
                     required={!isEditMode}
                     inputRef={(e) => {
@@ -515,7 +515,7 @@ const PurchaseForm = () => {
               {selectedCategory !== "documents" && (<div className="w-full">
                 <InputField
                   name="last_km"
-                  label="Last KM"
+                  label="শেষ কিলোমিটার"
                   required={false}
                   type="number"
                 />
@@ -523,20 +523,20 @@ const PurchaseForm = () => {
               {selectedCategory !== "documents" && (<div className="w-full">
                 <InputField
                   name="next_km"
-                  label="Next KM"
+                  label="পরবর্তী কিলোমিটার"
                   required={false}
                   type="number"
                 />
               </div>)}
               <div className="w-full">
-                <InputField name="remarks" label="Remark" />
+                <InputField name="remarks" label="মন্তব্য" />
               </div>
               <div className="w-full">
-                <InputField name="priority" label="priority" />
+                <InputField name="priority" label="অগ্রাধিকার" />
               </div>
             </div>
-            {!isAdmin && <div className="mt-4">
-              <h3 className="text-secondary font-medium mb-2">SMS Sent</h3>
+            {/* {!isAdmin && <div className="mt-4">
+              <h3 className="text-secondary font-medium mb-2">এসএমএস পাঠানো হবে</h3>
               <div className="flex gap-6">
                 <label className="flex items-center gap-2">
                   <input
@@ -544,7 +544,7 @@ const PurchaseForm = () => {
                     value="yes"
                     {...methods.register("sms_sent", { required: true })}
                   />
-                  Yes
+                  হ্যাঁ
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -552,20 +552,20 @@ const PurchaseForm = () => {
                     value="no"
                     {...methods.register("sms_sent", { required: true })}
                   />
-                  No
+                  না
                 </label>
               </div>
-            </div>}
+            </div>} */}
 
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
                 <label className="text-gray-700 text-sm font-semibold">
-                  Bill Image {!isEditMode && "(Required)"}
+                  বিল ইমেজ {!isEditMode && "(প্রয়োজনীয়)"}
                 </label>
                 <Controller
                   name="bill_image"
                   control={control}
-                  rules={isEditMode ? {} : { required: "This field is required" }}
+                  rules={isEditMode ? {} : { required: "এই ফিল্ডটি প্রয়োজনীয়" }}
                   render={({
                     field: { onChange, ref },
                     fieldState: { error },
@@ -575,7 +575,7 @@ const PurchaseForm = () => {
                         htmlFor="bill_image"
                         className="border p-2 rounded w-[50%] block bg-white text-gray-300 text-sm cursor-pointer"
                       >
-                        {previewImage ? "Image selected" : "Choose image"}
+                        {previewImage ? "ইমেজ সিলেক্ট করা হয়েছে" : "ইমেজ সিলেক্ট করুন"}
                       </label>
                       <input
                         id="bill_image"
@@ -602,7 +602,7 @@ const PurchaseForm = () => {
                       )}
                       {isEditMode && existingImage && (
                         <span className="text-green-600 text-sm">
-                          Current image: {existingImage}
+                          বর্তমান ইমেজ: {existingImage}
                         </span>
                       )}
                     </div>
@@ -611,7 +611,7 @@ const PurchaseForm = () => {
               </div>
             </div>
 
-            {/* Preview */}
+            {/* প্রিভিউ */}
             {previewImage && (
               <div className="mt-2 relative flex justify-end">
                 <button
@@ -627,19 +627,19 @@ const PurchaseForm = () => {
                     }
                   }}
                   className="absolute top-2 right-2 text-red-600 bg-white shadow rounded-sm hover:text-white hover:bg-secondary transition-all duration-300 cursor-pointer font-bold text-xl p-[2px]"
-                  title="Remove image"
+                  title="ইমেজ সরান"
                 >
                   <IoMdClose />
                 </button>
                 <img
                   src={previewImage}
-                  alt="Bill Preview"
+                  alt="বিল প্রিভিউ"
                   className="max-w-xs h-auto rounded border border-gray-300"
                 />
               </div>
             )}
 
-            <BtnSubmit>{isEditMode ? "Update Purchase" : "Submit"}</BtnSubmit>
+            <BtnSubmit>{isEditMode ? "পারচেজ আপডেট করুন" : "সাবমিট করুন"}</BtnSubmit>
           </form>)}
         </FormProvider>
       </div>

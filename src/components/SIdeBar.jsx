@@ -171,9 +171,9 @@ const Sidebar = () => {
       label: "ক্রয় ব্যবস্থাপনা", // Purchase → ক্রয়
       children: [
         {
-          key: "purchase-list",
-          label: <Link to="/tramessy/Purchase/PurchaseList">মেইনটেনেন্স</Link>,
-          className: isActive("/tramessy/Purchase/PurchaseList")
+          key: "maintenance",
+          label: <Link to="/tramessy/Purchase/maintenance">মেইনটেনেন্স</Link>,
+          className: isActive("/tramessy/Purchase/maintenance")
             ? "ant-menu-item-selected"
             : "",
         },
@@ -268,8 +268,8 @@ const Sidebar = () => {
       children: [
         {
           key: "daily-income",
-          label: <Link to="/tramessy/DailyIncome">দৈনিক আয়</Link>,
-          className: isActive("/tramessy/DailyIncome")
+          label: <Link to="/tramessy/daily-income">দৈনিক আয়</Link>,
+          className: isActive("/tramessy/daily-income")
             ? "ant-menu-item-selected"
             : "",
         },

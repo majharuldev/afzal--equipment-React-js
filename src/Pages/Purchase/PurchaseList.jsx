@@ -585,7 +585,7 @@
 
 
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { FaEye, FaFilter, FaPen, FaTrashAlt } from "react-icons/fa";
 import { FaPlus, FaUserSecret } from "react-icons/fa6";
 import * as XLSX from "xlsx";
@@ -979,13 +979,38 @@ const PurchaseList = () => {
       dataIndex: "date",
       render: (text) => tableFormatDate(text),
     },
-    { title: "Product ID", dataIndex: "id" },
+    { title: "পণ্যের আইডি", dataIndex: "id" },
     { title: "সরবরাহকারী", dataIndex: "supplier_name" },
     { title: "ড্রাইভার", dataIndex: "driver_name" },
     { title: "গাড়ি", dataIndex: "vehicle_no" },
     { title: "ক্যাটাগরি", dataIndex: "category" },
-    { title: "আইটেম", dataIndex: "item_name" },
-    { title: "পরিমাণ", dataIndex: "quantity" },
+    {
+      title: "আইটেম", dataIndex: "item_name",
+      render: (_, dt) => {
+        return dt.items?.map((item, i) => (
+          <div key={i}>{item.item_name}</div>
+        ));
+      }
+    },
+    {
+      title: "পরিমাণ", dataIndex: "quantity",
+      render: (_, dt) => {
+        return dt.items?.map((item, i) => (
+          <div key={i}>{item.quantity}</div>
+        ));
+      }
+
+    },
+    {
+      title: "মূল্য", dataIndex: "unit_price",
+      render: (_, dt) => {
+        return dt.items?.map((item, i) => (
+          <div key={i}>{item.unit_price}</div>
+        ));
+      }
+
+    },
+    { title: "সার্ভিস চার্জ", dataIndex: "service_charge" },
     { title: "মোট", dataIndex: "purchase_amount" },
 
     {
@@ -993,14 +1018,14 @@ const PurchaseList = () => {
       render: (_, row) => (
         <div className="flex gap-2">
           <button
-            className="text-blue-600"
-            onClick={() => handleView(row.id)}
+            className="text-primary"
+            onClick={() => handleViewCar(row.id)}
           >
             <FaEye />
           </button>
 
-          <Link to={`/tramessy/Purchase/edit/${row.id}`}>
-            <button className="text-green-600">
+          <Link to={`/tramessy/Purchase/update-maintenance/${row.id}`}>
+            <button className="text-primary">
               <FaPen />
             </button>
           </Link>
@@ -1008,8 +1033,8 @@ const PurchaseList = () => {
           <button
             className="text-red-600"
             onClick={() => {
-              setSelectedId(row.id);
-              setDeleteModal(true);
+              setSelectedOfficialProductId(row.id);
+              setIsOpen(true);
             }}
           >
             <FaTrashAlt />
@@ -1021,6 +1046,7 @@ const PurchaseList = () => {
 
   return (
     <div className=" p-2">
+      <Toaster/>
       <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
@@ -1148,100 +1174,6 @@ const PurchaseList = () => {
             </div>
           </div>
         )}
-        {/* <div id="purchaseTable" className="mt-5 overflow-x-auto rounded-md">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-gray-200 text-primary capitalize text-xs ">
-              <tr>
-                <th className="px-2 py-4">SL.</th>
-                <th className="px-2 py-4">Date</th>
-                <th className="px-2 py-4">Prod.ID</th>
-                <th className="px-2 py-4">Supplier</th>
-                <th className="px-2 py-2">Driver </th>
-                <th className="px-2 py-2">VehicleCategory</th>
-                <th className="px-2 py-2">VehicleNo</th>
-                <th className="px-2 py-4">Category</th>
-                <th className="px-2 py-4">ItemName</th>
-                <th className="px-2 py-4">Quantity</th>
-                <th className="px-2 py-4">UnitPrice</th>
-                <th className="px-2 py-4">ServiceCharge</th>
-                <th className="px-2 py-4">Total</th>
-                <th className="px-2 py-4">Bill Image</th>
-                <th className="px-2 py-4">Action</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-700">
-              {currentPurchase.length === 0 ? (
-                <tr>
-                  <td colSpan="10" className="text-center p-4 text-gray-500">
-                    No purchase found
-                  </td>
-                </tr>)
-                : (currentPurchase?.map((dt, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-50 transition-all border border-gray-200"
-                  >
-                    <td className="p-2 font-bold">
-                      {indexOfFirstItem + index + 1}.
-                    </td>
-                    <td className="p-2">{tableFormatDate(dt.date)}</td>
-                    <td className="p-2">{dt.id}</td>
-                    <td className="p-2">{dt.supplier_name}</td>
-                    <td className="px-2 py-2">{dt.driver_name !== "null" ? dt.driver_name : "N/A"}</td>
-                    <td className="px-2 py-2">{dt.vehicle_category !== "null" ? dt.vehicle_category : "N/A"}</td>
-                    <td className="px-2 py-2">{dt.vehicle_no !== "null" ? dt.vehicle_no : "N/A"}</td>
-
-                    <td className="p-2">{dt.category}</td>
-                    <td className="p-2">{dt.items.map((item, i) => (
-                      <div key={i}>{item.item_name}</div>
-                    ))}</td>
-                    <td className="p-2">{dt.items.map((item, i) => (
-                      <div key={i}>{item.quantity}</div>
-                    ))}</td>
-                    <td className="p-2">{dt.items.map((item, i) => (
-                      <div key={i}>{item.unit_price}</div>
-                    ))}</td>
-                    <td className="p-2">{dt.service_charge}</td>
-                    <td className="p-2">{dt.purchase_amount}</td>
-                    <td className="p-2">
-                    <img
-                      src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${dt.bill_image}`}
-                      alt=""
-                      className="w-20 h-20 rounded-xl"
-                    />
-                  </td>
-                    <td className="px-2 action_column">
-                      <div className="flex gap-1">
-                        <Link
-                          to={`/tramessy/Purchase/update-maintenance/${dt.id}`}
-                        >
-                          <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                            <FaPen className="text-[12px]" />
-                          </button>
-                        </Link>
-                        <button
-                          onClick={() => handleViewCar(dt.id)}
-                          className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                        >
-                          <FaEye className="text-[12px]" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedOfficialProductId(dt.id);
-                            setIsOpen(true);
-                          }}
-                          className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                        >
-                          <FaTrashAlt className="text-[12px]" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )))
-              }
-            </tbody>
-          </table>
-        </div> */}
         {/* Table */}
         <Table
           columns={columns}
@@ -1256,7 +1188,6 @@ const PurchaseList = () => {
             showSizeChanger: false,
             position: ['bottomCenter'],
           }}
-          bordered
         />
 
       </div>
@@ -1355,7 +1286,7 @@ const PurchaseList = () => {
                   <div className="flex flex-col items-start ">
                     <span className="font-medium mb-2">Bill Image:</span>
                     <img
-                      src={`https://ajenterprise.tramessy.com/backend/uploads/purchase/${selectedPurchase.image}`}
+                      src={`https://afzalcons.com/backend/uploads/purchase/${selectedPurchase.image}`}
                       alt="Bill"
                       className="w-32 h-32 object-cover rounded-lg border"
                     />
