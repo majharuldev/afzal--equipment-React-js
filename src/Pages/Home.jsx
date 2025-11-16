@@ -48,7 +48,7 @@ const Home = () => {
                   <YAxis label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
                   <Tooltip
                     formatter={(value, name) => [
-                      value.toFixed(2),
+                      value,
                       name === "totalExpense" ? "মোট খরচ" : "নিট লাভ"
                     ]}
                   />
@@ -79,7 +79,7 @@ const Home = () => {
                 <YAxis label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
                 <Tooltip 
                  formatter={(value, name) => [
-                    value.toFixed(2),
+                    value,
                     name === "totalExpense" ? "মোট খরচ" : "নিট লাভ"
                   ]}/>
                 <Legend formatter={(value) => value === "totalExpense" ? "মোট খরচ" : "নিট লাভ"}/>

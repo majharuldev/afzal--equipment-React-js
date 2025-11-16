@@ -419,7 +419,7 @@ useEffect(() => {
 
       if (foundRate) {
         const rateValue = parseFloat(foundRate.rate) || 0;
-        setValue("total_rent", Number(rateValue.toFixed(2)), { shouldValidate: true });
+        setValue("total_rent", Number(rateValue), { shouldValidate: true });
         setIsRateFound(true);
       } else if (!id) {
         setValue("total_rent", "", { shouldValidate: true });

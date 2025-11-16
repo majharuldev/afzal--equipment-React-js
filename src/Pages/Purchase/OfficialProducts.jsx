@@ -79,7 +79,7 @@ const OfficialProducts = () => {
   // Search (Product ID, Supplier, Vehicle, Driver)
   const filteredPurchase = vehicleFiltered.filter((dt) => {
     // শুধু এই দুইটা ক্যাটেগরি দেখানোর জন্য
-    if ((dt.category === "engine_oil" || dt.category === "parts" || dt.category === "documents")) {
+    if ((dt.category === "engine_oil" || dt.category === "parts" || dt.category === "documents" || dt.category === "fuel")) {
       return false;
     }
     const term = searchTerm.toLowerCase();

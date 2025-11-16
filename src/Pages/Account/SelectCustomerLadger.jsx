@@ -123,7 +123,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
               [
                 { text: "Total", colSpan: 6, alignment: "right" },
                 {}, {}, {}, {}, {},
-                totalRent.toFixed(2),
+                totalRent,
               ],
             ],
           },
@@ -272,13 +272,13 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                     Total
                   </td>
                   <td className="border border-black px-2 py-1 text-right">
-                    ৳{totals.rent?.toFixed(2)}
+                    ৳{totals.rent}
                   </td>
                   <td className="border border-black px-2 py-1 text-right">
-                    ৳{totals.rec_amount?.toFixed(2)}
+                    ৳{totals.rec_amount}
                   </td>
                   <td className="border border-black px-2 py-1 text-right">
-                    ৳{totals.due?.toFixed(2)}
+                    ৳{totals.due}
                   </td>
                 </tr>
                 <tr>
@@ -295,7 +295,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                   <th className="border border-gray-700 px-2 py-1">
                     {selectedCustomerName && (
                       <p className="text-sm font-medium text-gray-800">
-                        শুরুর ব্যালেন্স: ৳{dueAmount?.toFixed(2)}
+                        শুরুর ব্যালেন্স: ৳{dueAmount}
                       </p>
                     )}
                     অবশিষ্ট ব্যালেন্স
@@ -333,13 +333,13 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                           {item.driver_name || <span className="flex justify-center items-center">--</span>}
                         </td>
                         <td className="border px-2 py-1">
-                          {billAmount ? billAmount?.toFixed(2) : "--"}
+                          {billAmount ? billAmount : "--"}
                         </td>
                         <td className="border px-2 py-1">
-                          {receivedAmount ? receivedAmount?.toFixed(2) : "--"}
+                          {receivedAmount ? receivedAmount : "--"}
                         </td>
                         <td className="border px-2 py-1">
-                          {cumulativeDue?.toFixed(2)}
+                          {cumulativeDue}
                         </td>
                       </tr>
                     );
@@ -354,7 +354,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
       Final Due (Opening Due +)
     </td>
     <td className="border border-black px-2 py-1 text-right text-black">
-      ৳{grandDue?.toFixed(2)}
+      ৳{grandDue?}
     </td>
   </tr> */}
               </tfoot>

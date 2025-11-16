@@ -11,7 +11,6 @@ const Header = ({ setMobileSidebarOpen }) => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-
   // handle signout
   const handleSignout = () => {
     logout();
@@ -144,16 +143,20 @@ const Header = ({ setMobileSidebarOpen }) => {
             <div className="mb-2 border-b border-gray-200 pb-2 space-y-2">
               <p className="flex items-center gap-2 text-sm font-semibold text-primary">
                 <User className="h-4 w-4" />
-                {user?.data?.user?.role}
+                {user?.role}
+              </p>
+              <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+                <User className="h-4 w-4" />
+                {user?.name}
               </p>
               <p className="flex items-center gap-2 text-xs text-gray-600 ">
                 <Mail className="h-3 w-3" />
-                {user?.data?.user?.email}
+                {user?.email}
               </p>
-              <p className="flex items-center gap-2 text-xs text-gray-600 ">
+              {/* <p className="flex items-center gap-2 text-xs text-gray-600 ">
                 <Phone className="h-3 w-3" />
                 {user?.data?.user?.phone}
-              </p>
+              </p> */}
             </div>
             <button
               onClick={handleSignout}

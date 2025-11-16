@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import dayjs from "dayjs";
 import { SlCalender } from "react-icons/sl";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import { FaFileExcel, FaFilePdf, FaFilter, FaPrint } from "react-icons/fa";
+import { FaFileExcel, FaFilter, FaPrint } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import api from "../utils/axiosConfig";
 
 const MonthlyStatement = () => {
   const [allData, setAllData] = useState([]); // Store all data
@@ -22,14 +21,14 @@ const MonthlyStatement = () => {
       setLoading(true);
 
       const [tripsRes, purchasesRes, expensesRes] = await Promise.all([
-        axios.get(`${import.meta.env.VITE_BASE_URL}/api/trip/list`),
-        axios.get(`${import.meta.env.VITE_BASE_URL}/api/purchase/list`),
-        axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list`),
+        api.get(`/trip`),
+        api.get(`/purchase`),
+        api.get(`/expense`),
       ]);
 
-      const trips = tripsRes.data?.data || [];
+      const trips = tripsRes.data || [];
       const purchases = purchasesRes.data?.data || [];
-      const expenses = expensesRes.data?.data || [];
+      const expenses = expensesRes.data || [];
 
       const monthlyData = {};
 
@@ -52,15 +51,16 @@ const MonthlyStatement = () => {
 
         if (trip.transport_type === "own_transport") {
           monthlyData[month].ownTripIncome += parseFloat(trip.total_rent) || 0;
-          monthlyData[month].ownTripCost +=
-            (parseFloat(trip.fuel_cost) || 0) +
-            (parseFloat(trip.driver_commission) || 0) +
-            (parseFloat(trip.food_cost) || 0) +
-            (parseFloat(trip.parking_cost) || 0) +
-            (parseFloat(trip.toll_cost) || 0) +
-            (parseFloat(trip.feri_cost) || 0) +
-            (parseFloat(trip.police_cost) || 0) +
-            (parseFloat(trip.labor) || 0);
+          // monthlyData[month].ownTripCost +=
+            // (parseFloat(trip.fuel_cost) || 0) +
+            // (parseFloat(trip.driver_commission) || 0) +
+            // (parseFloat(trip.food_cost) || 0) +
+            // (parseFloat(trip.parking_cost) || 0) +
+            // (parseFloat(trip.toll_cost) || 0) +
+            // (parseFloat(trip.feri_cost) || 0) +
+            // (parseFloat(trip.police_cost) || 0) +
+            // (parseFloat(trip.labor) || 0);
+            monthlyData[month].ownTripCost += parseFloat(trip.total_exp) || 0;
         } else if (trip.transport_type === "vendor_transport") {
           monthlyData[month].vendorTripIncome +=
             parseFloat(trip.total_rent) || 0;
@@ -101,10 +101,10 @@ const MonthlyStatement = () => {
 
         if (expense.payment_category === "Salary") {
           monthlyData[month].salaryExpense +=
-            parseFloat(expense.pay_amount) || 0;
+            parseFloat(expense.amount) || 0;
         } else {
           monthlyData[month].officeExpense +=
-            parseFloat(expense.pay_amount) || 0;
+            parseFloat(expense.amount) || 0;
         }
       });
 
@@ -204,15 +204,15 @@ const MonthlyStatement = () => {
       ],
       body: filteredData.map((item) => [
         item.month,
-        item.ownTripIncome.toFixed(2),
-        item.vendorTripIncome.toFixed(2),
-        item.ownTripCost.toFixed(2),
-        item.vendorTripCost.toFixed(2),
-        item.purchaseCost.toFixed(2),
-        item.salaryExpense.toFixed(2),
-        item.officeExpense.toFixed(2),
-        item.totalExpense.toFixed(2),
-        item.netProfit.toFixed(2),
+        item.ownTripIncome,
+        item.vendorTripIncome,
+        item.ownTripCost,
+        item.vendorTripCost,
+        item.purchaseCost,
+        item.salaryExpense,
+        item.officeExpense,
+        item.totalExpense,
+        item.netProfit,
       ]),
       startY: 20,
     });
@@ -252,6 +252,8 @@ const MonthlyStatement = () => {
       document.head.removeChild(style);
     };
   }, []);
+
+  // handle print
   const handlePrint = () => {
     const printContents = document.querySelector(".print-table").outerHTML;
     const originalContents = document.body.innerHTML;
@@ -269,6 +271,8 @@ const MonthlyStatement = () => {
   >
     <FaPrint /> Print
   </button>;
+
+  console.log(filteredData, "fil")
 
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);
@@ -394,35 +398,35 @@ const MonthlyStatement = () => {
                     </td>
                     <td className="p-2 border border-gray-400">{item.month}</td>
                     <td className="p-2 border border-gray-400 text-right">
-                      {item.ownTripIncome.toFixed(2)}
+                      {item.ownTripIncome}
                     </td>
                     <td className="p-2 border border-gray-400 text-right">
-                      {item.vendorTripIncome.toFixed(2)}
+                      {item.vendorTripIncome}
                     </td>
                     <td className="p-2 border border-gray-400 text-right ">
-                      {item.ownTripCost.toFixed(2)}
+                      {item.ownTripCost}
                     </td>
                     <td className="p-2 border border-gray-400 text-right ">
-                      {item.vendorTripCost.toFixed(2)}
+                      {item.vendorTripCost}
                     </td>
                     <td className="p-2 border border-gray-400 text-right ">
-                      {item.purchaseCost.toFixed(2)}
+                      {item.purchaseCost}
                     </td>
                     <td className="p-2 border border-gray-400 text-right ">
-                      {item.salaryExpense.toFixed(2)}
+                      {item.salaryExpense}
                     </td>
                     <td className="p-2 border border-gray-400 text-right ">
-                      {item.officeExpense.toFixed(2)}
+                      {item.officeExpense}
                     </td>
                     <td className="p-2 border border-gray-400 text-right  font-semibold">
-                      {item.totalExpense.toFixed(2)}
+                      {item.totalExpense}
                     </td>
                     <td
                       className={`p-2 border border-gray-400 text-right font-semibold ${
                         item.netProfit >= 0 ? "text-green-600" : "text-red-600"
                       }`}
                     >
-                      {item.netProfit.toFixed(2)}
+                      {item.netProfit}
                     </td>
                   </tr>
                 ))}
@@ -435,28 +439,28 @@ const MonthlyStatement = () => {
                     Total
                   </td>
                   <td className="p-2 border border-gray-400 text-right">
-                    {calculateTotal("ownTripIncome").toFixed(2)}
+                    {calculateTotal("ownTripIncome")}
                   </td>
                   <td className="p-2 border border-gray-400 text-right">
-                    {calculateTotal("vendorTripIncome").toFixed(2)}
+                    {calculateTotal("vendorTripIncome")}
                   </td>
                   <td className="p-2 border border-gray-400 text-right ">
-                    {calculateTotal("ownTripCost").toFixed(2)}
+                    {calculateTotal("ownTripCost")}
                   </td>
                   <td className="p-2 border border-gray-400 text-right ">
-                    {calculateTotal("vendorTripCost").toFixed(2)}
+                    {calculateTotal("vendorTripCost")}
                   </td>
                   <td className="p-2 border border-gray-400 text-right ">
-                    {calculateTotal("purchaseCost").toFixed(2)}
+                    {calculateTotal("purchaseCost")}
                   </td>
                   <td className="p-2 border border-gray-400 text-right ">
-                    {calculateTotal("salaryExpense").toFixed(2)}
+                    {calculateTotal("salaryExpense")}
                   </td>
                   <td className="p-2 border border-gray-400 text-right ">
-                    {calculateTotal("officeExpense").toFixed(2)}
+                    {calculateTotal("officeExpense")}
                   </td>
                   <td className="p-2 border border-gray-400 text-right ">
-                    {calculateTotal("totalExpense").toFixed(2)}
+                    {calculateTotal("totalExpense")}
                   </td>
                   <td
                     className={`p-2 border border-gray-400 text-right ${
@@ -465,7 +469,7 @@ const MonthlyStatement = () => {
                         : "text-red-600"
                     }`}
                   >
-                    {calculateTotal("netProfit").toFixed(2)}
+                    {calculateTotal("netProfit")}
                   </td>
                 </tr>
               </tbody>

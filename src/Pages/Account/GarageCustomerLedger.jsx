@@ -150,7 +150,7 @@ const GarageCustomerLedger = () => {
         "Trip Rent": "",
         Advance: "",
         "Pay Amount": "",
-        Due: openingBalance.toFixed(2),
+        Due: openingBalance,
       });
     }
 
@@ -202,7 +202,7 @@ const GarageCustomerLedger = () => {
 
     if (selectedVendor) {
       doc.setFontSize(10);
-      doc.text(`Opening Balance: ${openingBalance.toFixed(2)}`, 14, 22);
+      doc.text(`Opening Balance: ${openingBalance}`, 14, 22);
     }
 
     const columns = [
@@ -469,7 +469,7 @@ const GarageCustomerLedger = () => {
                     বাকি{" "}
                     {selectedVendor && (
                       <p className="text-xs text-gray-600 font-normal">
-                         প্রারম্ভিক হিসাব: {openingBalance.toFixed(2)}
+                         প্রারম্ভিক হিসাব: {openingBalance}
                       </p>
                     )}
                   </th>

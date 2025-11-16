@@ -213,7 +213,7 @@ const YamahaLedger = () => {
                       {dt.bill_amount}
                     </td>
                     <td className="border border-gray-700 p-1">
-                      {runningBalance.toFixed(2)}
+                      {runningBalance}
                     </td>
                   </tr>
                 );

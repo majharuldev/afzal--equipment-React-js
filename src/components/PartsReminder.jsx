@@ -166,17 +166,17 @@ const PartsReminder = () => {
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">ট্রিপের খরচ</span>
             <span className="text-sm font-semibold text-gray-900">-</span>
-            <span className="text-sm font-medium text-black">{tripCost.toFixed(2)} TK</span>
+            <span className="text-sm font-medium text-black">{tripCost} TK</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">অন্যান্য খরচ</span>
             <span className="text-sm font-semibold text-gray-900">-</span>
-            <span className="text-sm font-medium text-black">{otherExpense.toFixed(2)} TK</span>
+            <span className="text-sm font-medium text-black">{otherExpense} TK</span>
           </div>
           <div className="flex justify-between items-center pt-2 border-t border-gray-100">
             <span className="text-sm font-semibold text-gray-700">মোট ব্যয়</span>
             <span className="text-sm font-semibold text-gray-900">-</span>
-            <span className="text-sm font-medium text-black">{totalTodayExpense.toFixed(2)} TK</span>
+            <span className="text-sm font-medium text-black">{totalTodayExpense} TK</span>
           </div>
         </div>
       </div>

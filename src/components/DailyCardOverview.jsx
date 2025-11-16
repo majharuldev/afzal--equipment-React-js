@@ -121,15 +121,15 @@
 //           </h3>
 //           <div className="text-gray-700 text-sm space-y-3">
 //             <div className="flex justify-between font-semibold">
-//               <span>Trip Cost</span>-<span>{tripCost.toFixed(2)} TK</span>
+//               <span>Trip Cost</span>-<span>{tripCost} TK</span>
 //             </div>
 //             <div className="flex justify-between font-semibold">
 //               <span>Others Expense</span>-
-//               <span>{otherExpense.toFixed(2)} TK</span>
+//               <span>{otherExpense} TK</span>
 //             </div>
 //             <div className="border-t pt-2 mt-2 flex justify-between font-bold">
 //               <span>Total Expense</span>-
-//               <span>{totalTodayExpense.toFixed(2)} TK</span>
+//               <span>{totalTodayExpense} TK</span>
 //             </div>
 //           </div>
 //         </div>
@@ -274,19 +274,19 @@ const DailyCardOverview = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">ট্রিপ খরচ</span>
                 <span className="text-sm font-semibold text-gray-900">-</span>
-                <span className="text-sm font-medium text-black">{tripCost.toFixed(2)} TK</span>
+                <span className="text-sm font-medium text-black">{tripCost} TK</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">অন্যান্য খরচ</span>
                 <span className="text-sm font-semibold text-gray-900">-</span>
                 <span className="text-sm font-medium text-black">
-                  {otherExpense.toFixed(2)} TK
+                  {otherExpense} TK
                 </span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                 <span className="text-sm font-semibold text-gray-700">মোট খরচ</span>
                 <span className="text-sm font-semibold text-gray-900">-</span>
-                <span className="text-sm font-medium text-black">{totalTodayExpense.toFixed(2)} TK</span>
+                <span className="text-sm font-medium text-black">{totalTodayExpense} TK</span>
               </div>
             </div>
           </div>

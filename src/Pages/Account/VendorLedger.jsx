@@ -106,7 +106,7 @@
 //         "ট্রিপ ভাড়া": item.trip_rent,
 //         অগ্রিম: item.advance || "--",
 //         "পেমেন্ট": item.pay_amount || "--",
-//         বকেয়া: runningBalance.toFixed(2)
+//         বকেয়া: runningBalance
 //       };
 //     });
 
@@ -121,7 +121,7 @@
 //         "ট্রিপ ভাড়া": "",
 //         অগ্রিম: "",
 //         "পেমেন্ট": "",
-//         বকেয়া: openingBalance.toFixed(2)
+//         বকেয়া: openingBalance
 //       });
 //     }
 
@@ -132,10 +132,10 @@
 //       আনলোড: "",
 //       যানবাহন: "",
 //       ড্রাইভার: "",
-//       "ট্রিপ ভাড়া": totals.rent.toFixed(2),
-//       অগ্রিম: totals.advance.toFixed(2),
-//       "পেমেন্ট": totals.pay_amount.toFixed(2),
-//       বকেয়া: grandDue.toFixed(2)
+//       "ট্রিপ ভাড়া": totals.rent,
+//       অগ্রিম: totals.advance,
+//       "পেমেন্ট": totals.pay_amount,
+//       বকেয়া: grandDue
 //     });
 
 //     const ws = XLSX.utils.json_to_sheet(data);
@@ -154,7 +154,7 @@
 
 //     if (selectedVendor) {
 //       doc.setFontSize(10);
-//       doc.text(`প্রারম্ভিক ব্যালেন্স: ${openingBalance.toFixed(2)}`, 14, 22);
+//       doc.text(`প্রারম্ভিক ব্যালেন্স: ${openingBalance}`, 14, 22);
 //     }
 
 //     const columns = [
@@ -181,10 +181,10 @@
 //         item.unload_point || "--",
 //         item.vehicle_no || "--",
 //         item.driver_name || "--",
-//         item.trip_rent ? Number(item.trip_rent).toFixed(2) : "--",
-//         item.advance ? Number(item.advance).toFixed(2) : "--",
-//         item.pay_amount ? Number(item.pay_amount).toFixed(2) : "--",
-//         runningBalance.toFixed(2)
+//         item.trip_rent ? Number(item.trip_rent) : "--",
+//         item.advance ? Number(item.advance) : "--",
+//         item.pay_amount ? Number(item.pay_amount) : "--",
+//         runningBalance
 //       ];
 //     });
 
@@ -196,10 +196,10 @@
 //       "",
 //       "",
 //       "",
-//       totals.rent.toFixed(2),
-//       totals.advance.toFixed(2),
-//       totals.pay_amount.toFixed(2),
-//       grandDue.toFixed(2)
+//       totals.rent,
+//       totals.advance,
+//       totals.pay_amount,
+//       grandDue
 //     ]);
 
 //     autoTable(doc, {
@@ -233,7 +233,7 @@
 //         <body>
 //           <div class="print-header">
 //             <div class="print-title">ভেন্ডর লেজার: ${selectedVendor || "সকল ভেন্ডর"}</div>
-//             ${selectedVendor ? `<div class="opening-balance">প্রারম্ভিক ব্যালেন্স: ${openingBalance.toFixed(2)}</div>` : ''}
+//             ${selectedVendor ? `<div class="opening-balance">প্রারম্ভিক ব্যালেন্স: ${openingBalance}</div>` : ''}
 //           </div>
 //           ${content}
 //         </body>
@@ -305,11 +305,11 @@
 //             <thead className="bg-gray-100">
 //               <tr className="font-bold bg-gray-100">
 //                 <td colSpan={7} className="border px-2 py-1 text-right">মোট:</td>
-//                 <td className="border px-2 py-1">{totals.rent.toFixed(2)}</td>
-//                 <td className="border px-2 py-1">{totals.advance.toFixed(2)}</td>
-//                 <td className="border px-2 py-1">{totals.pay_amount.toFixed(2)}</td>
+//                 <td className="border px-2 py-1">{totals.rent}</td>
+//                 <td className="border px-2 py-1">{totals.advance}</td>
+//                 <td className="border px-2 py-1">{totals.pay_amount}</td>
 //                 <td className="border px-2 py-1">
-//                   {grandDue.toFixed(2)}
+//                   {grandDue}
 //                   {selectedVendor && (<p className="text-xs text-gray-600 font-normal">(প্রারম্ভিক ব্যালেন্স সহ)</p>)}
 //                 </td>
 //               </tr>
@@ -342,10 +342,10 @@
 //                     <td className="border px-2 py-1">{item.unload_point || "--"}</td>
 //                     <td className="border px-2 py-1">{item.vehicle_no || "--"}</td>
 //                     <td className="border px-2 py-1">{item.driver_name || "--"}</td>
-//                     <td className="border px-2 py-1">{item.trip_rent ? Number(item.trip_rent).toFixed(2) : "--"}</td>
-//                     <td className="border px-2 py-1">{item.advance ? Number(item.advance).toFixed(2) : "--"}</td>
-//                     <td className="border px-2 py-1">{item.pay_amount ? Number(item.pay_amount).toFixed(2) : "--"}</td>
-//                     <td className="border px-2 py-1">{runningBalance.toFixed(2)}</td>
+//                     <td className="border px-2 py-1">{item.trip_rent ? Number(item.trip_rent) : "--"}</td>
+//                     <td className="border px-2 py-1">{item.advance ? Number(item.advance) : "--"}</td>
+//                     <td className="border px-2 py-1">{item.pay_amount ? Number(item.pay_amount) : "--"}</td>
+//                     <td className="border px-2 py-1">{runningBalance}</td>
 //                   </tr>
 //                 );
 //               })}
@@ -512,7 +512,7 @@ const VendorLedger = () => {
         "Trip Rent": "",
         Advance: "",
         "Pay Amount": "",
-        Due: openingBalance.toFixed(2),
+        Due: openingBalance,
       });
     }
 
@@ -564,7 +564,7 @@ const VendorLedger = () => {
 
     if (selectedVendor) {
       doc.setFontSize(10);
-      doc.text(`Opening Balance: ${openingBalance.toFixed(2)}`, 14, 22);
+      doc.text(`Opening Balance: ${openingBalance}`, 14, 22);
     }
 
     const columns = [
@@ -832,7 +832,7 @@ const VendorLedger = () => {
                     বাকি{" "}
                     {selectedVendor && (
                       <p className="text-xs text-gray-600 font-normal">
-                        উদ্বোধনী ব্যালেন্স: {openingBalance.toFixed(2)}
+                        উদ্বোধনী ব্যালেন্স: {openingBalance}
                       </p>
                     )}
                   </th>

@@ -170,9 +170,9 @@
 //       item.date || "",
 //       item.remarks || "",
 //       item.mode || "",
-//       item.purchase_amount?.toFixed(2),
-//       item.pay_amount?.toFixed(2),
-//       item.balance?.toFixed(2),
+//       item.purchase_amount?,
+//       item.pay_amount?,
+//       item.balance?,
 //     ]);
 
 //     autoTable(doc, {
@@ -327,9 +327,9 @@
 //             <thead className="text-black capitalize font-bold">
 //               <tr className="bg-gray-100 text-right">
 //                   <td colSpan="5" className="border px-2 py-1 text-center">Total</td>
-//                   <td className="border px-2 py-1">৳{totalPurchase.toFixed(2)}</td>
-//                   <td className="border px-2 py-1">৳{totalPayment.toFixed(2)}</td>
-//                   <td className="border px-2 py-1">৳{closingBalance.toFixed(2)}</td>
+//                   <td className="border px-2 py-1">৳{totalPurchase}</td>
+//                   <td className="border px-2 py-1">৳{totalPayment}</td>
+//                   <td className="border px-2 py-1">৳{closingBalance}</td>
 //                 </tr>
 //               <tr>
 //                 <th className="border border-gray-700 px-2 py-1">SL.</th>
@@ -340,7 +340,7 @@
 //                 <th className="border border-gray-700 px-2 py-1">Purchase</th>
 //                 <th className="border border-gray-700 px-2 py-1">Payment</th>
 //                 <th className="border border-gray-700 py-1 text-center">
-//                   <p className="border-b">Opening Balance ৳{openingBalance.toFixed(2)}</p>
+//                   <p className="border-b">Opening Balance ৳{openingBalance}</p>
 //                   Balance
 //                 </th>
 //               </tr>
@@ -354,9 +354,9 @@
 //                     <td className="border border-gray-700 px-2 py-1">{dt.supplier_name}</td>
 //                     <td className="border border-gray-700 px-2 py-1">{dt.remarks}</td>
 //                     <td className="border border-gray-700 px-2 py-1">{dt.mode}</td>
-//                     <td className="border border-gray-700 px-2 py-1">{dt?.purchase_amount?.toFixed(2)}</td>
-//                     <td className="border border-gray-700 px-2 py-1">{dt?.pay_amount?.toFixed(2)}</td>
-//                     <td className="border border-gray-700 px-2 py-1">{dt?.balance?.toFixed(2)}</td>
+//                     <td className="border border-gray-700 px-2 py-1">{dt?.purchase_amount?}</td>
+//                     <td className="border border-gray-700 px-2 py-1">{dt?.pay_amount?}</td>
+//                     <td className="border border-gray-700 px-2 py-1">{dt?.balance?}</td>
 //                   </tr>
 //                 ))
 //               ) : (
@@ -369,9 +369,9 @@
 //               <tfoot className="font-bold text-right">
 //                 {/* <tr className="bg-gray-100">
 //                   <td colSpan="5" className="border px-2 py-1 text-center">Total</td>
-//                   <td className="border px-2 py-1">৳{totalPurchase.toFixed(2)}</td>
-//                   <td className="border px-2 py-1">৳{totalPayment.toFixed(2)}</td>
-//                   <td className="border px-2 py-1">৳{closingBalance.toFixed(2)}</td>
+//                   <td className="border px-2 py-1">৳{totalPurchase}</td>
+//                   <td className="border px-2 py-1">৳{totalPayment}</td>
+//                   <td className="border px-2 py-1">৳{closingBalance}</td>
 //                 </tr> */}
 //               </tfoot>
 //             )}
@@ -532,9 +532,9 @@ const SupplierLedger = () => {
       item.supplier_name,
       item.remarks || "",
       item.mode || "",
-      item.purchase_amount?.toFixed(2),
-      item.pay_amount?.toFixed(2),
-      item.balance?.toFixed(2),
+      item.purchase_amount,
+      item.pay_amount,
+      item.balance,
     ]);
 
     autoTable(doc, {
@@ -658,9 +658,9 @@ const SupplierLedger = () => {
             <thead className="text-black capitalize font-bold">
               <tr className="bg-gray-100 text-right">
                 <td colSpan="5" className="border px-2 py-1 text-center">মোট</td>
-                <td className="border px-2 py-1">৳{totalPurchase.toFixed(2)}</td>
-                <td className="border px-2 py-1">৳{totalPayment.toFixed(2)}</td>
-                <td className="border px-2 py-1">৳{closingBalance.toFixed(2)}</td>
+                <td className="border px-2 py-1">৳{totalPurchase}</td>
+                <td className="border px-2 py-1">৳{totalPayment}</td>
+                <td className="border px-2 py-1">৳{closingBalance}</td>
               </tr>
               <tr>
                 <th className="border border-gray-700 px-2 py-1">ক্রম</th>
@@ -671,7 +671,7 @@ const SupplierLedger = () => {
                 <th className="border border-gray-700 px-2 py-1">ক্রয়</th>
                 <th className="border border-gray-700 px-2 py-1">পেমেন্ট</th>
                 <th className="border border-gray-700 py-1 text-center">
-                  <p className="border-b">প্রারম্ভিক ব্যালেন্স ৳{openingBalance.toFixed(2)}</p>
+                  <p className="border-b">প্রারম্ভিক ব্যালেন্স ৳{openingBalance}</p>
                   ব্যালেন্স
                 </th>
               </tr>
@@ -685,9 +685,9 @@ const SupplierLedger = () => {
                     <td className="border border-gray-700 px-2 py-1">{dt.supplier_name}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.remarks}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.mode}</td>
-                    <td className="border border-gray-700 px-2 py-1">{dt?.purchase_amount?.toFixed(2)}</td>
-                    <td className="border border-gray-700 px-2 py-1">{dt?.pay_amount?.toFixed(2)}</td>
-                    <td className="border border-gray-700 px-2 py-1">{dt?.balance?.toFixed(2)}</td>
+                    <td className="border border-gray-700 px-2 py-1">{dt?.purchase_amount}</td>
+                    <td className="border border-gray-700 px-2 py-1">{dt?.pay_amount}</td>
+                    <td className="border border-gray-700 px-2 py-1">{dt?.balance}</td>
                   </tr>
                 ))
               ) : (

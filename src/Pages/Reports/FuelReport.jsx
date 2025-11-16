@@ -167,7 +167,7 @@ const FuelReport = () => {
     }, {})
   ).map((d) => ({
     ...d,
-    avgCostPerLiter: d.totalQuantity ? (d.totalCost / d.totalQuantity).toFixed(2) : "0.00",
+    avgCostPerLiter: d.totalQuantity ? (d.totalCost / d.totalQuantity) : "0.00",
   }));
 
   // Pagination
@@ -226,7 +226,7 @@ const FuelReport = () => {
                   <td className="px-3 py-2">{d.name}</td>
                   <td className="px-3 py-2">{d.totalFuelings}</td>
                   <td className="px-3 py-2">{d.totalQuantity}</td>
-                  <td className="px-3 py-2">{d.totalCost.toFixed(2)}</td>
+                  <td className="px-3 py-2">{d.totalCost}</td>
                   <td className="px-3 py-2">{d.avgCostPerLiter}</td>
                 </tr>
               ))
