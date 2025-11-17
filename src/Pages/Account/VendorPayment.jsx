@@ -5,14 +5,17 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { MdOutlineAirplaneTicket } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import api from "../../utils/axiosConfig";
+import { FaFileExcel, FaPrint } from "react-icons/fa6";
 
 const VendorPayment = () => {
   const [payment, setPayment] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   // Fetch payment data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/vendorBill/list`)
+    api
+      .get(`/vendor-payment`)
       .then((response) => {
         if (response.data.status === "Success") {
           setPayment(response.data.data);
@@ -25,13 +28,154 @@ const VendorPayment = () => {
       });
   }, []);
 
+  // Filter data by search
+  const filteredPayments = payment.filter((item) => {
+    const searchableText = Object.values(item)
+      .map((v) => (v ? String(v).toLowerCase() : ""))
+      .join(" ");
+    return searchableText.includes(searchTerm.toLowerCase());
+  });
+
+
+    // Excel Export Function
+const exportToExcel = () => {
+  if (!filteredPayments.length) {
+    toast.error("No data available to export!");
+    return;
+  }
+
+  // Prepare export data
+  const exportData = filteredPayments.map((dt, index) => ({
+    SL: index + 1,
+    Date: dt.date ? tableFormatDate(dt.date) : "",
+    Vendor_Name: dt.vendor_name || "",
+    Bill_Ref: dt.bill_ref || "",
+    Amount: Number(dt.amount || 0),
+    Cash_Type: dt.cash_type || "",
+    Status: dt.status || "",
+  }));
+
+  // Add total at the end
+  const totalAmount = filteredPayments.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
+  exportData.push({
+    SL: "",
+    Date: "",
+    Vendor_Name: "",
+    Bill_Ref: "Total:",
+    Amount: totalAmount,
+    Cash_Type: "",
+    Status: "",
+  });
+
+  // Create worksheet & workbook
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Payment Report");
+
+  // Set column widths for readability
+  const colWidths = [
+    { wch: 5 },  // SL
+    { wch: 12 }, // Date
+    { wch: 20 }, // Vendor Name
+    { wch: 15 }, // BillRef
+    { wch: 12 }, // Amount
+    { wch: 12 }, // Cash Type
+    { wch: 10 }, // Status
+  ];
+  worksheet["!cols"] = colWidths;
+
+  // Export file
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(data, `Vendor_Payment_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+  toast.success("Excel file exported successfully!");
+};
+
+  // handle print
+  const handlePrint = () => {
+    const WindowPrint = window.open("", "", "width=900,height=650");
+    const printTableRows = filteredPayments.map(
+      (dt, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${tableFormatDate(dt.date)}</td>
+        <td>${dt.vendor_name}</td>
+        <td>${dt.bill_ref}</td>
+        <td>${dt.amount}</td>
+        <td>${dt.cash_type}</td>
+        <td>${dt.status}</td>
+      </tr>
+    `
+    ).join("");
+
+    const totalRow = `
+    <tr style="font-weight:bold; background:#f9f9f9;">
+      <td colspan="4" style="text-align:right;">Total:</td>
+      <td>${totalAmount}</td>
+      <td colspan="2"></td>
+    </tr>
+  `;
+
+    WindowPrint.document.write(`
+    <html>
+      <head>
+        <title>Vendor Payment Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h2 { text-align: center; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 12px; }
+          th { background: #f0f0f0; }
+          @media print {
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Vendor Payment Report</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>SL.</th>
+              <th>Date</th>
+              <th>Vendor Name</th>
+              <th>BillRef</th>
+              <th>Amount</th>
+              <th>Cash Type</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${printTableRows}
+          </tbody>
+          <tfoot>
+            ${totalRow}
+          </tfoot>
+        </table>
+      </body>
+    </html>
+  `);
+    WindowPrint.document.close();
+    WindowPrint.focus();
+    setTimeout(() => {
+      WindowPrint.print();
+      WindowPrint.close();
+    }, 500);
+  };
+
+
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentPayment = payment.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(payment.length / itemsPerPage);
+  const currentPayment = filteredPayments.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
   };
@@ -58,6 +202,50 @@ const VendorPayment = () => {
                 <FaPlus /> যোগ
               </button>
             </Link>
+          </div>
+        </div>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-5">
+            <button
+              onClick={exportToExcel}
+              className="flex items-center gap-2 py-1 px-5 hover:bg-primary bg-white shadow hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+            >
+              <FaFileExcel className="" />
+              এক্সেল
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-2 py-1 px-4 hover:bg-primary bg-white shadow hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+            >
+              <FaPrint className="" />
+              প্রিন্ট
+            </button>
+          </div>
+
+          {/* search */}
+          <div className="mt-3 md:mt-0">
+            {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+              placeholder="Search list..."
+              className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-8 top-[5.8rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">

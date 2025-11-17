@@ -15,6 +15,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import { Button } from "antd";
 import DatePicker from "react-datepicker";
+import api from "../../utils/axiosConfig";
 
 const PaymentList = () => {
   const generateRefId = useRefId();
@@ -31,8 +32,8 @@ const PaymentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/payment/list`)
+    api
+      .get(`/payments`)
       .then((response) => {
         if (response.data.status === "Success") {
           setPayment(response.data.data);
@@ -78,28 +79,52 @@ const PaymentList = () => {
 
   // excel
   const exportToExcel = () => {
-    const exportData = filteredPaymentList.map((dt, index) => ({
-      SL: index + 1,
-      Date: dt.date,
-      SupplierName: dt.supplier_name,
-      Category: dt.category,
-      ItemName: dt.item_name,
-      Quantity: dt.quantity,
-      UnitPrice: dt.unit_price,
-      TotalAmount: dt.total,
-      PayAmount: dt.pay_amount,
-      DueAmount: parseFloat(dt.total) - parseFloat(dt.pay_amount),
-      Status:
-        parseFloat(dt.pay_amount) === 0
-          ? "Unpaid"
-          : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
-            ? "Paid"
-            : "Partial",
-    }));
+    const exportData = filteredPaymentList.map((dt, index) => {
+      const item = dt.purchase?.items?.[0];
+      const total = parseFloat(dt.total_amount) || 0;
+      const paid = parseFloat(dt.pay_amount) || 0;
+      const due = total - paid;
+      
+      let status = "Unpaid";
+      if (due === 0) {
+        status = "Paid";
+      } else if (paid > 0 && due > 0) {
+        status = "Partial";
+      }
+
+      return {
+        "SL": index + 1,
+        "Date": dt.date,
+        "Supplier Name": dt.supplier_name,
+        "Category": dt.category,
+        "Item name": item?.item_name || "-",
+        "Quantity": item?.quantity || "-",
+        "Rate": item?.unit_price || "-",
+        "Service charge": dt.purchase?.service_charge || 0,
+        "Total Amount": dt?.total_amount || "-",
+        "Pay Amount": dt.pay_amount,
+        "Due": due,
+        "Status": dt.status
+      };
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Payments");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "পেমেন্ট রিপোর্ট");
+    
+    // কলামের width অটো-সেট করার জন্য
+    const maxWidth = exportData.reduce((widths, row) => {
+      Object.keys(row).forEach((key, idx) => {
+        const length = row[key]?.toString().length || 0;
+        if (!widths[idx] || length > widths[idx]) {
+          widths[idx] = length;
+        }
+      });
+      return widths;
+    }, []);
+    
+    worksheet['!cols'] = maxWidth.map(w => ({ width: w + 2 }));
+    
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
@@ -107,128 +132,129 @@ const PaymentList = () => {
     const dataBlob = new Blob([excelBuffer], {
       type: "application/octet-stream",
     });
-    saveAs(dataBlob, "PaymentReport.xlsx");
+    saveAs(dataBlob, "পেমেন্ট_রিপোর্ট.xlsx");
   };
-  // pdf
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    const tableColumn = [
-      "SL",
-      "Date",
-      "Supplier Name",
-      "Category",
-      "Item Name",
-      "Qty",
-      "Unit Price",
-      "Total",
-      "Paid",
-      "Due",
-      "Status",
-    ];
 
-    const tableRows = filteredPaymentList.map((dt, index) => [
-      index + 1,
-      dt.date,
-      dt.supplier_name,
-      dt.category,
-      dt.item_name,
-      dt.quantity,
-      dt.unit_price,
-      dt.total,
-      dt.pay_amount,
-      parseFloat(dt.total) - parseFloat(dt.pay_amount),
-      parseFloat(dt.pay_amount) === 0
-        ? "Unpaid"
-        : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
-          ? "Paid"
-          : "Partial",
-    ]);
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      styles: { fontSize: 8 },
-    });
-
-    doc.save("PaymentReport.pdf");
-  };
   // handle print
+  // প্রিন্ট ফাংশন - টেবিলের মতোই ফরম্যাট
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
-    const tableRows = filteredPaymentList.map(
-      (dt, index) => `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${dt.date}</td>
-        <td>${dt.supplier_name}</td>
-        <td>${dt.category}</td>
-        <td>${dt.item_name}</td>
-        <td>${dt.quantity}</td>
-        <td>${dt.unit_price}</td>
-        <td>${dt.total}</td>
-        <td>${dt.pay_amount}</td>
-        <td>${parseFloat(dt.total) - parseFloat(dt.pay_amount)}</td>
-        <td>${parseFloat(dt.pay_amount) === 0
-          ? "Unpaid"
-          : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
-            ? "Paid"
-            : "Partial"
-        }</td>
-      </tr>
-    `
-    );
+    
+    const tableRows = filteredPaymentList.map((dt, index) => {
+      const item = dt.purchase?.items?.[0];
+      const total = parseFloat(dt.total_amount) || 0;
+      const paid = parseFloat(dt.pay_amount) || 0;
+      const due = total - paid;
+      
+      let status = "Unpaid";
+      if (due === 0) {
+        status = "Paid";
+      } else if (paid > 0 && due > 0) {
+        status = "Partial";
+      }
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${dt.date}</td>
+          <td>${dt.supplier_name}</td>
+          <td>${dt.category}</td>
+          <td>${item?.item_name || "-"}</td>
+          <td>${item?.quantity || "-"}</td>
+          <td>${item?.unit_price || "-"}</td>
+          <td>${dt.purchase?.service_charge || 0}</td>
+          <td>${dt?.total_amount || "-"}</td>
+          <td>${dt.pay_amount}</td>
+          <td>${due}</td>
+          <td>${dt.status}</td>
+        </tr>
+      `;
+    }).join("");
 
     const htmlContent = `
     <html>
       <head>
-        <title>Print Report</title>
+        <title>পেমেন্ট রিপোর্ট</title>
         <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px;
+            direction: ltr;
+          }
+          h3 { 
+            text-align: center; 
+            margin-bottom: 20px;
+            color: #11375B;
+          }
           table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 10px;
           }
           th, td {
             border: 1px solid #ddd;
-            padding: 6px;
+            padding: 4px;
             text-align: left;
           }
           th {
             background-color: #11375B;
             color: white;
+            font-weight: bold;
           }
+          tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+          @media print {
+            body { margin: 0; }
+            table { font-size: 9px; }
+          }
+            thead th {
+          color: #000000 !important;
+          background-color: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         </style>
       </head>
       <body>
-        <h3>Payment Report</h3>
+        <h3>পেমেন্ট রিপোর্ট</h3>
         <table>
           <thead>
             <tr>
-              <th>SL</th>
-              <th>Date</th>
-              <th>Supplier Name</th>
-              <th>Category</th>
-              <th>Item Name</th>
-              <th>Qty</th>
-              <th>Unit Price</th>
-              <th>Total</th>
-              <th>Paid</th>
-              <th>Due</th>
-              <th>Status</th>
+              <th>ক্রমিক নং</th>
+              <th>তারিখ</th>
+              <th>সাপ্লায়ার নাম</th>
+              <th>ক্যাটাগরি</th>
+              <th>পণ্যের নাম</th>
+              <th>পরিমাণ</th>
+              <th>দর</th>
+              <th>সার্ভিস চার্জ</th>
+              <th>মোট পরিমাণ</th>
+              <th>পেমেন্ট</th>
+              <th>বাকি</th>
+              <th>স্ট্যাটাস</th>
             </tr>
           </thead>
           <tbody>
-            ${tableRows.join("")}
+            ${tableRows}
           </tbody>
         </table>
+        <div style="margin-top: 20px; text-align: center; font-size: 12px;">
+          মোট রেকর্ড: ${filteredPaymentList.length}
+        </div>
       </body>
     </html>
   `;
+    
     printWindow.document.write(htmlContent);
     printWindow.document.close();
+    printWindow.focus();
     printWindow.print();
+    printWindow.onafterprint = () => printWindow.close();
   };
-  // onsubmit
+
+   // onsubmit
   const onSubmit = async (data) => {
     // const refId = generateRefId();
 
@@ -254,58 +280,30 @@ const PaymentList = () => {
       // Prepare the complete payment payload
       const paymentPayload = {
         supplier_name: selectedPayment.supplier_name,
-        category: selectedPayment.category,
-        item_name: selectedPayment.item_name,
-        quantity: selectedPayment.quantity,
-        unit_price: selectedPayment.unit_price,
+        // category: selectedPayment.category,
+        // item_name: selectedPayment.item_name,
+        // quantity: selectedPayment.quantity,
+        // unit_price: selectedPayment.unit_price,
         total_amount: selectedPayment.total_amount,
         pay_amount: updatedAmount,
         remarks: data.note || "Partial payment",
-        driver_name: selectedPayment.driver_name,
+        // driver_name: selectedPayment.driver_name,
         branch_name: selectedPayment.branch_name,
-        vehicle_no: selectedPayment.vehicle_no,
-        created_by: selectedPayment.created_by || "admin",
+        // vehicle_no: selectedPayment.vehicle_no,
+        created_by: selectedPayment.created_by || "admin"
       };
 
       // 1. Update Payment
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/payment/update/${selectedPayment.id
-        }`,
+      const response = await api.put(
+        `/payments/${selectedPayment.id}`,
         paymentPayload
       );
 
       if (response.data.success) {
-        // 2. Create Supplier Ledger Entry
-        const supplierLedgerPayload = {
-          date: new Date().toISOString().split("T")[0],
-          supplier_name: selectedPayment.supplier_name,
-          remarks: data.note || `Payment for ${selectedPayment.item_name}`,
-          pay_amount: data.pay_amount,
-          // ref_id: refId
-        };
-
-        await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/supplierLedger/create`,
-          supplierLedgerPayload
-        );
-
-        // 3. Create Branch Ledger Entry
-        const branchLedgerPayload = {
-          date: new Date().toISOString().split("T")[0],
-          branch_name: selectedPayment.branch_name,
-          remarks: data.note || `Payment to ${selectedPayment.supplier_name}`,
-          cash_out: data.pay_amount,
-          // ref_id: refId
-        };
-
-        await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/api/branch/create`,
-          branchLedgerPayload
-        );
 
         // Update UI state
-        setPayment((prevList) =>
-          prevList.map((item) =>
+        setPayment(prevList =>
+          prevList.map(item =>
             item.id === selectedPayment.id
               ? {
                 ...item,
@@ -316,15 +314,15 @@ const PaymentList = () => {
                     ? "Unpaid"
                     : updatedAmount >= parseFloat(item.total_amount)
                       ? "Paid"
-                      : "Partial",
+                      : "Partial"
               }
               : item
           )
         );
 
         // Refresh payment list
-        const refreshResponse = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/payment/list`
+        const refreshResponse = await api.get(
+          `/payments`
         );
         if (refreshResponse.data.status === "Success") {
           setPayment(refreshResponse.data.data);
@@ -476,8 +474,8 @@ const PaymentList = () => {
 
         <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-gray-200 text-gray-800 capitalize text-xs">
-              <tr>
+            <thead className="bg-gray-200 text-gray-800 capitalize text-xs ">
+              <tr className="">
                 <th className="px-1 py-2">ক্রমিক নং</th>
                 <th className="px-1 py-2">তারিখ</th>
                 <th className="px-1 py-2">সাপ্লায়ার নাম</th>
@@ -485,6 +483,7 @@ const PaymentList = () => {
                 <th className="px-1 py-2">পণ্যের নাম</th>
                 <th className="px-1 py-2">পরিমাণ</th>
                 <th className="px-1 py-2">দর</th>
+                <th className="px-1 py-2">সার্ভিস চার্জ</th>
                 <th className="px-1 py-2">মোট পরিমাণ</th>
                 <th className="px-1 py-2">পেমেন্ট অ্যামাউন্ট</th>
                 <th className="px-1 py-2">বাকি </th>
@@ -493,10 +492,11 @@ const PaymentList = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
+
               {currentPayments.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="8"
+                    colSpan="11"
                     className="text-center py-10 text-gray-500 italic"
                   >
                     <div className="flex flex-col items-center">
@@ -518,22 +518,23 @@ const PaymentList = () => {
                   </td>
                 </tr>
               ) : (
-                currentPayments?.map((dt, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-50 transition-all border border-gray-200"
-                  >
-                    <td className="px-1 py-2 font-bold">{index + 1}</td>
-                    <td className="px-1 py-2">{tableFormatDate(dt.date)}</td>
-                    <td className="px-1 py-2">{dt.supplier_name}</td>
-                    <td className="px-1 py-2">{dt.category}</td>
-                    <td className="px-1 py-2">{dt.item_name}</td>
-                    <td className="px-1 py-2">{dt.quantity}</td>
-                    <td className="px-1 py-2">{dt.unit_price}</td>
-                    <td className="px-1 py-2">{dt.total_amount}</td>
-                    <td className="px-1 py-2">{dt.pay_amount}</td>
-                    <td className="px-1 py-2">{dt.due_amount}</td>
-                    <td className="px-1 py-2">
+                currentPayments.map((dt, index) => {
+                  const item = dt.purchase?.items?.[0];
+
+                  return (
+                    <tr key={dt.id}>
+                      <td>{index + 1}</td>
+                      <td>{dt.date}</td>
+                      <td>{dt.supplier_name}</td>
+                      <td>{dt.category}</td>
+                      <td>{item?.item_name || "-"}</td>
+                      <td>{item?.quantity || "-"}</td>
+                      <td>{item?.unit_price || "-"}</td>
+                      <td>{dt.purchase?.service_charge || 0}</td>
+                      <td>{dt?.total_amount || "-"}</td>
+                      <td>{dt.pay_amount}</td>
+                      <td>{dt.due_amount}</td>
+                      <td className="px-1 py-2">
                       {(() => {
                         const total = parseFloat(dt.total_amount) || 0;
                         const paid = parseFloat(dt.pay_amount) || 0;
@@ -559,7 +560,6 @@ const PaymentList = () => {
                         );
                       })()}
                     </td>
-
                     <td className="px-1 action_column">
                       <div className="flex gap-1">
                         <button
@@ -598,8 +598,9 @@ const PaymentList = () => {
                         </button>
                       </div>
                     </td>
-                  </tr>
-                ))
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

@@ -370,6 +370,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import api from "../../utils/axiosConfig";
 
 const VendorLedger = () => {
   const [vendorData, setVendorData] = useState([]);
@@ -381,10 +382,10 @@ const VendorLedger = () => {
 
   // Fetch vendor list (for opening balance)
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/vendor/list`)
+    api
+      .get(`/vendor`)
       .then((res) => {
-        if (res.data.status === "Success") {
+        if (res.data.success) {
           setVendorList(res.data.data);
         }
       })
@@ -393,8 +394,8 @@ const VendorLedger = () => {
 
   // Fetch vendor ledger data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/vendorLedger/list`)
+    api
+      .get(`/vendorLedger`)
       .then((res) => {
         if (res.data.status === "Success") {
           // Filter out entries without a vendor name early if needed, or handle nulls in calculations
@@ -622,6 +623,7 @@ const VendorLedger = () => {
     doc.save(`Vendor_Ledger_${selectedVendor || "All"}.pdf`);
   };
 
+  // print function
   const printTable = () => {
     const content = document.getElementById("vendor-ledger-table").innerHTML;
     const style = `

@@ -9,6 +9,7 @@ import { BiTrip } from "react-icons/bi";
 import { Button } from "antd";
 import DatePicker from "react-datepicker";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import api from "../../utils/axiosConfig";
 
 const TripReport = () => {
   const [trips, setTrips] = useState([]);
@@ -20,12 +21,10 @@ const TripReport = () => {
 
   // trips data fetch
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/trip/list`)
+    api
+      .get(`/trip`)
       .then((res) => {
-        if (res.data.status === "Success") {
-          setTrips(res.data.data);
-        }
+          setTrips(res.data);
         setLoading(false);
       })
       .catch((err) => {

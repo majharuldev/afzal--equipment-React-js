@@ -1,119 +1,868 @@
-import { useState } from "react";
-import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaUserSecret } from "react-icons/fa6";
+// import { useEffect, useState, useRef } from "react";
+// import { FaFilter, FaUserSecret, FaFilePdf, FaPrint, FaFileExcel } from "react-icons/fa";
+// import * as XLSX from "xlsx";
+// import jsPDF from "jspdf";
+// import autoTable from "jspdf-autotable";
+// import Pagination from "../../components/Shared/Pagination";
+// import DatePicker from "react-datepicker";
+// import api from "../../utils/axiosConfig";
+// import { tableFormatDate } from "../../components/Shared/formatDate";
+
+// const PurchaseReport = () => {
+//   const [purchases, setPurchases] = useState([]);
+//   const [showFilter, setShowFilter] = useState(false);
+//   const reportRef = useRef();
+
+//   // Filters
+//   const [startDate, setStartDate] = useState("");
+//   const [endDate, setEndDate] = useState("");
+//   const [supplierFilter, setSupplierFilter] = useState("");
+//   const [categoryFilter, setCategoryFilter] = useState("");
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   // Load purchase data
+//   useEffect(() => {
+//     api.get(`/purchase`)
+//       .then(res => {
+//         if (res.data.status === "Success") {
+//           setPurchases(res.data.data);
+//         }
+//       });
+//   }, []);
+
+//   console.log(purchases, "purchases")
+
+//   // Filter Logic
+//   const filteredPurchases = purchases.filter(p => {
+//     const dateMatch =
+//       (!startDate || new Date(p.date) >= new Date(startDate)) &&
+//       (!endDate || new Date(p.date) <= new Date(endDate));
+//     const supplierMatch = !supplierFilter || p.supplier_name === supplierFilter;
+//     const categoryMatch = !categoryFilter || p.category === categoryFilter;
+//     const searchMatch =
+//       !searchTerm ||
+//       p.supplier_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       p.item_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       p.category?.toLowerCase().includes(searchTerm.toLowerCase());
+//     return dateMatch && supplierMatch && categoryMatch && searchMatch;
+//   });
+
+//   // Summary calculations
+//   const totalAmount = filteredPurchases.reduce(
+//     (sum, p) => sum + (Number(p.purchase_amount) || (p.quantity * p.unit_price)),
+//     0
+//   );
+
+//   const topSupplier = (() => {
+//     const supplierTotals = {};
+//     filteredPurchases.forEach(p => {
+//       supplierTotals[p.supplier_name] =
+//         (supplierTotals[p.supplier_name] || 0) +
+//         (Number(p.purchase_amount) || (p.quantity * p.unit_price));
+//     });
+//     return Object.entries(supplierTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+//   })();
+
+//   const topCategory = (() => {
+//     const categoryTotals = {};
+//     filteredPurchases.forEach(p => {
+//       categoryTotals[p.category] =
+//         (categoryTotals[p.category] || 0) +
+//         (Number(p.purchase_amount) || (p.quantity * p.unit_price));
+//     });
+//     return Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+//   })();
+
+
+
+//   // Export to Excel
+//   const exportExcel = () => {
+//     const ws = XLSX.utils.json_to_sheet(filteredPurchases);
+//     const wb = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(wb, ws, "Purchase Report");
+//     XLSX.writeFile(wb, "purchase_report.xlsx");
+//   };
+
+// // pdf
+//   const exportPdf = () => {
+//     const doc = new jsPDF();
+//     const title = "Purchase Report";
+
+//     // Add title
+//     doc.setFontSize(16);
+//     doc.text(title, 14, 16);
+
+//     // Add summary information
+//     doc.setFontSize(10);
+//     doc.text(`Total Purchases: ${filteredPurchases.length}`, 14, 26);
+//     doc.text(`Total Amount: ${totalAmount.toLocaleString()} ৳`, 14, 32);
+//     doc.text(`Top Supplier: ${topSupplier}`, 14, 38);
+//     doc.text(`Top Category: ${topCategory}`, 14, 44);
+
+//     // Add table
+//     const headers = [
+//       ["#", "Date", "Supplier", "Category", "Item", "Qty", "Unit Price", "Total"]
+//     ];
+
+//     const data = filteredPurchases.map((p, i) => [
+//       i + 1,
+//       tableFormatDate(p.date),
+//       p.supplier_name,
+//       p.category,
+//       p.item_name,
+//       p.quantity,
+//       p.unit_price,
+//       p.purchase_amount ?? (p.quantity * p.unit_price)
+//     ]);
+
+//     autoTable(doc, {
+//       head: headers,
+//       body: data,
+//       startY: 50,
+//       styles: {
+//         fontSize: 8,
+//         cellPadding: 2,
+//         halign: "center"
+//       },
+//       headStyles: {
+//         fillColor: [17, 55, 91],
+//         textColor: 255
+//       }
+//     });
+
+//     doc.save("purchase_report.pdf");
+//   };
+
+
+//   // Simple print function
+//   const handlePrint = () => {
+//     // Generate table rows for all filtered purchases
+//     const rowsHtml = filteredPurchases.map((p, i) => `
+//     <tr>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:center">${i + 1}</td>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:center">${tableFormatDate(p.date)}</td>
+//       <td style="border:1px solid #ddd;padding:6px">${p.supplier_name}</td>
+//       <td style="border:1px solid #ddd;padding:6px">${p.category}</td>
+//       <td style="border:1px solid #ddd;padding:6px">${p.item_name}</td>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.quantity}</td>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.unit_price}</td>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.purchase_amount ?? (p.quantity * p.unit_price)}</td>
+//     </tr>
+//   `).join("");
+
+//     // Totals row
+//     const totalsRow = `
+//     <tr style="font-weight:bold;background:#f0f0f0">
+//       <td colspan="5" style="border:1px solid #ddd;padding:6px;text-align:right">Total:</td>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:right">${totalQty}</td>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:right">${totalUnitPrice}</td>
+//       <td style="border:1px solid #ddd;padding:6px;text-align:right">${totalAmountOverall}</td>
+//     </tr>
+//   `;
+
+//     const html = `
+//     <table style="width:100%;border-collapse:collapse">
+//       <thead style="background:#11375B;color:white">
+//         <tr>
+//           <th style="border:1px solid #ddd;padding:6px">#</th>
+//           <th style="border:1px solid #ddd;padding:6px">Date</th>
+//           <th style="border:1px solid #ddd;padding:6px">Supplier</th>
+//           <th style="border:1px solid #ddd;padding:6px">Category</th>
+//           <th style="border:1px solid #ddd;padding:6px">Item</th>
+//           <th style="border:1px solid #ddd;padding:6px">Qty</th>
+//           <th style="border:1px solid #ddd;padding:6px">Unit Price</th>
+//           <th style="border:1px solid #ddd;padding:6px">Total</th>
+//         </tr>
+//       </thead>
+//       <tbody>
+//         ${rowsHtml}
+//       </tbody>
+//       <tfoot>
+//         ${totalsRow}
+//       </tfoot>
+//     </table>
+//   `;
+
+//     const WinPrint = window.open("", "", "width=900,height=650");
+//     WinPrint.document.write(`
+//     <html>
+//       <head>
+//         <title>Purchase Report</title>
+//       </head>
+//       <body>
+//         <h2>Purchase Report</h2>
+//         <p>Generated on: ${new Date().toLocaleDateString()}</p>
+//         ${html}
+//       </body>
+//     </html>
+//   `);
+//     WinPrint.document.close();
+//     WinPrint.focus();
+//     WinPrint.print();
+//     WinPrint.close();
+//   };
+
+//   // Grand totals for all filtered purchases
+//   // Grand totals for all filtered purchases
+//   const totalQty = filteredPurchases.reduce(
+//     (sum, p) => sum + (Number(p.quantity) || 0),
+//     0
+//   );
+//   const totalUnitPrice = filteredPurchases.reduce(
+//     (sum, p) => sum + (Number(p.unit_price) || 0),
+//     0
+//   );
+//   const totalServiceCharge = filteredPurchases.reduce(
+//     (sum, p) => sum + (Number(p.service_charge) || 0),
+//     0
+//   );
+//   const totalAmountOverall = filteredPurchases.reduce(
+//     (sum, p) => sum + (Number(p.purchase_amount) || 0),
+//     0
+//   );
+
+
+//   // Weighted average unit price (if totalQty > 0)
+
+//   // Pagination
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const itemsPerPage = 10;
+//   const indexOfLastItem = currentPage * itemsPerPage;
+//   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+//   const currentPurchase = filteredPurchases.slice(
+//     indexOfFirstItem,
+//     indexOfLastItem
+//   );
+//   const totalPages = Math.ceil(filteredPurchases.length / itemsPerPage);
+
+//   return (
+//     <div className="p-2">
+//       <div
+//         ref={reportRef}
+//         className="w-[22rem] md:w-full overflow-hidden overflow-x-automax-w-7xl mx-auto bg-white shadow-xl rounded-xl p-4 border border-gray-200"
+//       >
+//         {/* Title */}
+//         <div className="md:flex items-center justify-between mb-6">
+//           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+//             <FaUserSecret className="text-gray-800 text-2xl" />
+//             Purchase Report
+//           </h1>
+//           <button
+//             onClick={() => setShowFilter(prev => !prev)}
+//             className="mt-3 bg-gradient-to-r from-primary to-[#115e15] text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
+//           >
+//             <FaFilter /> Filter
+//           </button>
+//         </div>
+
+//         {/* Summary Cards */}
+//         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+//           <div className="bg-blue-50 p-4 rounded text-center">
+//             <p className="text-sm text-gray-500">Total Purchases</p>
+//             <p className="text-lg font-bold">{filteredPurchases.length}</p>
+//           </div>
+//           <div className="bg-green-50 p-4 rounded text-center">
+//             <p className="text-sm text-gray-500">Total Amount</p>
+//             <p className="text-lg font-bold">{totalAmount.toLocaleString()} ৳</p>
+//           </div>
+//           <div className="bg-yellow-50 p-4 rounded text-center">
+//             <p className="text-sm text-gray-500">Top Supplier</p>
+//             <p className="text-lg font-bold">{topSupplier}</p>
+//           </div>
+//           <div className="bg-purple-50 p-4 rounded text-center">
+//             <p className="text-sm text-gray-500">Top Category</p>
+//             <p className="text-lg font-bold">{topCategory}</p>
+//           </div>
+//         </div>
+
+//         {/* Filters */}
+//         {showFilter && (
+//           <div className="grid md:grid-cols-4 gap-4 border border-gray-300 rounded-md p-4 mb-6">
+//             <DatePicker
+//               selected={startDate}
+//               onChange={(date) => setStartDate(date)}
+//               selectsStart
+//               startDate={startDate}
+//               endDate={endDate}
+//               dateFormat="dd/MM/yyyy"
+//               placeholderText="DD/MM/YYYY"
+//               locale="en-GB"
+//               className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+//               isClearable
+//             />
+//             <DatePicker
+//               selected={endDate}
+//               onChange={(date) => setEndDate(date)}
+//               selectsEnd
+//               startDate={startDate}
+//               endDate={endDate}
+//               minDate={startDate}
+//               dateFormat="dd/MM/yyyy"
+//               placeholderText="DD/MM/YYYY"
+//               locale="en-GB"
+//               className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+//               isClearable
+//             />
+//             <select
+//               value={supplierFilter}
+//               onChange={e => setSupplierFilter(e.target.value)}
+//               className="border p-2 rounded"
+//             >
+//               <option value="">All Suppliers</option>
+//               {[...new Set(purchases.map(p => p.supplier_name))].map(s => (
+//                 <option key={s} value={s}>{s}</option>
+//               ))}
+//             </select>
+//             <select
+//               value={categoryFilter}
+//               onChange={e => setCategoryFilter(e.target.value)}
+//               className="border p-2 rounded"
+//             >
+//               <option value="">All Categories</option>
+//               {[...new Set(purchases.map(p => p.category))].map(c => (
+//                 <option key={c} value={c}>{c}</option>
+//               ))}
+//             </select>
+//           </div>
+//         )}
+
+//         {/* Search + Export */}
+//         <div className="flex justify-between mb-4 flex-wrap gap-2">
+//           <div className="flex gap-2">
+//             <button
+//               onClick={exportExcel}
+//               className="py-1 px-5 bg-white shadow rounded hover:bg-primary hover:text-white flex items-center gap-2"
+//             >
+//               <FaFileExcel /> Excel
+//             </button>
+//             <button
+//               onClick={exportPdf}
+//               className="py-1 px-5 bg-white shadow rounded hover:bg-primary hover:text-white flex items-center gap-2"
+//             >
+//               <FaFilePdf /> PDF
+//             </button>
+//             <button
+//               onClick={handlePrint}
+//               className="py-1 px-5 bg-white shadow rounded hover:bg-primary hover:text-white flex items-center gap-2"
+//             >
+//               <FaPrint /> Print
+//             </button>
+//           </div>
+//           <div>
+//             <input
+//               type="text"
+//               placeholder="Search..."
+//               value={searchTerm}
+//               onChange={e => setSearchTerm(e.target.value)}
+//               className="border rounded px-3 py-1"
+//             />
+//           </div>
+//           {/*  Clear button */}
+//           {searchTerm && (
+//             <button
+//               onClick={() => {
+//                 setSearchTerm("");
+//                 setCurrentPage(1);
+//               }}
+//               className="absolute right-10 top-[17.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+//             >
+//               ✕
+//             </button>
+//           )}
+//         </div>
+
+//         {/* Table */}
+//         <div id="purchaseReport" className="overflow-x-auto rounded-xl">
+//           <table className="min-w-full text-sm text-left ">
+//             <thead className="bg-gray-200 text-primary">
+//               <tr>
+//                 <th className="p-2">#</th>
+//                 <th className="p-2">Date</th>
+//                 <th className="p-2">Supplier</th>
+//                 <th className="p-2">Category</th>
+//                 <th className="p-2">Item</th>
+//                 <th className="p-2">Qty</th>
+//                 <th className="p-2">Unit Price</th>
+//                 <th className="p-2">Service Charge</th>
+//                 <th className="p-2">Total</th>
+//               </tr>
+//             </thead>
+//             <tbody className=" text-gray-700 ">
+//               {currentPurchase.map((p, i) => (
+//                 <tr key={p.id} className="">
+//                   <td className="p-2">{i + 1}</td>
+//                   <td className="p-2">{tableFormatDate(p.date)}</td>
+//                   <td className="p-2">{p.supplier_name}</td>
+//                   <td className="p-2">{p.category}</td>
+//                   <td className="p-2">{p.item_name}</td>
+//                   <td className="p-2">{p.quantity}</td>
+//                   <td className="p-2">{p.unit_price}</td>
+//                   <td className="p-2">{p.service_charge}</td>
+//                   <td className="p-2">{p.purchase_amount}</td>
+//                 </tr>
+//               ))}
+//               {currentPurchase.length === 0 && (
+//                 <tr>
+//                   <td colSpan="9" className="p-4 text-center text-gray-500">No data found</td>
+//                 </tr>
+//               )}
+//             </tbody>
+//             {currentPurchase.length > 0 && <tfoot className="bg-gray-100 font-bold">
+//               <tr>
+//                 <td colSpan="5" className="text-right p-2">Total:</td>
+//                 <td className="p-2">{totalQty}</td>
+//                 <td className="p-2">{totalUnitPrice}</td>
+//                 <td className="p-2">{totalServiceCharge}</td>
+//                 <td className="p-2">{totalAmountOverall}</td>
+//               </tr>
+//             </tfoot>}
+//           </table>
+//         </div>
+
+//         {/* Pagination */}
+//         {currentPurchase.length > 0 && totalPages >= 1 && (
+//           <Pagination
+//             currentPage={currentPage}
+//             totalPages={totalPages}
+//             onPageChange={(page) => setCurrentPage(page)}
+//             maxVisible={8}
+//           />
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default PurchaseReport;
+
+
+import { useEffect, useState, useRef } from "react";
+import { FaFilter, FaUserSecret, FaFilePdf, FaPrint, FaFileExcel } from "react-icons/fa";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import Pagination from "../../components/Shared/Pagination";
+import DatePicker from "react-datepicker";
+import api from "../../utils/axiosConfig";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import { FiFilter } from "react-icons/fi";
 
 const PurchaseReport = () => {
+  const [purchases, setPurchases] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
-  return (
-    <div className=" md:p-4">
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
-        <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-            <FaUserSecret className="text-[#11375B] text-2xl" />
-            Purchase List
-          </h1>
-          <div className="mt-3 md:mt-0 flex gap-2">
-            <button
-              onClick={() => setShowFilter((prev) => !prev)}
-              className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-            >
-              <FaFilter /> Filter
-            </button>
-          </div>
-        </div>
-        {/* Export */}
-        <div className="md:flex justify-between mb-4">
-          <div className="flex gap-1 md:gap-3 flex-wrap">
-           {/* <CSVLink
-                         data={csvData}
-                         headers={headers}
-                         filename={"fuel_data.csv"}
-                         className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-cyan-200hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                       >
-                         CSV
-                       </CSVLink> */}
-                       <button
-                          //  onClick={exportExcel}
-                           className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                         >
-                           <FaFileExcel className="" />
-                           Excel
-                         </button>
-                       
-                         <button
-                          //  onClick={exportPDF}
-                           className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                         >
-                           <FaFilePdf className="" />
-                           PDF
-                         </button>
-                       
-                         <button
-                          //  onClick={printTable}
-                           className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                         >
-                           <FaPrint className="" />
-                           Print
-                         </button>
-          </div>
-          <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
-            />
-          </div>
-        </div>
-        {/* Conditional Filter Section */}
-        {showFilter && (
-          <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+  const reportRef = useRef();
 
-            <div className="relative w-full">
-              <input
-                type="date"
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
+  // Filters
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [supplierFilter, setSupplierFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Load purchase data
+  useEffect(() => {
+    api.get(`/purchase`).then(res => {
+      if (res.data.status === "Success") {
+        setPurchases(res.data.data);
+      }
+    });
+  }, []);
+
+  // Filter Logic
+  const filteredPurchases = purchases.filter(p => {
+    const dateMatch =
+      (!startDate || new Date(p.date) >= new Date(startDate)) &&
+      (!endDate || new Date(p.date) <= new Date(endDate));
+    const supplierMatch = !supplierFilter || p.supplier_name === supplierFilter;
+    const categoryMatch = !categoryFilter || p.category === categoryFilter;
+    const searchMatch =
+      !searchTerm ||
+      p.supplier_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.items?.[0]?.item_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    return dateMatch && supplierMatch && categoryMatch && searchMatch;
+  });
+
+  // Summary calculations
+  const totalAmount = filteredPurchases.reduce(
+    (sum, p) => sum + Number(p.purchase_amount || 0),
+    0
+  );
+
+  const totalQty = filteredPurchases.reduce(
+    (sum, p) => sum + Number(p.items?.[0]?.quantity || 0),
+    0
+  );
+
+  const totalUnitPrice = filteredPurchases.reduce(
+    (sum, p) => sum + Number(p.items?.[0]?.unit_price || 0),
+    0
+  );
+
+  const totalServiceCharge = filteredPurchases.reduce(
+    (sum, p) => sum + Number(p.service_charge || 0),
+    0
+  );
+
+  const topSupplier = (() => {
+    const supplierTotals = {};
+    filteredPurchases.forEach(p => {
+      supplierTotals[p.supplier_name] =
+        (supplierTotals[p.supplier_name] || 0) + Number(p.items?.[0]?.total || 0);
+    });
+    return Object.entries(supplierTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+  })();
+
+  const topCategory = (() => {
+    const categoryTotals = {};
+    filteredPurchases.forEach(p => {
+      categoryTotals[p.category] =
+        (categoryTotals[p.category] || 0) + Number(p.items?.[0]?.total || 0);
+    });
+    return Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+  })();
+
+  // Export to Excel
+  const exportExcel = () => {
+    const dataForExcel = filteredPurchases.map(p => ({
+      Date: tableFormatDate(p.date),
+      Supplier: p.supplier_name,
+      Category: p.category,
+      Item: p.items?.[0]?.item_name,
+      Quantity: Number(p.items?.[0]?.quantity),
+      "Unit Price": Number(p.items?.[0]?.unit_price),
+      "Service Charge": Number(p.service_charge),
+      "Purchase Amount": Number(p.purchase_amount)
+    }));
+
+    // Add Total row
+    dataForExcel.push({
+      Date: "",
+      Supplier: "",
+      Category: "",
+      Item: "Total",
+      Quantity: totalQty,
+      "Unit Price": totalUnitPrice,
+      "Service Charge": totalServiceCharge,
+      Total: totalAmount
+    });
+
+    const ws = XLSX.utils.json_to_sheet(dataForExcel);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Purchase Report");
+    XLSX.writeFile(wb, "purchase_report.xlsx");
+  };
+
+  // Export to PDF
+  const exportPdf = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Purchase Report", 14, 16);
+
+    doc.setFontSize(10);
+    doc.text(`Total Purchases: ${filteredPurchases.length}`, 14, 26);
+    doc.text(`Total Amount: ${totalAmount.toLocaleString()} ৳`, 14, 32);
+    doc.text(`Top Supplier: ${topSupplier}`, 14, 38);
+    doc.text(`Top Category: ${topCategory}`, 14, 44);
+
+    const headers = [["#", "Date", "Supplier", "Category", "Item", "Qty", "Unit Price", "Service Charge", "Purchase Amount"]];
+    const data = filteredPurchases.map((p, i) => [
+      i + 1,
+      tableFormatDate(p.date),
+      p.supplier_name,
+      p.category,
+      p.items?.[0]?.item_name,
+      p.items?.[0]?.quantity,
+      p.items?.[0]?.unit_price,
+      p.service_charge,
+      p.purchase_amount
+    ]);
+
+    autoTable(doc, {
+      head: headers,
+      body: data,
+      startY: 50,
+      styles: { fontSize: 8, cellPadding: 2, halign: "center" },
+      headStyles: { fillColor: [17, 55, 91], textColor: 255 }
+    });
+
+    doc.save("purchase_report.pdf");
+  };
+
+  // Print
+  const handlePrint = () => {
+    const rowsHtml = filteredPurchases.map((p, i) => `
+      <tr>
+        <td style="border:1px solid #ddd;padding:6px;text-align:center">${i + 1}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:center">${tableFormatDate(p.date)}</td>
+        <td style="border:1px solid #ddd;padding:6px">${p.supplier_name}</td>
+        <td style="border:1px solid #ddd;padding:6px">${p.category}</td>
+        <td style="border:1px solid #ddd;padding:6px">${p.items?.[0]?.item_name}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.items?.[0]?.quantity}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.items?.[0]?.unit_price}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.service_charge}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.purchase_amount}</td>
+      </tr>
+    `).join("");
+
+    const totalsRow = `
+      <tr style="font-weight:bold;background:#f0f0f0">
+        <td colspan="5" style="border:1px solid #ddd;padding:6px;text-align:right">Total:</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${totalQty}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${totalUnitPrice}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${totalServiceCharge}</td>
+        <td style="border:1px solid #ddd;padding:6px;text-align:right">${totalAmount}</td>
+      </tr>
+    `;
+
+    const html = `
+      <table style="width:100%;border-collapse:collapse">
+        <thead style="background:#11375B;color:black">
+          <tr>
+            <th style="border:1px solid #ddd;padding:6px">#</th>
+            <th style="border:1px solid #ddd;padding:6px">Date</th>
+            <th style="border:1px solid #ddd;padding:6px">Supplier</th>
+            <th style="border:1px solid #ddd;padding:6px">Category</th>
+            <th style="border:1px solid #ddd;padding:6px">Item</th>
+            <th style="border:1px solid #ddd;padding:6px">Qty</th>
+            <th style="border:1px solid #ddd;padding:6px">Unit Price</th>
+            <th style="border:1px solid #ddd;padding:6px">Service Charge</th>
+            <th style="border:1px solid #ddd;padding:6px">Total</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+        <tfoot>${totalsRow}</tfoot>
+      </table>
+    `;
+
+    const WinPrint = window.open("", "", "width=900,height=650");
+    WinPrint.document.write(`
+      <html>
+        <head><title>Purchase Report</title></head>
+        <body>
+          <h2>Purchase Report</h2>
+          <p>Generated on: ${new Date().toLocaleDateString()}</p>
+          ${html}
+        </body>
+      </html>
+    `);
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentPurchase = filteredPurchases.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredPurchases.length / itemsPerPage);
+
+  return (
+    <div className="p-2">
+      <div
+        ref={reportRef}
+        className="w-[22rem] md:w-full overflow-hidden overflow-x-automax-w-7xl mx-auto bg-white shadow-xl rounded-xl p-4 border border-gray-200"
+      >
+        <div className="md:flex items-center justify-between mb-6">
+          <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+            <FaUserSecret className="text-gray-800 text-2xl" /> ক্রয় রিপোর্ট
+          </h1>
+          <button
+            onClick={() => setShowFilter(prev => !prev)}
+            className="mt-3 bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
+          >
+            <FaFilter /> ফিল্টার
+          </button>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-blue-50 p-4 rounded text-center">
+            <p className="text-sm text-gray-500">মোট ক্রয়</p>
+            <p className="text-lg font-bold">{filteredPurchases.length}</p>
+          </div>
+          <div className="bg-green-50 p-4 rounded text-center">
+            <p className="text-sm text-gray-500">মোট পরিমাণ</p>
+            <p className="text-lg font-bold">{totalAmount.toLocaleString()} ৳</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded text-center">
+            <p className="text-sm text-gray-500">শীর্ষ সাপ্লায়ার</p>
+            <p className="text-lg font-bold">{topSupplier}</p>
+          </div>
+          <div className="bg-purple-50 p-4 rounded text-center">
+            <p className="text-sm text-gray-500">শীর্ষ ক্যাটাগরি</p>
+            <p className="text-lg font-bold">{topCategory}</p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        {showFilter && (
+          <div className="grid md:grid-cols-4 gap-4 border border-gray-300 rounded-md p-4 mb-6">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
+            <select
+              value={supplierFilter}
+              onChange={e => setSupplierFilter(e.target.value)}
+              className="border p-2 rounded"
+            >
+              <option value="">All Suppliers</option>
+              {[...new Set(purchases.map(p => p.supplier_name))].map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            <select
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+              className="border p-2 rounded"
+            >
+              <option value="">All Categories</option>
+              {[...new Set(purchases.map(p => p.category))].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <div className=" flex gap-2">
+              <button
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                  setSupplierFilter("");
+                  setCategoryFilter("");
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <FiFilter />মুছে ফেলা
+              </button>
             </div>
           </div>
         )}
-        <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200">
+
+        {/* Search + Export */}
+        <div className="flex justify-between mb-4 flex-wrap gap-2">
+          <div className="flex gap-2">
+            <button
+              onClick={exportExcel}
+              className="py-1 px-5 bg-white shadow rounded hover:bg-primary hover:text-white flex items-center gap-2"
+            >
+              <FaFileExcel /> এক্সেল
+            </button>
+            <button
+              onClick={exportPdf}
+              className="py-1 px-5 bg-white shadow rounded hover:bg-primary hover:text-white flex items-center gap-2"
+            >
+              <FaFilePdf /> পিডিএফ
+            </button>
+            <button
+              onClick={handlePrint}
+              className="py-1 px-5 bg-white shadow rounded hover:bg-primary hover:text-white flex items-center gap-2"
+            >
+              <FaPrint /> প্রিন্ট
+            </button>
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="border rounded px-3 py-1"
+            />
+          </div>
+          {searchTerm && (
+            <button
+              onClick={() => { setSearchTerm(""); setCurrentPage(1); }}
+              className="absolute right-12 top-[18.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Table */}
+        <div id="purchaseReport" className="overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-sm">
+            <thead className="bg-gray-200 text-primary">
               <tr>
-                <th className="px-2 py-3">#</th>
-                <th className="px-2 py-3">Supplier Name</th>
-                <th className="px-2 py-3">Rate</th>
-                <th className="px-2 py-3">Category</th>
-                <th className="px-2 py-3">Item Name</th>
-                <th className="px-2 py-3">Quantity</th>
-                <th className="px-2 py-3">Unit Price</th>
-                <th className="px-2 py-3">Total</th>
-                <th className="px-2 py-3">Bill Image</th>
+                <th className="p-2">#</th>
+                <th className="p-2">তারিখ</th>
+                <th className="p-2">সাপ্লায়ার</th>
+                <th className="p-2">ক্যাটাগরি</th>
+                <th className="p-2">পণ্য</th>
+                <th className="p-2">পরিমাণ</th>
+                <th className="p-2">একক দাম</th>
+                <th className="p-2">সার্ভিস চার্জ</th>
+                <th className="p-2">ক্রয় পরিমাণ</th>
               </tr>
             </thead>
-            <tbody className="text-[#11375B] font-semibold bg-gray-100">
-              <tr className="hover:bg-gray-50 transition-all">
-                <td className="px-2 py-4 font-bold">01</td>
-                <td className="px-2 py-4">Korim Ali</td>
-                <td className="px-2 py-4">250.00</td>
-                <td className="px-2 py-4">Parts</td>
-                <td className="px-2 py-4">Piston</td>
-                <td className="px-2 py-4">5</td>
-                <td className="px-2 py-4">250</td>
-                <td className="px-2 py-4">1050</td>
-                <td className="px-2 py-4">Bill Image</td>
-              </tr>
+            <tbody className="text-gray-700">
+              {currentPurchase.map((p, i) => (
+                <tr key={p.id}>
+                  <td className="p-2">{i + 1}</td>
+                  <td className="p-2">{tableFormatDate(p.date)}</td>
+                  <td className="p-2">{p.supplier_name}</td>
+                  <td className="p-2">{p.category}</td>
+                  <td className="p-2">{p.items?.[0]?.item_name}</td>
+                  <td className="p-2">{p.items?.[0]?.quantity}</td>
+                  <td className="p-2">{p.items?.[0]?.unit_price}</td>
+                  <td className="p-2">{p.service_charge}</td>
+                  <td className="p-2">{p.purchase_amount}</td>
+                </tr>
+              ))}
+              {currentPurchase.length === 0 && (
+                <tr>
+                  <td colSpan="9" className="p-4 text-center text-gray-500">No data found</td>
+                </tr>
+              )}
             </tbody>
+            {currentPurchase.length > 0 && (
+              <tfoot className="bg-gray-100 font-bold">
+                <tr>
+                  <td colSpan="5" className="text-right p-2">Total:</td>
+                  <td className="p-2">{totalQty}</td>
+                  <td className="p-2">{totalUnitPrice}</td>
+                  <td className="p-2">{totalServiceCharge}</td>
+                  <td className="p-2">{totalAmount}</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
+
+        {/* Pagination */}
+        {currentPurchase.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

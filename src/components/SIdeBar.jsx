@@ -305,9 +305,9 @@ const Sidebar = () => {
             : "",
         },
         {
-          key: "trip-report",
-          label: <Link to="/tramessy/Reports/Trip-Report">ট্রিপ রিপোর্ট</Link>,
-          className: isActive("/tramessy/Reports/Trip-Report")
+          key: "fuel-report",
+          label: <Link to="/tramessy/Reports/fuel-Report">ফুয়েল রিপোর্ট</Link>,
+          className: isActive("/tramessy/Reports/fuel-Report")
             ? "ant-menu-item-selected"
             : "",
         },
@@ -319,6 +319,17 @@ const Sidebar = () => {
             </Link>
           ),
           className: isActive("/tramessy/Reports/vehicle-report")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        {
+          key: "purchase-report",
+          label: (
+            <Link to="/tramessy/Reports/purchase-report">
+              ক্রয় রিপোর্ট
+            </Link>
+          ),
+          className: isActive("/tramessy/Reports/purchase-report")
             ? "ant-menu-item-selected"
             : "",
         },

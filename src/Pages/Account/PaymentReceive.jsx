@@ -1,18 +1,18 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaPen, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { MdOutlineAirplaneTicket } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import api from "../../utils/axiosConfig";
 
 const PaymentReceive = () => {
   const [payment, setPayment] = useState([]);
   const [loading, setLoading] = useState(true);
   // Fetch payment data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/paymentRecived/list`)
+    api
+      .get(`/payment-recieve`)
       .then((response) => {
         if (response.data.status === "Success") {
           setPayment(response.data.data);

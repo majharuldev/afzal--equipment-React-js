@@ -526,11 +526,11 @@ export const router = createBrowserRouter([
         element: <DriverReport />,
       },
       {
-        path: "/tramessy/Reports/Fuel-Report",
+        path: "/tramessy/Reports/fuel-report",
         element: <FuelReport />,
       },
       {
-        path: "/tramessy/Reports/Purchase-Report",
+        path: "/tramessy/Reports/purchase-report",
         element: <PurchaseReport />,
       },
       {
