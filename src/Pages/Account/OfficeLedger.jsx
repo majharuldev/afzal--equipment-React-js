@@ -347,6 +347,7 @@ import html2canvas from "html2canvas";
 import ReactPaginate from "react-paginate";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import api from "../../utils/axiosConfig";
 
 const OfficeLedger = () => {
   const [branch, setbranch] = useState([]);
@@ -359,10 +360,10 @@ const OfficeLedger = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/branch/list`)
+    api
+      .get(`/OfficeLedger`)
       .then((response) => {
-        if (response.data.status === "Success") {
+        if (response.data.success) {
           setbranch(response.data.data);
         }
         setLoading(false);
@@ -377,8 +378,8 @@ const OfficeLedger = () => {
   let currentBalance = openingBalance;
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/office/list`)
+    api
+      .get(`/office`)
       .then((response) => {
         if (response.data.status === "Success") {
           const headOffice = response.data.data.find(
@@ -417,6 +418,7 @@ const OfficeLedger = () => {
     }, openingBalance);
   };
 
+  // excel
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredBranch);
     const wb = XLSX.utils.book_new();
@@ -426,6 +428,7 @@ const OfficeLedger = () => {
     saveAs(data, "office-ledger.xlsx");
   };
 
+  // pdf
   const exportToPdf = () => {
     const input = document.getElementById("ledger-table");
     html2canvas(input).then((canvas) => {

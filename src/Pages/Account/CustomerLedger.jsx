@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import SelectCustomerLadger from "./SelectCustomerLadger"
 
 import axios from "axios";
+import api from "../../utils/axiosConfig";
 
 const CustomerLedger = () => {
   const [selectedCustomer, setSelectedCustomer] = useState("");
@@ -13,8 +14,8 @@ const CustomerLedger = () => {
   const [errorCustomers, setErrorCustomers] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/customerLedger/list`)
+    api
+      .get(`/customerLedger`)
       .then((res) => {
         if (res.data.status === "Success") {
           setCustomers(res.data.data);

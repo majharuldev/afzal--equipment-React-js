@@ -7,11 +7,17 @@ import { Link } from "react-router-dom";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import api from "../../utils/axiosConfig";
 import { FaFileExcel, FaPrint } from "react-icons/fa6";
+import { IoMdClose } from "react-icons/io";
+import toast, { Toaster } from "react-hot-toast";
 
 const VendorPayment = () => {
   const [payment, setPayment] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  // delete modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
   // Fetch payment data
   useEffect(() => {
     api
@@ -168,6 +174,30 @@ const exportToExcel = () => {
     }, 500);
   };
 
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await api.delete(`/vendor-payment/${id}`);
+
+      // Remove driver from local list
+      setPayment((prev) => prev.filter((account) => account.id !== id));
+      toast.success("পেমেন্ট সফলভাবে মুছে ফেলা হয়েছে", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedPaymentId(null);
+    } catch (error) {
+      console.error("Delete error:", error.response || error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+
 
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);
@@ -190,6 +220,7 @@ const exportToExcel = () => {
   if (loading) return <p className="text-center mt-16">Loading payment...</p>;
   return (
     <div className=" ">
+      <Toaster/>
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-black flex items-center gap-2 ">
@@ -308,15 +339,15 @@ const exportToExcel = () => {
                             <FaPen className="text-[12px]" />
                           </button>
                         </Link>
-                        {/* <button
-                        // onClick={() => {
-                        //   setSelectedEmployeeId(dt.id);
-                        //   setIsOpen(true);
-                        // }}
+                        <button
+                        onClick={() => {
+                              setSelectedPaymentId(dt.id);
+                              setIsOpen(true);
+                            }}
                         className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button> */}
+                      </button>
                       </div>
                     </td>
                   </tr>
@@ -364,6 +395,41 @@ const exportToExcel = () => {
               >
                 <GrFormNext />
               </button>
+            </div>
+          </div>
+        )}
+      </div>
+       {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Customer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedPaymentId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
             </div>
           </div>
         )}

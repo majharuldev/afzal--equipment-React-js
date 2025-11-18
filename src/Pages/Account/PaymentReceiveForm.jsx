@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { InputField, SelectField } from "../../components/Form/FormFields"
 import BtnSubmit from "../../components/Button/BtnSubmit"
+import api from "../../utils/axiosConfig"
 
 const PaymentReceiveForm = () => {
   const [loading, setLoading] = useState(false)
@@ -21,7 +22,7 @@ const PaymentReceiveForm = () => {
     if (id && !initialDataLoaded) {
       const fetchPaymentData = async () => {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/paymentRecived/show/${id}`)
+          const response = await api.get(`/paymentRec/${id}`)
           const data = response.data.data
           if (data) {
             reset({
@@ -31,7 +32,7 @@ const PaymentReceiveForm = () => {
               bill_ref: data.bill_ref,
               amount: data.amount,
               cash_type: data.cash_type,
-              note: data.note,
+              remarks: data.remarks,
               created_by: data.created_by,
               status: data.status,
             })
@@ -51,24 +52,26 @@ const PaymentReceiveForm = () => {
   }, [id, reset, navigate, initialDataLoaded])
 
   const [customer, setCustomer] = useState([])
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
-      .then((response) => response.json())
-      .then((data) => setCustomer(data.data))
-      .catch((error) => console.error("কাস্টমার ডাটা লোডে সমস্যা:", error))
-  }, [])
+ useEffect(() => {
+  api.get(`/customer`)
+    .then((response) => {
+      setCustomer(response.data); 
+    })
+    .catch((error) => console.error("কাস্টমার ডাটা লোডে সমস্যা:", error));
+}, []);
   const customerOptions = customer.map((dt) => ({
     value: dt.customer_name,
     label: dt.customer_name,
   }))
 
   const [branch, setBranch] = useState([])
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/api/office/list`)
-      .then((response) => response.json())
-      .then((data) => setBranch(data.data))
-      .catch((error) => console.error("ব্রাঞ্চ ডাটা লোডে সমস্যা:", error))
-  }, [])
+useEffect(() => {
+  api.get(`/office`)
+    .then((response) => {
+      setBranch(response.data.data);
+    })
+    .catch((error) => console.error("ব্রাঞ্চ ডাটা লোডে সমস্যা:", error));
+}, []);
   const branchOptions = branch.map((dt) => ({
     value: dt.branch_name,
     label: dt.branch_name,
@@ -77,16 +80,16 @@ const PaymentReceiveForm = () => {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      const formData = new FormData()
-      for (const key in data) {
-        formData.append(key, data[key])
-      }
+      // const formData = new FormData()
+      // for (const key in data) {
+      //   formData.append(key, data[key])
+      // }
 
       let paymentResponse
       if (id) {
-        paymentResponse = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/paymentRecived/update/${id}`, formData)
+        paymentResponse = await api.put(`/paymentRec/${id}`, data)
       } else {
-        paymentResponse = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/paymentRecived/create`, formData)
+        paymentResponse = await api.post(`/paymentRec`, data)
       }
 
       const paymentData = paymentResponse.data
@@ -146,13 +149,14 @@ const PaymentReceiveForm = () => {
                   control={control}
                 />
               </div>
+              {/* হেড অফিস */}
               <div className="w-full">
                 <SelectField
                   name="branch_name"
                   label="ব্রাঞ্চ নাম"
                   required={!id}
                   control={control}
-                  options={[{ label: "ব্রাঞ্চ নির্বাচন করুন", value: "", disabled: true }, { label: "হেড অফিস", value: "Head Office" }, ...branchOptions]}
+                  options={[{ label: "ব্রাঞ্চ নির্বাচন করুন", value: "", disabled: true }, { label: "Head Office", value: "Head Office" }, ...branchOptions]}
                 />
               </div>
             </div>

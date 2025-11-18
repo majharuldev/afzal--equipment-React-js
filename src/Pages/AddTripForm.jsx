@@ -658,7 +658,7 @@ const upazilaOptions = upazilas.map((u) => ({
     <FormProvider {...methods}>
       <Toaster />
       {loading ? (
-        <div className="p-4 bg-white rounded-md shadow border-t-2 border-primary">
+        <div className="p-4 bg-white rounded-md shadow ">
           <FormSkeleton />
         </div>
       ) : (<form onSubmit={handleSubmit(onSubmit)} className="min-h-screen p-2">

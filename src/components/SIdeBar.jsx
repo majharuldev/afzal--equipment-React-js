@@ -273,13 +273,13 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        // {
-        //   key: "daily-trip-expense",
-        //   label: <Link to="/tramessy/daily-trip-expense">দৈনিক ট্রিপ খরচ</Link>,
-        //   className: isActive("/tramessy/daily-trip-expense")
-        //     ? "ant-menu-item-selected"
-        //     : "",
-        // },
+        {
+          key: "daily-trip-expense",
+          label: <Link to="/tramessy/daily-trip-expense">দৈনিক ট্রিপ খরচ</Link>,
+          className: isActive("/tramessy/daily-trip-expense")
+            ? "ant-menu-item-selected"
+            : "",
+        },
         {
           key: "monthly-statement",
           label: <Link to="/tramessy/monthly-statement">মাসিক লাভ/ক্ষতি</Link>,

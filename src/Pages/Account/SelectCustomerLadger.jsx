@@ -4,6 +4,7 @@ import { FaFileExcel, FaFilePdf, FaFilter, FaPrint } from "react-icons/fa6";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import pdfMake from "pdfmake/build/pdfmake";
+import api from "../../utils/axiosConfig";
 
 const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const [startDate, setStartDate] = useState("");
@@ -17,11 +18,14 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
 
   // Fetch customer list with dues
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
+    api.get(`/customer`)
       .then(res => {
-        if (res.data.status === "Success") {
-          setCustomerList(res.data.data);
-        }
+           // শুধু active customer গুলো নেবে
+        const activeCustomers = res.data.filter(
+          (item) => item.status === "Active"
+        );
+
+        setCustomerList(activeCustomers);
       })
       .catch(err => console.error(err));
   }, []);
@@ -77,6 +81,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
 
   const customerName = filteredLedger[0]?.customer_name || "All Customers";
 
+  // excel
   const exportToExcel = () => {
     const rows = filteredLedger.map((dt, index) => ({
       SL: index + 1,
@@ -93,6 +98,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
     XLSX.writeFile(workbook, `${customerName}-Ledger.xlsx`);
   };
 
+  // pdf
   const exportToPDF = () => {
     const docDefinition = {
       content: [
@@ -140,6 +146,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
     pdfMake.createPdf(docDefinition).download(`${customerName}-Ledger.pdf`);
   };
 
+  // print
   const handlePrint = () => {
     const printContent = tableRef.current;
     const printWindow = window.open("", "", "width=900,height=600");
@@ -269,7 +276,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
               <thead className="bg-gray-100 text-gray-800 font-bold">
                 <tr className="font-bold bg-gray-50">
                   <td colSpan={8} className="border border-black px-2 py-1 text-right">
-                    Total
+                    মোট
                   </td>
                   <td className="border border-black px-2 py-1 text-right">
                     ৳{totals.rent}

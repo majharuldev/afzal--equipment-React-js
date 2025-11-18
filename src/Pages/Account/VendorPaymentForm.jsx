@@ -261,6 +261,7 @@ import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { InputField, SelectField } from "../../components/Form/FormFields"
 import BtnSubmit from "../../components/Button/BtnSubmit"
+import api from "../../utils/axiosConfig"
 
 const VendorPaymentForm = () => {
   const [loading, setLoading] = useState(false)
@@ -277,7 +278,7 @@ const VendorPaymentForm = () => {
     if (id && !initialDataLoaded) {
       const fetchPaymentData = async () => {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/vendorBill/${id}`)
+          const response = await api.get(`/vendor-payment/${id}`)
           const data = response.data.data
           if (data) {
             reset({
@@ -287,8 +288,8 @@ const VendorPaymentForm = () => {
               bill_ref: data.bill_ref,
               amount: data.amount,
               cash_type: data.cash_type,
-              remarks: data.note,
-              created_by: data.created_by,
+              note: data.note,
+              // created_by: data.created_by,
               status: data.status,
             })
             setInitialDataLoaded(true)
@@ -305,25 +306,24 @@ const VendorPaymentForm = () => {
   }, [id, reset, initialDataLoaded])
 
   // Vendor লিস্ট
+   // select vendor from api
   const [vendor, setVendor] = useState([])
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/api/vendor/list`)
-      .then((res) => res.json())
-      .then((data) => setVendor(data.data))
-      .catch((error) => console.error("Vendor লোডে ত্রুটি:", error))
+    api.get(`/vendor`)
+      .then((response) => setVendor(response.data.data))
+      .catch((error) => console.error("Error fetching vendor data:", error))
   }, [])
   const vendorOptions = vendor.map((dt) => ({
     value: dt.vendor_name,
     label: dt.vendor_name,
   }))
 
-  // Branch লিস্ট
+  // select branch office from api
   const [branch, setBranch] = useState([])
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_BASE_URL}/api/office/list`)
-      .then((res) => res.json())
-      .then((data) => setBranch(data.data))
-      .catch((error) => console.error("Branch লোডে ত্রুটি:", error))
+    api.get(`/office`)
+      .then((response) => setBranch(response.data.data))
+      .catch((error) => console.error("Error fetching branch data:", error))
   }, [])
   const branchOptions = branch.map((dt) => ({
     value: dt.branch_name,
@@ -334,17 +334,17 @@ const VendorPaymentForm = () => {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      const formData = new FormData()
-      for (const key in data) {
-        formData.append(key, data[key])
-      }
+      // const formData = new FormData()
+      // for (const key in data) {
+      //   formData.append(key, data[key])
+      // }
 
       let paymentResponse
       let paymentData
 
       if (id) {
         // বিদ্যমান পেমেন্ট আপডেট
-        paymentResponse = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/vendorBill/update/${id}`, formData)
+        paymentResponse = await api.put(`/vendor-payment/${id}`, data)
         paymentData = paymentResponse.data
         if (paymentData.success) {
           toast.success("পেমেন্ট সফলভাবে আপডেট হয়েছে।", { position: "top-right" })
@@ -354,7 +354,7 @@ const VendorPaymentForm = () => {
         }
       } else {
         // নতুন পেমেন্ট তৈরি
-        paymentResponse = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/vendorBill/create`, formData)
+        paymentResponse = await api.post(`/vendor-payment`, data)
         paymentData = paymentResponse.data
         if (paymentData.success) {
           toast.success("পেমেন্ট সফলভাবে সংরক্ষণ হয়েছে।", { position: "top-right" })
@@ -421,7 +421,7 @@ const VendorPaymentForm = () => {
                   control={control}
                   options={[
                     { label: "শাখা নির্বাচন করুন", value: "", disabled: true },
-                    { label: "হেড অফিস", value: "Head Office" },
+                    { label: "Head Office", value: "Head Office" },
                     ...branchOptions,
                   ]}
                 />
@@ -453,9 +453,9 @@ const VendorPaymentForm = () => {
               <div className="w-full">
                 <InputField name="remarks" label="নোট" />
               </div>
-              <div className="w-full">
-                <InputField name="created_by" label="সৃষ্টি করেছেন" required={!id} />
-              </div>
+              {/* <div className="w-full">
+                <InputField name="created_by" label="তৈরি করেছেন" required={!id} />
+              </div> */}
               <div className="w-full">
                 <SelectField
                   name="status"

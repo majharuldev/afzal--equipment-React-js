@@ -349,7 +349,6 @@ const RoutePricing = () => {
         dataSource={filteredData}
         columns={columns}
         rowKey="id"
-        bordered
         pagination={{ pageSize: 10 }}
         loading={loading}
       />
