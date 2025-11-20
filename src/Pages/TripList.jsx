@@ -789,7 +789,7 @@ const TripList = () => {
         )} */}
 
         {selectedTrip ? (
-          <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-[14px] text-gray-700">
+          <div className="grid grid-cols-3 gap-x-8 gap-y-3 text-[14px] text-gray-700">
             <div>
               <p className="font-semibold text-gray-900">তারিখ:</p>
               <p>{tableFormatDate(selectedTrip.date)}</p>
@@ -800,6 +800,10 @@ const TripList = () => {
               <p>{selectedTrip.customer || "—"}</p>
             </div>
 
+<div>
+              <p className="font-semibold text-gray-900">ইকুইপমেন্টের ধরণ:</p>
+              <p>{selectedTrip.vehicle_category || "—"}</p>
+            </div>
             <div>
               <p className="font-semibold text-gray-900">ইকুইপমেন্ট নং:</p>
               <p>{selectedTrip.vehicle_no || "—"}</p>

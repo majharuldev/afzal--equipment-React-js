@@ -81,8 +81,12 @@ const MonthlyStatement = () => {
             officeExpense: 0,
           };
         }
-        monthlyData[month].purchaseCost +=
-          parseFloat(purchase.purchase_amount) || 0;
+        // monthlyData[month].purchaseCost +=
+        //   parseFloat(purchase.purchase_amount) || 0;
+         // Skip Fuel category purchases
+  if (purchase.category.toLowerCase() !== "fuel") {
+    monthlyData[month].purchaseCost += parseFloat(purchase.purchase_amount) || 0;
+  }
       });
 
       expenses.forEach((expense) => {

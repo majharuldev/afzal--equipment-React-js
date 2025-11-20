@@ -10,12 +10,14 @@ import { toNumber } from "../hooks/toNumber";
 import FormSkeleton from "../components/Form/FormSkeleton";
 import { IoMdClose } from "react-icons/io";
 import axios from "axios";
+import { Input } from "antd";
 
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const dateRef = useRef(null);
+  const { TextArea } = Input;
 
   // ড্রপডাউন অপশনগুলির জন্য স্টেট
   const [vehicle, setVehicle] = useState([]);
@@ -127,10 +129,10 @@ export default function AddTripForm() {
     d_day,
     d_amount,
     additional_cost,
-    trans_cost,
+    trans__cost,
   ] = watch([
     "fuel_cost",
-    "trans_cost",
+    "trans__cost",
     "toll_cost",
     "police_cost",
     "driver_commission",
@@ -160,7 +162,7 @@ export default function AddTripForm() {
       (toNumber(foodCost) || 0) +
       (toNumber(chadaCost) || 0) +
       (toNumber(fuelCost) || 0) +
-      (toNumber(trans_cost) || 0) +
+      (toNumber(trans__cost) || 0) +
       (toNumber(additional_cost) || 0) +
       (toNumber(othersCost) || 0);
 
@@ -196,10 +198,10 @@ export default function AddTripForm() {
   }, [vendorRent, vendorAdvance, setValue]);
 
   const [workTime, rate] = watch(["work_time", "rate"]);
-useEffect(() => {
-  const totalRent = (toNumber(workTime) || 0) * (toNumber(rate) || 0);
-  setValue("total_rent", totalRent, { shouldValidate: true });
-}, [workTime, rate, setValue]);
+  useEffect(() => {
+    const totalRent = (toNumber(workTime) || 0) * (toNumber(rate) || 0);
+    setValue("total_rent", totalRent, { shouldValidate: true });
+  }, [workTime, rate, setValue]);
 
   // সকল প্রয়োজনীয় ডেটা ফেচ করা
   useEffect(() => {
@@ -281,7 +283,7 @@ useEffect(() => {
               night_guard: toNumber(tripData.night_guard) || 0,
               feri_cost: toNumber(tripData.feri_cost) || 0,
               chada: toNumber(tripData.chada) || 0,
-              trans_cost: toNumber(tripData.trans_cost) || 0,
+              trans__cost: toNumber(tripData.trans__cost) || 0,
               food_cost: toNumber(tripData.food_cost) || 0,
               d_day: toNumber(tripData.d_day) || 0,
               d_amount: toNumber(tripData.d_amount) || 0,
@@ -406,27 +408,65 @@ useEffect(() => {
   }, [selectedVehicle, selectedTransport, setValue]);
 
   // লোড পয়েন্ট, আনলোড পয়েন্ট, গাড়ির ক্যাটাগরি এবং সাইজের উপর ভিত্তি করে ফিক্সড রেট হিসাব
-  useEffect(() => {
-    if (selectedLoadPoint && selectedUnloadPoint && selectedVehicleCategory && selectedVehicleSize && rates.length > 0) {
-      const foundRate = rates.find(
-        (rate) =>
-          rate.load_point === selectedLoadPoint &&
-          rate.unload_point === selectedUnloadPoint &&
-          rate.vehicle_category === selectedVehicleCategory &&
-          // rate.vehicle_size === selectedVehicleSize
-          rate.vehicle_size.toLowerCase().trim() === selectedVehicleSize.toLowerCase().trim()
-      );
+  // useEffect(() => {
+  //   if (selectedLoadPoint && selectedUnloadPoint && selectedVehicleCategory && selectedVehicleSize && rates.length > 0) {
+  //     const foundRate = rates.find(
+  //       (rate) =>
+  //         rate.load_point === selectedLoadPoint &&
+  //         rate.unload_point === selectedUnloadPoint &&
+  //         rate.vehicle_category === selectedVehicleCategory &&
+  //         // rate.vehicle_size === selectedVehicleSize
+  //         rate.vehicle_size.toLowerCase().trim() === selectedVehicleSize.toLowerCase().trim()
+  //     );
 
-      if (foundRate) {
-        const rateValue = parseFloat(foundRate.rate) || 0;
-        setValue("total_rent", Number(rateValue), { shouldValidate: true });
-        setIsRateFound(true);
-      } else if (!id) {
-        setValue("total_rent", "", { shouldValidate: true });
-        setIsRateFound(false);
+  //     if (foundRate) {
+  //       const rateValue = parseFloat(foundRate.rate) || 0;
+  //       setValue("total_rent", Number(rateValue), { shouldValidate: true });
+  //       setIsRateFound(true);
+  //     } else if (!id) {
+  //       setValue("total_rent", "", { shouldValidate: true });
+  //       setIsRateFound(false);
+  //     }
+  //   }
+  // }, [selectedLoadPoint, selectedUnloadPoint, selectedVehicleCategory, selectedVehicleSize, rates, setValue, id]);
+
+  useEffect(() => {
+  if (
+    (selectedVehicleCategory === "Dump Truck" ||
+      selectedVehicleCategory === "Trailer") &&
+    selectedLoadPoint &&
+    selectedUnloadPoint &&
+    selectedVehicleCategory &&
+    rates.length > 0
+  ) {
+    const foundRate = rates.find(
+      (rate) =>
+        rate.load_point === selectedLoadPoint &&
+        rate.unload_point === selectedUnloadPoint &&
+        rate.vehicle_category === selectedVehicleCategory &&
+        rate.vehicle_size.toLowerCase().trim() ===
+          selectedVehicleSize.toLowerCase().trim()
+    );
+
+    if (foundRate) {
+      if (isFixedRateCustomer) {
+        setValue("rate", Number(foundRate.rate)); // 🔥 Auto rate for fixed customer
+      } else {
+        setValue("rate", ""); // 🔥 Normal customer = blank
       }
+    } else {
+      setValue("rate", "");
     }
-  }, [selectedLoadPoint, selectedUnloadPoint, selectedVehicleCategory, selectedVehicleSize, rates, setValue, id]);
+  }
+}, [
+  selectedLoadPoint,
+  selectedUnloadPoint,
+  selectedVehicleCategory,
+  selectedVehicleSize,
+  isFixedRateCustomer,
+  rates,
+  setValue
+]);
 
   // select equipment size based on category
   const [selectedEquipment, setSelectedEquipment] = useState("");
@@ -577,31 +617,35 @@ useEffect(() => {
     }
   }, [selectedDriver, driverOptions, setValue]);
 
- //  Load & Unload point এর জন্য state
-const [upazilas, setUpazilas] = useState([]);
+  //  Load & Unload point এর জন্য state
+  const [upazilas, setUpazilas] = useState([]);
 
-//  Fetch Upazilas API (load & unload point option এ ব্যবহার হবে)
-useEffect(() => {
-  axios
-    .get("https://bdapis.vercel.app/geo/v2.0/upazilas")
-    .then((res) => {
-      if (res.data && res.data.data) {
-        // ডুপ্লিকেট বাদ দিয়ে শুধু upazila name নেয়া হচ্ছে
-        const uniqueUpazilas = [
-          ...new Set(res.data.data.map((u) => u.upazila)),
-        ].filter(Boolean);
+  //  Fetch Upazilas API (load & unload point option এ ব্যবহার হবে)
+  useEffect(() => {
+    axios
+      .get("https://bdapis.vercel.app/geo/v2.0/upazilas")
+      .then((res) => {
+        if (res.data.success === true) {
+          // ডুপ্লিকেট বাদ দিয়ে শুধু upazila name নেয়া হচ্ছে
+          const upazilaData = res.data.data || [];
 
-        setUpazilas(uniqueUpazilas);
-      }
-    })
-    .catch((error) => console.error("Upazila API Error:", error));
-}, []);
+          // ডুপ্লিকেট রিমুভ করার সঠিক উপায়
+          const uniqueUpazilas = [
+            ...new Map(upazilaData.map(u => [u.name, u])).values()
+          ];
 
-//  Dropdown options বানানো
-const upazilaOptions = upazilas.map((u) => ({
-  value: u,
-  label: u,
-}));
+          setUpazilas(uniqueUpazilas);
+          setUpazilas(uniqueUpazilas);
+        }
+      })
+      .catch((error) => console.error("Upazila API Error:", error));
+  }, []);
+  console.log("Upazilas:", upazilas);
+  //  Dropdown options বানানো
+  const upazilaOptions = upazilas.map((u) => ({
+    value: u.name,
+    label: u.bn_name,
+  }));
   // ফর্ম সাবমিশন হ্যান্ডেল করা
   // const generateRefId = useRefId();
   const onSubmit = async (data) => {
@@ -707,6 +751,49 @@ const upazilaOptions = upazilas.map((u) => ({
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6">
+                {/* Category & Size */}
+                {/* <div className="md:flex justify-between gap-3"> */}
+                <div className="w-full relative">
+                  <SelectField
+                    name="vehicle_category"
+                    label="ইকুইপমেন্টের ধরণ"
+                    required
+                    options={[
+                      { value: "", label: "ইকুইপমেন্টের ধরণ নির্বাচন করুন..." },
+                      { value: "Exvator", label: "এক্সভেটর" },
+                      { value: "Concrete Mixer", label: "কংক্রিট মিক্সার" },
+                      { value: "Road Roller", label: "রোলার" },
+                      { value: "Payloader", label: "পে-লোডার" },
+                      { value: "Chain Dozer", label: "চেইন ডোজার" },
+                      { value: "Dump Truck", label: "ডাম্প ট্রাক" },
+                      { value: "Crane", label: "ক্রেন" },
+                      { value: "Trailer", label: "ট্রেইলার" },
+                      // { value: "Other", label: "অন্যান্য" }
+                    ]}
+                    control={control}
+                  />
+                </div>
+                <div className="relative mt-2 md:mt-0 w-full">
+                  {/* ইকুইপমেন্ট অনুযায়ী সাইজ */}
+                  <SelectField
+                    name="equipment_type"
+                    label="ইকুইপমেন্টের টাইপ"
+                    required={false}
+                    options={equipmentTypes[selectedCategory] || []}
+                    control={control}
+                  />
+                </div>
+
+                <div className="relative mt-2 md:mt-0 w-full">
+                  {/* ইকুইপমেন্ট অনুযায়ী সাইজ */}
+                  <SelectField
+                    name="vehicle_size"
+                    label="ইকুইপমেন্টের সাইজ/ক্ষমতা"
+                    required
+                    options={equipmentSizes[selectedEquipment] || []}
+                    control={control}
+                  />
+                </div>
                 <SelectField
                   name="transport_type"
                   label="ট্রান্সপোর্টের ধরন"
@@ -801,49 +888,67 @@ const upazilaOptions = upazilas.map((u) => ({
                   />
                 )}
 
-                {/* Category & Size */}
-                {/* <div className="md:flex justify-between gap-3"> */}
-                <div className="w-full relative">
-                  <SelectField
-                    name="vehicle_category"
-                    label="ইকুইপমেন্টের ধরণ"
-                    required
-                    options={[
-                      { value: "", label: "ইকুইপমেন্টের ধরণ নির্বাচন করুন..." },
-                      { value: "Exvator", label: "এক্সভেটর" },
-                      { value: "Concrete Mixer", label: "কংক্রিট মিক্সার" },
-                      { value: "Road Roller", label: "রোলার" },
-                      { value: "Payloader", label: "পে-লোডার" },
-                      { value: "Chain Dozer", label: "চেইন ডোজার" },
-                      { value: "Dump Truck", label: "ডাম্প ট্রাক" },
-                      { value: "Crane", label: "ক্রেন" },
-                      { value: "Trailer", label: "ট্রেইলার" },
-                      { value: "Other", label: "অন্যান্য" }
-                    ]}
-                    control={control}
-                  />
+                {/* <div>
+                  {
+                  (selectedCategory === "Trailer" || selectedCategory === "Payloader") && (
+                    <div className="w-full">
+                     <SelectField
+                      name="load_point"
+                      label="লোড পয়েন্ট (উপজেলা)"
+                      options={upazilaOptions}
+                      control={control}
+                      required={!id}
+                      isCreatable={false}
+                    />
+                   </div>)
+                }
                 </div>
-                <div className="relative mt-2 md:mt-0 w-full">
-                  {/* ইকুইপমেন্ট অনুযায়ী সাইজ */}
-                  <SelectField
-                    name="equipment_type"
-                    label="ইকুইপমেন্টের টাইপ"
-                    required={false}
-                    options={equipmentTypes[selectedCategory] || []}
-                    control={control}
-                  />
-                </div>
+               <div>
+                 { (selectedCategory === "Trailer" || selectedCategory === "Payloader") && (
+                   <div className="w-full">
+                      <SelectField
+                      name="unload_point"
+                      label="আনলোড পয়েন্ট (উপজেলা)"
+                      options={upazilaOptions}
+                      control={control}
+                      required={!id}
+                      isCreatable={false}
+                    />
+                    </div>)
 
-                <div className="relative mt-2 md:mt-0 w-full">
-                  {/* ইকুইপমেন্ট অনুযায়ী সাইজ */}
-                  <SelectField
-                    name="vehicle_size"
-                    label="ইকুইপমেন্টের সাইজ/ক্ষমতা"
-                    required
-                    options={equipmentSizes[selectedEquipment] || []}
-                    control={control}
-                  />
-                </div>
+                }
+               </div> */}
+                <InputField name="work_place" label="কাজের জায়গা" />
+                <InputField name="challan" label="চালান নম্বর" />
+              </div>
+              <div>
+                {(selectedCategory === "Trailer" || selectedCategory === "Payloader" || selectedCategory === "Dump Truck") && (
+                  <div className="flex gap-5">
+                    <div className="w-full">
+                      <SelectField
+                        name="load_point"
+                        label="লোড পয়েন্ট (উপজেলা)"
+                        options={upazilaOptions}
+                        control={control}
+                        required={!id}
+                        isCreatable={false}
+                      />
+                    </div>
+
+                    <div className="w-full">
+                      <SelectField
+                        name="unload_point"
+                        label="আনলোড পয়েন্ট (উপজেলা)"
+                        options={upazilaOptions}
+                        control={control}
+                        required={!id}
+                        isCreatable={false}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6">
                 {!["Dump Truck", "Trailer"].includes(watch("vehicle_category")) ? (<><div className="w-full">
                   <InputField
                     name="work_time"
@@ -860,45 +965,36 @@ const upazilaOptions = upazilas.map((u) => ({
                       required={id ? false : true}
                     />
                   </div></>) : null}
+                  {["Dump Truck", "Trailer"].includes(watch("vehicle_category")) ? (<><div className="w-full">
+                  <InputField
+                    name="work_time"
+                    label="সি এফ টি"
+                    type="number"
+                    required={id ? false : true}
+                  />
+                </div>
+                  <div className="w-full">
+                    <InputField
+                      name="rate"
+                      label="দর"
+                      type="number"
+                      required={id ? false : true}
+                    />
+                  </div></>) : null}
                 <div className="w-full">
                   <InputField
                     name="total_rent"
                     label="মোট ভাড়া/বিল পরিমাণ"
                     type="number"
-                    readOnly
+                    readOnly={selectedCategory !== "Dump Truck" && selectedCategory !== "Trailer"}
                     required={id ? false : true}
                   />
                 </div>
-                <InputField name="work_place" label="কাজের জায়গা" />
-                <InputField name="challan" label="চালান নম্বর" />
               </div>
-              <div className="">
-
-                {(selectedCategory === "Trailer" || selectedCategory === "Payloader") && (
-                  <div className="flex gap-5">
-                   <div className="w-full">
-                     <SelectField
-                      name="load_point"
-                      label="লোড পয়েন্ট (উপজেলা)"
-                      options={upazilaOptions}
-                      control={control}
-                      required={!id}
-                      isCreatable={false}
-                    />
-                   </div>
-
-                    <div className="w-full">
-                      <SelectField
-                      name="unload_point"
-                      label="আনলোড পয়েন্ট (উপজেলা)"
-                      options={upazilaOptions}
-                      control={control}
-                      required={!id}
-                      isCreatable={false}
-                    />
-                    </div>
-                  </div>
-                )}
+              <div className="w-[50%]">
+                {/* < name="remarks" label="মন্তব্য" /> */}
+                <label className="block text-gray-700 text-sm font-medium mb-1"> মন্তব্য </label>
+                <TextArea name="remarks" label="মন্তব্য" />
               </div>
             </div>
 
@@ -928,7 +1024,7 @@ const upazilaOptions = upazilas.map((u) => ({
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="chada" label="চাঁদা" type="number" />
                   <InputField name="food_cost" label="খাবার খরচ" type="number" />
-                  <InputField name="trans_cost" label="ট্রান্সপোর্ট খরচ" type="number" />
+                  <InputField name="trans__cost" label="ট্রান্সপোর্ট খরচ" type="number" />
                   <InputField name="others_cost" label="অন্যান্য খরচ" type="number" />
                   <InputField name="total_exp" label="মোট খরচ" readOnly />
                 </div>
@@ -950,7 +1046,13 @@ const upazilaOptions = upazilas.map((u) => ({
             )}
 
             <div className="md:flex justify-between gap-3">
-              <div className="w-full">
+              <div className="w-[30%]">
+                <InputField name="log_ref" label="লগ রেফারেন্স" className="w-full" />
+              </div>
+              <div className="w-[30%]">
+                <InputField name="log_sign" label="লগ সাইন" className="w-full" />
+              </div>
+              <div className="w-[40%]">
                 <label className="text-gray-700 text-sm font-semibold">
                   ইমেজ
                 </label>
@@ -965,7 +1067,7 @@ const upazilaOptions = upazilas.map((u) => ({
                     <div className="relative">
                       <label
                         htmlFor="image"
-                        className="border p-2 rounded w-[50%] block bg-white text-gray-300 text-sm cursor-pointer"
+                        className="border p-2 rounded w-full block bg-white text-gray-300 text-sm cursor-pointer"
                       >
                         {previewImage ? "Image selected" : "Choose image"}
                       </label>

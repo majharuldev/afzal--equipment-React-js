@@ -154,6 +154,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
+import api from "../utils/axiosConfig";
 
 const useProfitLoseData = (filterType = "year") => {
   const [data, setData] = useState([]);
@@ -164,19 +165,19 @@ const useProfitLoseData = (filterType = "year") => {
       try {
         setLoading(true);
         const [tripsRes, purchasesRes, expensesRes] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_BASE_URL}/api/trip/list`),
-          axios.get(`${import.meta.env.VITE_BASE_URL}/api/purchase/list`),
-          axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list`)
+          api.get(`/trip`),
+          api.get(`/purchase`),
+          api.get(`/expense`)
         ]);
 
-        const trips = tripsRes.data?.data || [];
+        const trips = tripsRes.data || [];
         const purchases = purchasesRes.data?.data || [];
-        const expenses = expensesRes.data?.data || [];
+        const expenses = expensesRes.data || [];
 
         const monthlyData = {};
         const getMonthKey = (date) => dayjs(date).format("YYYY-MM");
 
-        // 👉 trips handle
+        //  trips handle
         trips.forEach((trip) => {
           const month = getMonthKey(trip.date);
           if (!monthlyData[month]) {
@@ -193,15 +194,16 @@ const useProfitLoseData = (filterType = "year") => {
 
           if (trip.transport_type === "own_transport") {
             monthlyData[month].ownTripIncome += parseFloat(trip.total_rent) || 0;
-            monthlyData[month].ownTripCost +=
-              (parseFloat(trip.fuel_cost) || 0) +
-              (parseFloat(trip.driver_commission) || 0) +
-              (parseFloat(trip.food_cost) || 0) +
-              (parseFloat(trip.parking_cost) || 0) +
-              (parseFloat(trip.toll_cost) || 0) +
-              (parseFloat(trip.feri_cost) || 0) +
-              (parseFloat(trip.police_cost) || 0) +
-              (parseFloat(trip.labor) || 0);
+            // monthlyData[month].ownTripCost +=
+            //   (parseFloat(trip.fuel_cost) || 0) +
+            //   (parseFloat(trip.driver_commission) || 0) +
+            //   (parseFloat(trip.food_cost) || 0) +
+            //   (parseFloat(trip.parking_cost) || 0) +
+            //   (parseFloat(trip.toll_cost) || 0) +
+            //   (parseFloat(trip.feri_cost) || 0) +
+            //   (parseFloat(trip.police_cost) || 0) +
+            //   (parseFloat(trip.labor) || 0);
+               monthlyData[month].ownTripCost += parseFloat(trip.total_exp) || 0;
           } else if (trip.transport_type === "vendor_transport") {
             monthlyData[month].vendorTripIncome += parseFloat(trip.total_rent) || 0;
             monthlyData[month].vendorTripCost += parseFloat(trip.total_exp) || 0;

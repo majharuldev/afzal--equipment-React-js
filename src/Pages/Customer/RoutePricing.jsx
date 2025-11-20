@@ -20,6 +20,7 @@ const RoutePricing = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [vehicles, setVehicles] = useState([]);
 
   const [formData, setFormData] = useState({
     customer_name: "",
@@ -105,6 +106,26 @@ const RoutePricing = () => {
       });
   };
 
+  // equipment vehicle fetch
+    useEffect(() => {
+      const fetchVehicles = async () => {
+        try {
+          const res = await api.get("/vehicle");
+          setVehicles(res.data);
+        } catch (error) {
+          console.log("Vehicle Load Error:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchVehicles();
+    }, []);
+    // equipment category options
+    const vehicleOptions = vehicles.map(v => ({
+      value: v.vehicle_category,
+      label: v.vehicle_category,
+    }));
+
   const handleEdit = (item) => {
     setFormData({
       customer_name: item.customer_name,
@@ -165,6 +186,7 @@ const RoutePricing = () => {
     doc.save("RoutePricing.pdf");
     toast.success("PDF downloaded!");
   };
+  
 
   // Print Table (filtered)
   const printTripsTable = () => {
@@ -355,114 +377,6 @@ const RoutePricing = () => {
       </div>
 
       {/* Add/Edit Modal */}
-      {/* {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="relative bg-white rounded-lg shadow-lg p-6 w-full max-w-lg border border-gray-300">
-            <button onClick={closeModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
-              <IoMdClose className="text-2xl" />
-            </button>
-            <h2 className="text-xl font-bold text-[#11375B] mb-6 text-center">
-              {editId ? "Update Route Pricing" : "Add Route Pricing"}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex gap-2">
-                <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Customer</label>
-                  <CreatableSelect
-                    options={customers.map(c => ({ value: c.customer_name, label: c.customer_name }))}
-                    value={formData.customer_name ? { value: formData.customer_name, label: formData.customer_name } : null}
-                    onChange={selected => setFormData(prev => ({ ...prev, customer_name: selected?.value || "" }))}
-                    isClearable
-                    placeholder="Select or type customer"
-                    className="focus:!outline-none focus:!ring-2 focus:!ring-primary"
-                  />
-                </div>
-                <div className="relative w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">
-                    Vehicle Category
-                  </label>
-                  <select
-                    name="vehicle_category"
-                    value={formData.vehicle_category}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, vehicle_category: e.target.value }))
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    required
-                  >
-                    <option value="">Select Vehicle Category...</option>
-                    <option value="pickup">Pickup</option>
-                    <option value="covered_van">Covered Van</option>
-                    <option value="open_truck">Open Truck</option>
-                    <option value="trailer">Trailer</option>
-                    <option value="freezer_van">Freezer Van</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Load Point</label>
-                  <CreatableSelect
-                    options={customers.map(c => ({ value: c.customer_name, label: c.customer_name }))}
-                    value={formData.load_point ? { value: formData.load_point, label: formData.load_point } : null}
-                    onChange={selected => setFormData(prev => ({ ...prev, load_point: selected?.value || "" }))}
-                    isClearable
-                    placeholder="Select or type load"
-                    className="focus:!ring-2 focus:!ring-primary"
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Unload Point</label>
-                  <CreatableSelect
-                    options={unloadpoints.map(c => ({ value: c.name, label: c.name }))}
-                    value={formData.unload_point ? { value: formData.unload_point, label: formData.unload_point } : null}
-                    onChange={selected => setFormData(prev => ({ ...prev, unload_point: selected?.value || "" }))}
-                    isClearable
-                    placeholder="Select or type unload"
-                    className="focus:!ring-2 focus:!ring-primary"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Vehicle Size</label>
-                  <input
-                    type="text"
-                    name="vehicle_size"
-                    value={formData.vehicle_size}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter 1 Ton/7 Feet"
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="block text-gray-700 text-sm font-medium mb-1">Rate</label>
-                  <input
-                    type="number"
-                    name="rate"
-                    value={formData.rate}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter price"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80">
-                  {editId ? "Update Pricing" : "Add Pricing"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )} */}
-
        {/* Modal */}
       <Modal
         title={editId ? "রুট মূল্য সম্পাদনা" : "নতুন রুট মূল্য"}
@@ -487,13 +401,7 @@ const RoutePricing = () => {
           <Select
             value={formData.vehicle_category}
             onChange={(value) => setFormData({ ...formData, vehicle_category: value })}
-            options={[
-              { value: "pickup", label: "পিকআপ" },
-              { value: "covered_van", label: "কাভার্ড ভ্যান" },
-              { value: "open_truck", label: "ওপেন ট্রাক" },
-              { value: "trailer", label: "ট্রেইলার" },
-              { value: "freezer_van", label: "ফ্রিজার ভ্যান" },
-            ]}
+            options={vehicleOptions}
             style={{ width: "100%" }}
             placeholder="ধরন নির্বাচন করুন"
           />

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { BsTools } from "react-icons/bs"
 import dayjs from "dayjs"
 import axios from "axios" // Ensure axios is imported
+import api from "../utils/axiosConfig"
 
 const PartsReminder = () => {
   // parts & spearce
@@ -11,48 +12,71 @@ const PartsReminder = () => {
   const [loadingPartsReminder, setLoadingPartsReminder] = useState(true)
   const totalCount = expiredParts.length + warningParts.length
 
+ 
   useEffect(() => {
-    const fetchParts = async () => {
+    const fetchMaintenanceAlerts = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/parts/list`)
-        const data = response.data?.data || []
+        const res = await api.get(`/purchase`)
+        const data = res.data?.data || []
+
         const today = dayjs()
-        const tomorrow = today.add(7, "day").startOf("day")
+        const sevenDaysLater = today.add(7, "day")
+
         const expired = []
         const warnings = []
 
-        data.forEach((part) => {
-  if (part.parts_validity && dayjs(part.parts_validity).isValid()) {
-    const partDate = dayjs(part.parts_validity).startOf("day");
-    if (partDate.isBefore(today, "day")) {
-      const daysAgo = today.diff(partDate, "day");
-      if (daysAgo <= 5) {
-        expired.push({
-          id: part.id,
-          name: part.parts_name,
-          expireDate: partDate.format("DD-MM-YYYY"),
-          daysAgo: daysAgo,
-        });
-      }
-    } else if (partDate.isSame(tomorrow, "day")) {
-      warnings.push({
-        id: part.id,
-        name: part.parts_name,
-        expireDate: partDate.format("DD-MM-YYYY"),
-      });
-    }
-  }
-});
+        data.forEach((item) => {
+          const name = item.category || "Unknown Item"
+
+          // --- DATE ALERT ---
+          if (item.next_service_date) {
+            const nextDate = dayjs(item.next_service_date)
+
+            if (nextDate.isBefore(today, "day")) {
+              expired.push({
+                id: item.id,
+                name,
+                expireDate: nextDate.format("DD-MM-YYYY"),
+              })
+            } else if (nextDate.isAfter(today) && nextDate.isBefore(sevenDaysLater)) {
+              warnings.push({
+                id: item.id,
+                name,
+                expireDate: nextDate.format("DD-MM-YYYY"),
+              })
+            }
+          }
+
+          // --- KM ALERT ---
+          if (item.next_km && item.last_km) {
+            const diff = item.next_km - item.last_km
+
+            if (diff <= 0) {
+              expired.push({
+                id: item.id,
+                name,
+                expireKm: item.next_km,
+              })
+            } else if (diff <= 200) {
+              warnings.push({
+                id: item.id,
+                name,
+                expireKm: item.next_km,
+              })
+            }
+          }
+        })
 
         setExpiredParts(expired)
         setWarningParts(warnings)
-      } catch (error) {
-        console.error("Failed to fetch parts:", error)
+      } catch (e) {
+        console.log("Error fetching maintenance alerts:", e)
       } finally {
         setLoadingPartsReminder(false)
       }
     }
-    fetchParts()
+
+    fetchMaintenanceAlerts()
   }, [])
 
   // expense
@@ -66,8 +90,8 @@ const PartsReminder = () => {
   useEffect(() => {
     const fetchTodayExpenses = async () => {
       try {
-        const tripRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/trip/list`)
-        const trips = tripRes.data?.data || []
+        const tripRes = await api.get(`/trip`)
+        const trips = tripRes.data || []
 
         // console.log("Current 'today' date:", today)
         const todayTrips = trips.filter((item) => item.date === today)
@@ -115,8 +139,8 @@ const PartsReminder = () => {
 
   return (
     <div className="my-5 grid grid-cols-2 gap-5">
-      <div className="border border-gray-200 rounded shadow-sm hover:shadow-md transition-shadow duration-300 h-[150px]">
-        {/* Header */}
+      {/* <div className="border border-gray-200 rounded shadow-sm hover:shadow-md transition-shadow duration-300 h-[150px]">
+     
         <div className="flex items-center justify-between bg-gray-50 border-b border-gray-200 px-3 py-2 text-sm font-semibold text-gray-800">
           <div className="flex items-center gap-2">
             <BsTools className="text-red-600" />
@@ -124,7 +148,7 @@ const PartsReminder = () => {
           </div>
           {totalCount > 0 && <div className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{totalCount}</div>}
         </div>
-        {/* Body */}
+      
         <div className="px-3 py-2 overflow-y-auto max-h-[100px] text-xs text-gray-700">
           {loadingPartsReminder ? (
             <div className="flex justify-center items-center h-full text-gray-500 text-sm">
@@ -148,6 +172,63 @@ const PartsReminder = () => {
                   <p className={`text-xs  ${
                         item.daysAgo ? "text-red-500" : "text-yellow-600"
                       }`}>Valid: {item.expireDate}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex flex-col justify-center items-center h-full text-gray-400">
+              <BsTools className="text-xl mb-1" />
+              <p className="text-xs">No alerts available</p>
+            </div>
+          )}
+        </div>
+      </div> */}
+      <div className="border border-gray-200 rounded shadow-sm hover:shadow-md transition-shadow duration-300 h-[150px]">
+        <div className="flex items-center justify-between bg-gray-50 border-b border-gray-200 px-3 py-2 text-sm font-semibold text-gray-800">
+          <div className="flex items-center gap-2">
+            <BsTools className="text-red-600" />
+            <span>মেইনটেনেন্স এলার্ট</span>
+          </div>
+          {totalCount > 0 && (
+            <div className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{totalCount}</div>
+          )}
+        </div>
+
+        <div className="px-3 py-2 overflow-y-auto max-h-[100px] text-xs text-gray-700">
+          {loadingPartsReminder ? (
+            <div className="flex justify-center items-center h-full text-gray-500 text-sm">
+              <div className="loader border-2 border-t-2 border-gray-200 border-t-blue-500 rounded-full w-5 h-5 animate-spin mr-2" />
+              লোড হচ্ছে...
+            </div>
+          ) : totalCount > 0 ? (
+            <ul className="divide-y divide-gray-100">
+              {[...warningParts, ...expiredParts].map((item, index) => (
+                <li key={index} className="py-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{item.name}</span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-white text-xs ${
+                        expiredParts.includes(item) ? "bg-red-500" : "bg-yellow-500"
+                      }`}
+                    >
+                      {item.expireDate
+                        ? expiredParts.includes(item)
+                          ? "Expired"
+                          : "Expiring soon"
+                        : item.expireKm
+                        ? expiredParts.includes(item)
+                          ? "KM Exceeded"
+                          : "KM Warning"
+                        : ""}
+                    </span>
+                  </div>
+
+                  {item.expireDate && (
+                    <p className="text-xs text-gray-600">Date: {item.expireDate}</p>
+                  )}
+                  {item.expireKm && (
+                    <p className="text-xs text-gray-600">KM: {item.expireKm}</p>
+                  )}
                 </li>
               ))}
             </ul>

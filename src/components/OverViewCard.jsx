@@ -337,6 +337,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { HiOutlineBellAlert } from "react-icons/hi2";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import api from "../utils/axiosConfig";
 
 const OverViewCard = () => {
   const [expiringDocs, setExpiringDocs] = useState([]);
@@ -345,10 +346,10 @@ const OverViewCard = () => {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/vehicle/list`
+        const response = await api.get(
+          `/vehicle`
         );
-        const vehicles = response.data?.data || [];
+        const vehicles = response.data || [];
         const today = dayjs();
         const expiring = [];
 
@@ -362,7 +363,7 @@ const OverViewCard = () => {
 
                 if (date.isValid() && remaining >= 0 && remaining <= 7) {
                   expiring.push({
-                    vehicle: `${vehicle.registration_zone}-${vehicle.registration_number}`,
+                    vehicle: `${vehicle.reg_zone}-${vehicle.reg_serial}-${vehicle.reg_no}`,
                     document: type
                       .replace(/_/g, " ")
                       .replace(/\b\w/g, (char) => char.toUpperCase()),

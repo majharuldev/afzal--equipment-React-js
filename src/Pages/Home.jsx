@@ -45,7 +45,7 @@ const Home = () => {
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: -5 }} />
-                  <YAxis label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
+                  <YAxis domain={[0, 'auto']} label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
                   <Tooltip
                     formatter={(value, name) => [
                       value,
@@ -54,7 +54,7 @@ const Home = () => {
                   />
                   <Legend formatter={(value) => value === "totalExpense" ? "মোট খরচ" : "নিট লাভ"}/>
                   <Bar dataKey="totalExpense" fill="#ed4553" name="মোট খরচ" />
-                  <Bar dataKey="netProfit" fill="#239230" name="নিট লাভ" />
+                  <Bar dataKey="netProfit" fill="#239230" name="নিট লাভ" minPointSize={5}/>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -76,7 +76,7 @@ const Home = () => {
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: -5 }}/>
-                <YAxis label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
+                <YAxis  domain={[0, 'auto']} label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
                 <Tooltip 
                  formatter={(value, name) => [
                     value,
@@ -84,7 +84,7 @@ const Home = () => {
                   ]}/>
                 <Legend formatter={(value) => value === "totalExpense" ? "মোট খরচ" : "নিট লাভ"}/>
                 <Bar dataKey="totalExpense" fill="#ed4553" name="মোট খরচ" />
-                <Bar dataKey="netProfit" fill="#239230" name="নিট লাভ" />
+                <Bar dataKey="netProfit" fill="#239230" name="নিট লাভ" minPointSize={5}/>
               </BarChart>
             </ResponsiveContainer>
           </div>
