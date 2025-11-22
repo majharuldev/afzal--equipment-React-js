@@ -77,6 +77,8 @@ import GarageReceiveAmount from "../Pages/Garage/GarageReceiveAmount";
 import RoutePricing from "../Pages/Customer/RoutePricing";
 import SalarySheet from "../Pages/HR/Payroll/SalarySheet";
 import DailyIncome from "../Pages/DailyIncome";
+import HelperList from "../Pages/HR/Helper";
+import HelperForm from "../Pages/Reports/HelperForm";
 
 export const router = createBrowserRouter([
   {
@@ -332,6 +334,18 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/HR/HRM/OfficeForm",
         element: <OfficeForm />,
+      },
+      {
+        path: "/tramessy/HR/helper",
+        element: <HelperList/>,
+      },
+      {
+        path: "/tramessy/HR/helper-form",
+        element: <HelperForm />,
+      },
+       {
+        path: "/tramessy/HR/update-helper-form/:id",
+        element: <HelperForm />,
       },
       {
         path: "/tramessy/HR/HRM/UpdateOfficeForm/:id",

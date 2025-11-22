@@ -1,234 +1,3 @@
-// import { useEffect, useMemo, useRef, useState } from 'react';
-// import { FaPlus } from "react-icons/fa6"
-// import { FaFileExcel, FaFilePdf, FaFilter, FaPrint } from "react-icons/fa"
-// import { useReactToPrint } from 'react-to-print';
-// import { BiPrinter } from "react-icons/bi"
-// import toast from 'react-hot-toast';
-// import PaySlipPrint from '../HRM/PaySlipPrint';
-// import jsPDF from 'jspdf';
-// import autoTable from 'jspdf-autotable';
-// import * as XLSX from 'xlsx';
-// import api from '../../../utils/axiosConfig';
-
-// const SalarySheet = () => {
-//   const [employees, setEmployees] = useState([]);
-//   const [salaryAdvances, setSalaryAdvances] = useState([]);
-//   const [attendences, setAttendences] = useState([]);
-//   const [data, setData] = useState([]);
-//   const [selectedMonth, setSelectedMonth] = useState("");
-//   const [selectedEmployee, setSelectedEmployee] = useState("");
-//   const [showFilter, setShowFilter] = useState(false);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const printRef = useRef();
-//   const itemsPerPage = 10;
-//   const [loading, setLoading] = useState(true);
-//   const [loanData, setLoanData] = useState([]);
-//   const [bonusData, setBonusData] = useState([]);
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       setLoading(true);
-//       try {
-//         const [empRes, salaryRes, attRes, loanRes, bonusRes] = await Promise.all([
-//           api.get('/employee'),
-//           api.get('/salaryAdvanced'),
-//           api.get('/attendence'),
-//           api.get('/loan'),
-//           api.get('/bonous'),
-//         ]);
-
-//         // ✅ Only Active Employees
-//         setEmployees((empRes.data.data || []).filter(e => e.status === "Active"));
-
-//         setSalaryAdvances(salaryRes.data.data || []);
-//         setAttendences(attRes.data.data || []);
-//         setLoanData(loanRes.data.data || []);
-//         setBonusData(bonusRes.data.data || []);
-
-//       } catch (err) {
-//         toast.error("ডাটা লোড করতে সমস্যা হয়েছে");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   // ----- Merge Salary Data -----
-//   useEffect(() => {
-//     if (employees.length === 0) return;
-
-//     const merged = employees.map(emp => {
-//       const empSalary = salaryAdvances.find(s => s.employee_id == emp.id) || {};
-//       const empAttend = attendences.find(a => a.employee_id == emp.id) || {};
-
-//       const monthYear =
-//         empAttend?.month ||
-//         empSalary?.salary_month ||
-//         new Date().toISOString().slice(0, 7);
-
-//       const empLoans = loanData.filter(l => {
-//         const loanMonth = l.date?.slice(0, 7);
-//         return l.employee_id == emp.id && loanMonth === monthYear && Number(l.adjustment) > 0;
-//       });
-
-//       const totalLoanDeduction = empLoans.reduce(
-//         (sum, l) => sum + Number(l.monthly_deduction || 0), 0
-//       );
-
-//       const empBonus = bonusData
-//         .filter(b => b.employee_id == emp.id && b.status === "Completed")
-//         .reduce((sum, b) => sum + Number(b.amount), 0);
-
-//       const basic = Number(emp.basic || 0);
-//       const rent = Number(emp.house_rent || 0);
-//       const conv = Number(emp.conv || 0);
-//       const medical = Number(emp.medical || 0);
-//       const allowance = Number(emp.allowan || 0);
-
-//       const total = basic + rent + conv + medical + allowance;
-//       const advance = Number(empSalary.amount || 0);
-//       const deductionTotal = advance + totalLoanDeduction;
-//       const netPay = total + empBonus - deductionTotal;
-
-//       return {
-//         empId: emp.id,
-//         name: emp.employee_name,
-//         designation: emp.designation || "",
-//         days: empAttend.working_day || "",
-//         monthYear,
-//         basic, rent, conv, medical, allowance,
-//         bonus: empBonus,
-//         total,
-//         advance,
-//         monthly_deduction: totalLoanDeduction,
-//         deductionTotal,
-//         netPay,
-//       };
-//     });
-
-//     setData(merged);
-//   }, [employees, salaryAdvances, attendences, loanData, bonusData]);
-
-//   const months = [...new Set(data.map(d => d.monthYear))];
-
-//   const filteredData = useMemo(() => {
-//     return data
-//       .filter(d => (selectedMonth ? d.monthYear === selectedMonth : true))
-//       .filter(d => (selectedEmployee ? d.empId === Number(selectedEmployee) : true));
-//   }, [data, selectedMonth, selectedEmployee]);
-
-//   const indexOfLast = currentPage * itemsPerPage;
-//   const currentItems = filteredData.slice(indexOfLast - itemsPerPage, indexOfLast);
-
-//   return (
-//     <div className="p-2">
-//       <div className="w-[24rem] md:w-full bg-white shadow rounded p-4">
-
-//         <div className="flex justify-between mb-6">
-//           <h1 className="text-xl font-bold">বেতন শীট</h1>
-
-//           <button
-//             onClick={() => setShowFilter(!showFilter)}
-//             className="text-primary border border-primary px-4 py-1 rounded"
-//           >
-//             <FaFilter /> ফিল্টার
-//           </button>
-//         </div>
-
-//         {/* Filter */}
-//         {showFilter && (
-//           <div className="flex gap-5 border p-5 rounded mb-5">
-//             <select
-//               value={selectedMonth}
-//               onChange={e => setSelectedMonth(e.target.value)}
-//               className="border px-3 py-2 rounded w-full"
-//             >
-//               <option value="">-- মাস নির্বাচন করুন --</option>
-//               {months.map(m => <option key={m} value={m}>{m}</option>)}
-//             </select>
-
-//             <select
-//               value={selectedEmployee}
-//               onChange={e => setSelectedEmployee(e.target.value)}
-//               className="border px-3 py-2 rounded w-full"
-//             >
-//               <option value="">-- কর্মচারী নির্বাচন করুন --</option>
-//               {employees.map(emp => (
-//                 <option key={emp.id} value={emp.id}>
-//                   {emp.employee_name}
-//                 </option>
-//               ))}
-//             </select>
-
-//           </div>
-//         )}
-
-//         {/* TABLE */}
-//         <div className="overflow-x-auto">
-//           <table className="min-w-full border text-xs">
-//             <thead>
-//               <tr className="text-center font-bold">
-//                 <th className="border px-2 py-1">ক্রম</th>
-//                 <th className="border px-2 py-1">নাম</th>
-//                 <th className="border px-2 py-1">দিন</th>
-//                 <th className="border px-2 py-1">ডিজিগনেশন</th>
-//                 <th className="border px-2 py-1">বেসিক</th>
-//                 <th className="border px-2 py-1">বাড়ি ভাড়া</th>
-//                 <th className="border px-2 py-1">কনভে</th>
-//                 <th className="border px-2 py-1">মেডিকেল</th>
-//                 <th className="border px-2 py-1">অ্যালাওন্স</th>
-//                 <th className="border px-2 py-1">বোনাস</th>
-//                 <th className="border px-2 py-1">মোট</th>
-//                 <th className="border px-2 py-1">অ্যাডভান্স</th>
-//                 <th className="border px-2 py-1">লোন</th>
-//                 <th className="border px-2 py-1">মোট কর্তন</th>
-//                 <th className="border px-2 py-1">নেট পে</th>
-//                 <th className="border px-2 py-1">প্রিন্ট</th>
-//               </tr>
-//             </thead>
-
-//             <tbody>
-//               {loading ? (
-//                 <tr><td colSpan={15} className="text-center py-5">লোড হচ্ছে...</td></tr>
-//               ) : (
-//                 currentItems.map((row, i) => (
-//                   <tr key={i} className="text-center">
-//                     <td className="border px-2 py-1">{i + 1}</td>
-//                     <td className="border px-2 py-1">{row.name}</td>
-//                     <td className="border px-2 py-1">{row.days}</td>
-//                     <td className="border px-2 py-1">{row.designation}</td>
-//                     <td className="border px-2 py-1">{row.basic}</td>
-//                     <td className="border px-2 py-1">{row.rent}</td>
-//                     <td className="border px-2 py-1">{row.conv}</td>
-//                     <td className="border px-2 py-1">{row.medical}</td>
-//                     <td className="border px-2 py-1">{row.allowance}</td>
-//                     <td className="border px-2 py-1">{row.bonus}</td>
-//                     <td className="border px-2 py-1">{row.total}</td>
-//                     <td className="border px-2 py-1">{row.advance}</td>
-//                     <td className="border px-2 py-1">{row.monthly_deduction}</td>
-//                     <td className="border px-2 py-1">{row.deductionTotal}</td>
-//                     <td className="border px-2 py-1 font-bold">{row.netPay}</td>
-
-//                     <td className="border px-2 py-1">
-//                       <button className="px-3 py-1 bg-white shadow rounded flex items-center">
-//                         <BiPrinter /> পে-স্লিপ
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default SalarySheet;
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTruck } from "react-icons/fa"
@@ -238,9 +7,10 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import api from '../../../utils/axiosConfig';
-import PaySlipPrint from '../HRM/PaySlipPrint';
 import Pagination from '../../../components/Shared/Pagination';
 import { toNumber } from '../../../hooks/toNumber';
+import { BiPrinter } from 'react-icons/bi';
+import PaySlipPrint from '../HRM/PaySlipPrint';
 const SalarySheet = () => {
   const [employees, setEmployees] = useState([]);
   const [salaryAdvances, setSalaryAdvances] = useState([]);
@@ -621,7 +391,7 @@ const handlePrintTable = () => {
                 </th>
                 {/* <th className="border border-gray-400 px-2 py-1">By CEO</th> */}
                 <th className="border border-gray-400 px-2 py-1">Net Pay Half</th>
-                {/* <th className="border border-gray-400 px-2 py-1">Action</th> */}
+                <th className="border border-gray-400 px-2 py-1">Action</th>
               </tr>
               {/* Main header row */}
               <tr className=" text-black text-center">
@@ -670,7 +440,7 @@ const handlePrintTable = () => {
                     <td className="border border-gray-400 px-2 py-1  font-bold">
                       {row?.netPay?.toLocaleString()}
                     </td>
-                    {/* <td className="border border-gray-400 px-2 py-1 action_column flex items-center gap-2">
+                    <td className="border border-gray-400 px-2 py-1 action_column flex items-center gap-2">
                       <button
                         onClick={() => {
                           // setSelectedSlip(row);
@@ -681,7 +451,7 @@ const handlePrintTable = () => {
                         <BiPrinter className="mr-1 h-4 w-4" />
                         PaySlip
                       </button>
-                    </td> */}
+                    </td>
                   </tr>
                 ))}
             </tbody>
@@ -711,11 +481,11 @@ const handlePrintTable = () => {
           )}
         </div>
         {/* Hidden Component for Printing */}
-        {/* <div style={{ display: "none" }} >
+        <div style={{ display: "none" }} >
           {selectedSlip &&
             <div ref={printRef}><PaySlipPrint data={selectedSlip} /></div>
           }
-        </div> */}
+        </div>
       </div>
     </div>
 

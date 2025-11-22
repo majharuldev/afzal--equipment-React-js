@@ -635,9 +635,11 @@ const normalizeDate = (dateStr) => {
           Number.parseFloat(purchase.purchase_amount || "0") ||
           Number.parseFloat(purchase.quantity) * Number.parseFloat(purchase.unit_price)
 
-        if (purchase.category === "fuel") {
-          vehicleDate.fuel_cost += purchaseAmount
-        } else if (purchase.category === "parts") {
+        // if (purchase.category === "fuel") {
+        //   vehicleDate.fuel_cost += purchaseAmount
+        // } else
+        
+          if (purchase.category === "parts") {
           vehicleDate.parts_cost += purchaseAmount
         } else if (purchase.category === "engine_oil") {
           vehicleDate.engine_oil_cost += purchaseAmount

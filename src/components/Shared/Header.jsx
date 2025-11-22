@@ -141,10 +141,10 @@ const Header = ({ setMobileSidebarOpen }) => {
             } origin-top`}
           >
             <div className="mb-2 border-b border-gray-200 pb-2 space-y-2">
-              <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+              {/* <p className="flex items-center gap-2 text-sm font-semibold text-primary">
                 <User className="h-4 w-4" />
                 {user?.role}
-              </p>
+              </p> */}
               <p className="flex items-center gap-2 text-sm font-semibold text-primary">
                 <User className="h-4 w-4" />
                 {user?.name}

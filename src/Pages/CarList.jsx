@@ -453,15 +453,15 @@ const CarList = () => {
               <p>{selectedCar.vehicle_name}</p>
             </div>
             <div className="border p-2 border-gray-200">
-              <p className="font-semibold">গাড়ির ক্যাটাগরি:</p>
+              <p className="font-semibold">ইকুইপমেন্ট ক্যাটাগরি:</p>
               <p>{selectedCar.vehicle_category || "N/A"}</p>
             </div>
             <div className="border p-2 border-gray-200">
-              <p className="font-semibold">গাড়ির সাইজ:</p>
+              <p className="font-semibold">ইকুইপমেন্ট সাইজ:</p>
               <p>{selectedCar.vehicle_size || "N/A"}</p>
             </div>
             <div className="border p-2 border-gray-200">
-              <p className="font-semibold">গাড়ির সাইজ:</p>
+              <p className="font-semibold">ইকুইপমেন্ট সাইজ:</p>
               <p>{selectedCar.vehicle_type || "N/A"}</p>
             </div>
             <div className="border p-2 border-gray-200">

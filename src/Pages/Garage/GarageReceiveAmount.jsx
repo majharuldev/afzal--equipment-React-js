@@ -24,17 +24,17 @@ import { RiEditLine } from "react-icons/ri";
 
 const GarageReceiveAmount = () => {
     const [expenses, setExpenses] = useState([]);
-    const [employees, setEmployees] = useState([]);
+    const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const printRef = useRef();
     const [expenseForm] = Form.useForm();
-    const [employeesLoading, setEmployeesLoading] = useState(false);
+    const [customersLoading, setCustomersLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [errors, setErrors] = useState({});
     const { user } = useContext(AuthContext);
-     // delete modal state
+    // delete modal state
     const [selectedExpenseId, setSelectedExpenseId] = useState(null)
     const [isOpen, setIsOpen] = useState(false);
     const toggleModal = () => setIsOpen(!isOpen);
@@ -54,9 +54,9 @@ const GarageReceiveAmount = () => {
                 // Form field গুলো prefill করুন
                 expenseForm.setFieldsValue({
                     date: data?.date || "",
-                    person_name: data?.person_name || "",
+                    customer_name: data?.customer_name || "",
                     amount: data?.amount || "",
-                    category: data?.category || "",
+                    month_name: data?.month_name || "",
                     status: data?.status || "",
                     remarks: data?.remarks || "",
                 });
@@ -83,6 +83,23 @@ const GarageReceiveAmount = () => {
         fetchExpenses();
     }, []);
 
+    // Fetch customer list (for opening balance)
+    useEffect(() => {
+        setCustomersLoading(true);
+        api
+            .get(`/garageCustomer`)
+            .then((res) => {
+                if (res.data.success) {
+                    const activeCustomers = res.data.data.filter(
+                        (c) => c.status === "Active"
+                    );
+                    setCustomers(activeCustomers);
+                }
+            })
+            .catch((err) => console.error("customer list fetch error:", err))
+            .finally(() => setCustomersLoading(false));
+    }, []);
+
     //   expense
     const fetchExpenses = async () => {
         try {
@@ -90,11 +107,11 @@ const GarageReceiveAmount = () => {
                 `/garageVara`
             );
             const allExpenses = response.data?.data || [];
-            const utilityExpenses = allExpenses.filter(
-                (expense) => expense.payment_category === "Utility"
-            );
+            // const utilityExpenses = allExpenses.filter(
+            //     (expense) => expense.payment_category === "Utility"
+            // );
 
-            setExpenses(utilityExpenses);
+            setExpenses(allExpenses);
             setLoading(false);
         } catch (err) {
             console.log("Data feching issue", "error");
@@ -160,7 +177,7 @@ const GarageReceiveAmount = () => {
     };
 
     const filteredData = expenses.filter((item) =>
-        [item.paid_to, item.pay_amount, item.payment_category, item.remarks]
+        [item.customer_name, item.amount, item.month_name, item.remarks]
             .join(" ")
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
@@ -182,19 +199,19 @@ const GarageReceiveAmount = () => {
         },
         {
             title: "যাকে প্রদান",
-            dataIndex: "person_name",
-            key: "person_name",
+            dataIndex: "customer_name",
+            key: "customer_name",
         },
         {
             title: "পরিমাণ",
             dataIndex: "amount",
             key: "amount",
         },
-        {
-            title: "ক্যাটাগরি",
-            dataIndex: "category",
-            key: "category",
-        },
+        // {
+        //     title: "ক্যাটাগরি",
+        //     dataIndex: "category",
+        //     key: "category",
+        // },
         {
             title: "মন্তব্য",
             dataIndex: "remarks",
@@ -231,25 +248,7 @@ const GarageReceiveAmount = () => {
             ),
         },
     ]
-    // csv
-    const exportCSV = () => {
-        const csvContent = [
-            ["Serial", "Date", "Paid To", "Amount", "Category", "Remarks"],
-            ...filteredData.map((item, i) => [
-                i + 1,
-                item.date,
-                item.paid_to,
-                item.pay_amount,
-                item.payment_category,
-                item.remarks,
-            ]),
-        ]
-            .map((row) => row.join(","))
-            .join("\n");
 
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        saveAs(blob, "general_expense.csv");
-    };
     // excel
     const exportExcel = () => {
         const data = filteredData.map((item, i) => ({
@@ -388,6 +387,18 @@ const GarageReceiveAmount = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        {/*  Clear button */}
+                        {searchTerm && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm("");
+                                    setCurrentPage(1);
+                                }}
+                                className="absolute right-15 top-48 -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                            >
+                                ✕
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -477,17 +488,17 @@ const GarageReceiveAmount = () => {
 
                     <Form.Item
                         label="প্রদানকারী ব্যক্তি"
-                        name="paid_to"
+                        name="customer_name"
                         rules={[{ required: !editingId, message: "প্রদানকারী ব্যক্তি করবেন তা আবশ্যক" }]}
                     >
                         <Select
-                            placeholder={employeesLoading ? "লোড হচ্ছে..." : "কর্মচারী নির্বাচন করুন"}
-                            loading={employeesLoading}
+                            placeholder={customersLoading ? "লোড হচ্ছে..." : "কর্মচারী নির্বাচন করুন"}
+                            loading={customersLoading}
                         >
-                            {!employeesLoading &&
-                                employees.map((employee) => (
-                                    <Select.Option key={employee.id} value={employee.employee_name}>
-                                        {employee.employee_name}
+                            {!customersLoading &&
+                                customers.map((employee) => (
+                                    <Select.Option key={employee.id} value={employee.customer_name}>
+                                        {employee.customer_name}
                                     </Select.Option>
                                 ))}
                         </Select>
@@ -501,9 +512,16 @@ const GarageReceiveAmount = () => {
                         <Input type="number" placeholder="পরিমাণ লিখুন" />
                     </Form.Item>
 
-                    <Form.Item
+                    {/* <Form.Item
                         label="শাখার নাম"
                         name="branch_name"
+                        rules={[{ required: !editingId, message: "শাখার নাম আবশ্যক" }]}
+                    >
+                        <Input placeholder="শাখার নাম লিখুন" />
+                    </Form.Item> */}
+                    <Form.Item
+                        label="মাসের নাম"
+                        name="month_name"
                         rules={[{ required: !editingId, message: "শাখার নাম আবশ্যক" }]}
                     >
                         <Input placeholder="শাখার নাম লিখুন" />
@@ -523,7 +541,7 @@ const GarageReceiveAmount = () => {
                         </Select>
                     </Form.Item>
 
-                    <Form.Item label="মন্তব্য" name="particulars">
+                    <Form.Item label="মন্তব্য" name="remarks">
                         <Input placeholder="মন্তব্য লিখুন" />
                     </Form.Item>
 

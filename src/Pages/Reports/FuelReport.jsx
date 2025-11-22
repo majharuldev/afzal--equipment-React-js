@@ -65,22 +65,23 @@ export default function FuelReport() {
         status: trip.status || "N/A"
       }));
 
-    const purchaseFuel = (purchases || [])
-      .filter(p => p.category === "fuel")
-      .map(p => ({
-        source: "Purchase",
-        date: p.date,
-        vehicle: p.vehicle_no || "Unknown",
-        driver: p.driver_name || "N/A",
-        customer: p.supplier_name || "N/A",
-        route: "N/A",
-        fuel_cost: parseFloat(p.purchase_amount),
-        total_rent: 0,
-        fuel_percentage: "N/A",
-        status: p.status || "N/A"
-      }));
+    // const purchaseFuel = (purchases || [])
+    //   .filter(p => p.category === "fuel")
+    //   .map(p => ({
+    //     source: "Purchase",
+    //     date: p.date,
+    //     vehicle: p.vehicle_no || "Unknown",
+    //     driver: p.driver_name || "N/A",
+    //     customer: p.supplier_name || "N/A",
+    //     route: "N/A",
+    //     fuel_cost: parseFloat(p.purchase_amount),
+    //     total_rent: 0,
+    //     fuel_percentage: "N/A",
+    //     status: p.status || "N/A"
+    //   }));
 
-    setReport([...tripFuel, ...purchaseFuel]);
+    // setReport([...tripFuel, ...purchaseFuel]);
+    setReport([...tripFuel]);
   };
 
   const getAvailableVehicles = () => {
@@ -135,6 +136,7 @@ export default function FuelReport() {
   const currentItems = filteredReport.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredReport.length / itemsPerPage);
 
+  // pdf export function
   const handlePdfExport = () => {
     const doc = new jsPDF();
     const title = "Fuel Report";
@@ -180,6 +182,7 @@ export default function FuelReport() {
     doc.save('fuel_report.pdf');
   };
 
+  // excel export function
   const handleExcelExport = () => {
   const excelData = filteredReport.map(item => ({
     "Date": item.date,
@@ -214,6 +217,7 @@ export default function FuelReport() {
   XLSX.writeFile(workbook, "fuel_report.xlsx");
 };
 
+// print function
   const handlePrint = () => {
     const rowsHtml = filteredReport.map(item => `
       <tr>

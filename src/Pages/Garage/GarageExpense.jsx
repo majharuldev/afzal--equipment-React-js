@@ -58,7 +58,7 @@ const showModal = async (record = null) => {
         date: data?.date || "",
         person_name: data?.person_name || "",
         amount: data?.amount || "",
-        category: data?.category || "",
+        // category: data?.category || "",
         status: data?.status || "",
         remarks: data?.remarks || "",
       });
@@ -202,11 +202,11 @@ const handleCancel = () => {
         dataIndex: "amount",
         key: "amount",
       },
-      {
-        title: "ক্যাটাগরি",
-        dataIndex: "category",
-        key: "category",
-      },
+      // {
+      //   title: "ক্যাটাগরি",
+      //   dataIndex: "category",
+      //   key: "category",
+      // },
       {
         title: "মন্তব্য",
         dataIndex: "remarks",
@@ -549,7 +549,7 @@ const printColumns = columns.filter(col => col.key !== "action");
             <Input type="number" placeholder="পরিমাণ লিখুন" />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label="ক্যাটাগরি"
             name="category"
             rules={[{ required: !editingId, message: "ক্যাটাগরি নির্বাচন করুন" }]}
@@ -561,7 +561,7 @@ const printColumns = columns.filter(col => col.key !== "action");
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>
+          </Form.Item> */}
 
           {/* নতুন Status ফিল্ড */}
           <Form.Item

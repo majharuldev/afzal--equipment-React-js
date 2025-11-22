@@ -131,6 +131,13 @@ const Sidebar = () => {
             : "",
         },
         {
+          key: "helper",
+          label: <Link to="/tramessy/HR/helper">হেল্পার</Link>,
+          className: isActive("/tramessy/HR/helper")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        {
           key: "office",
           label: <Link to="/tramessy/HR/HRM/Office">অফিস</Link>,
           className: isActive("/tramessy/HR/HRM/Office")

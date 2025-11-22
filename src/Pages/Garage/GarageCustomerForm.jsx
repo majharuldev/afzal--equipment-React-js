@@ -59,10 +59,10 @@ const GarageCustomerForm = () => {
                 created_by: user?.name || "system",
             };
 
-            // 🔹 Generate ref_id only when adding new
-            if (!isEdit) {
-                payload.ref_id = generateRefId();
-            }
+            //  Generate ref_id only when adding new
+            // if (!isEdit) {
+            //     payload.ref_id = generateRefId();
+            // }
 
 
             const url = isEdit

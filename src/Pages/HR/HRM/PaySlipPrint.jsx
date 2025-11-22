@@ -74,10 +74,10 @@ console.log(data, "data")
             </div>
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-secondary mb-2">M/S AJ Enterprise</h1>
+            <h1 className="text-2xl font-bold text-secondary mb-2">Afzal Construction</h1>
             <div className="text-xs text-gray-700">
-              <div>Razzak Plaza, 11th Floor, Room No: J-12,</div>
-              <div>2 Sahid Tajuddin Sarani, Moghbazar, Dhaka-1217, Bangladesh</div>
+              <div>House-1/Ga, Block-C, Road-1</div>
+              <div>Mirpur-2,  Dhaka-1216, Bangladesh</div>
             </div>
           </div>
           <div className="w-16"></div> {/* Spacer for balance */}
@@ -122,44 +122,44 @@ console.log(data, "data")
                 </tr>
                 <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">Basic</td>
-                  <td className="border-r border-black p-2 text-right">{data?.basic}</td>
+                  <td className="border-r border-black p-2 text-right">{data?.salary}</td>
                   <td className="border-r border-black p-2 font-semibold">Advance</td>
                   <td className="p-2 text-right">{data?.advance}</td>
                 </tr>
-                <tr className="border-t border-black">
+                {/* <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">House Rent</td>
                   <td className="border-r border-black p-2 text-right">{data?.rent}</td>
                   <td className="border-r border-black p-2 font-semibold rounded-full border  mx-2 text-center">
                     Loan
                   </td>
                   <td className="p-2 text-right">{data?.monthly_deduction}</td>
-                </tr>
-                <tr className="border-t border-black">
+                </tr> */}
+                {/* <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">Medical</td>
                   <td className="border-r border-black p-2 text-right">{data?.medical}</td>
                   <td className="border-r border-black p-2 font-semibold rounded-full border mx-2 text-center">
                     Tax
                   </td>
                   <td className="p-2 text-right">{data?.tax}</td>
-                </tr>
-                <tr className="border-t border-black">
+                </tr> */}
+                {/* <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">Convance</td>
                   <td className="border-r border-black p-2 text-right">{data?.conv}</td>
                   <td className="border-r border-black p-2"></td>
                   <td className="p-2"></td>
-                </tr>
-                <tr className="border-t border-black">
+                </tr> */}
+                {/* <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">Allowance</td>
                   <td className="border-r border-black p-2 text-right">{data?.allowance}</td>
                   <td className="border-r border-black p-2"></td>
                   <td className="p-2"></td>
-                </tr>
-                <tr className="border-t border-black">
+                </tr> */}
+                {/* <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">Bonus</td>
                   <td className="border-r border-black p-2 text-right">{data?.bonus}</td>
                   <td className="border-r border-black p-2"></td>
                   <td className="p-2"></td>
-                </tr>
+                </tr> */}
                 <tr className="border-t border-r border-black bg-gray-100">
                   <td className="border-r border-black p-2 font-bold">Total Addition</td>
                   <td className="border-r border-black p-2 text-right font-bold"> {data?.total}</td>

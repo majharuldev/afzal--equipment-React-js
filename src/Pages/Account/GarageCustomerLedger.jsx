@@ -8,6 +8,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import api from "../../utils/axiosConfig";
 
 const GarageCustomerLedger = () => {
   const [vendorData, setVendorData] = useState([]);
@@ -17,12 +18,12 @@ const GarageCustomerLedger = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [vendorList, setVendorList] = useState([]);
 
-  // Fetch vendor list (for opening balance)
+  // Fetch customer list (for opening balance)
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/vendor/list`)
+    api
+      .get(`/garageCustomer`)
       .then((res) => {
-        if (res.data.status === "Success") {
+        if (res.data.success) {
           setVendorList(res.data.data);
         }
       })
@@ -31,12 +32,12 @@ const GarageCustomerLedger = () => {
 
   // Fetch vendor ledger data
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/api/vendorLedger/list`)
+    api
+      .get(`/garageCustomerLedger`)
       .then((res) => {
-        if (res.data.status === "Success") {
+        if (res.data.success) {
           // Filter out entries without a vendor name early if needed, or handle nulls in calculations
-          setVendorData(res.data.data.filter((v) => !!v.vendor_name));
+          setVendorData(res.data.filter((v) => !!v.customer_name));
         }
         setLoading(false);
       })
@@ -380,7 +381,7 @@ const GarageCustomerLedger = () => {
                       onChange={(e) => setSelectedMonth(e.target.value)}
                       className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
                     >
-                      <option value="">All Months</option>
+                      <option value="">সমস্ত মাস</option>
                       {availableMonths.map((month, idx) => {
                         const [year, monthNum] = month.split("-");
                         const date = new Date(`${month}-01`);
@@ -408,7 +409,7 @@ const GarageCustomerLedger = () => {
                     }}
                     className="mt-1 w-full text-gray-600 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
                   >
-                    <option value="">All Vendors</option>
+                    <option value="">সব কাস্টমার</option>
                     {vendorList.map((vendor, idx) => (
                       <option key={idx} value={vendor.vendor_name}>
                         {vendor.vendor_name}

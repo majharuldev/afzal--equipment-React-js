@@ -28,6 +28,7 @@ export default function AddTripForm() {
   const [vendorDrivers, setVendorDrivers] = useState([]);
   const [loadpoint, setLoadpoint] = useState([]);
   const [isFixedRateCustomer, setIsFixedRateCustomer] = useState(false);
+  const [helper, setHelper] = useState([]);
 
   // রেট সম্পর্কিত স্টেট
   const [rates, setRates] = useState([]);
@@ -78,7 +79,8 @@ export default function AddTripForm() {
       vehicle_category: "",
       vehicle_size: "",
       branch_name: "",
-      trip_id: ""
+      trip_id: "",
+      trans_cost: "",
     },
   });
 
@@ -129,10 +131,10 @@ export default function AddTripForm() {
     d_day,
     d_amount,
     additional_cost,
-    trans__cost,
+    trans_cost,
   ] = watch([
     "fuel_cost",
-    "trans__cost",
+    "trans_cost",
     "toll_cost",
     "police_cost",
     "driver_commission",
@@ -162,7 +164,7 @@ export default function AddTripForm() {
       (toNumber(foodCost) || 0) +
       (toNumber(chadaCost) || 0) +
       (toNumber(fuelCost) || 0) +
-      (toNumber(trans__cost) || 0) +
+      (toNumber(trans_cost) || 0) +
       (toNumber(additional_cost) || 0) +
       (toNumber(othersCost) || 0);
 
@@ -237,6 +239,7 @@ export default function AddTripForm() {
         const [
           vehicleRes,
           driverRes,
+          helperRes,
           vendorVehicleRes,
           vendorDriversRes,
           customerRes,
@@ -245,20 +248,23 @@ export default function AddTripForm() {
         ] = await Promise.all([
           api.get(`/vehicle`),
           api.get(`/driver`),
+          api.get(`/helper`),
           api.get(`/rentVehicle`),
           api.get(`/rentVehicle`),
           api.get(`/customer`),
           api.get(`/vendor`),
           api.get(`/office`),
         ]);
-
-        setVehicle(vehicleRes.data)
-        setDriver(driverRes.data)
-        setVendorVehicle(vendorVehicleRes.data.data)
-        setVendorDrivers(vendorDriversRes.data.data)
-        setCustomer(customerRes.data || [])
-        setVendors(vendorRes.data.data)
-        setBranch(branchRes.data.data)
+        // Filter only active items
+        const activeFilter = (arr) => arr?.filter((item) => item?.status === "Active") || [];
+        setVehicle(activeFilter(vehicleRes.data.data || vehicleRes.data));
+        setDriver(activeFilter(driverRes.data.data || driverRes.data));
+        setHelper(activeFilter(helperRes.data.data || helperRes.data));
+        setVendorVehicle(activeFilter(vendorVehicleRes.data.data));
+        setVendorDrivers(activeFilter(vendorDriversRes.data.data));
+        setCustomer(activeFilter(customerRes.data.data || customerRes.data));
+        setVendors(activeFilter(vendorRes.data.data));
+        setBranch(branchRes.data.data);
 
         if (id) {
           const tripRes = await api.get(
@@ -283,7 +289,7 @@ export default function AddTripForm() {
               night_guard: toNumber(tripData.night_guard) || 0,
               feri_cost: toNumber(tripData.feri_cost) || 0,
               chada: toNumber(tripData.chada) || 0,
-              trans__cost: toNumber(tripData.trans__cost) || 0,
+              trans_cost: toNumber(tripData.trans_cost) || 0,
               food_cost: toNumber(tripData.food_cost) || 0,
               d_day: toNumber(tripData.d_day) || 0,
               d_amount: toNumber(tripData.d_amount) || 0,
@@ -321,11 +327,24 @@ export default function AddTripForm() {
     category: v.vehicle_category,
     size: v.vehicle_size,
   }));
+  const vehicleCategoryOptions = [
+    ...new Set(vehicle.map(v => v.vehicle_category))
+  ]
+    .filter(Boolean)
+    .map(category => ({
+      value: category,
+      label: category,
+    }));
 
   const driverOptions = driver.map((d) => ({
     value: d.driver_name,
     label: d.driver_name,
     mobile: d.driver_mobile,
+  }));
+  const helperOptions = helper.map((d) => ({
+    value: d.helper_name,
+    label: d.helper_name,
+    mobile: d.helper_mobile,
   }));
 
   const vendorVehicleOptions = vendorVehicle.map((v) => ({
@@ -362,11 +381,6 @@ export default function AddTripForm() {
   const branchOptions = branch.map((branch) => ({
     value: branch.branch_name,
     label: branch.branch_name,
-  }));
-
-  const vehicleCategoryOptions = vehicleCategories.map((category) => ({
-    value: category,
-    label: category,
   }));
 
   const vehicleSizeOptions = vehicleSizes.map((size) => ({
@@ -431,42 +445,42 @@ export default function AddTripForm() {
   // }, [selectedLoadPoint, selectedUnloadPoint, selectedVehicleCategory, selectedVehicleSize, rates, setValue, id]);
 
   useEffect(() => {
-  if (
-    (selectedVehicleCategory === "Dump Truck" ||
-      selectedVehicleCategory === "Trailer") &&
-    selectedLoadPoint &&
-    selectedUnloadPoint &&
-    selectedVehicleCategory &&
-    rates.length > 0
-  ) {
-    const foundRate = rates.find(
-      (rate) =>
-        rate.load_point === selectedLoadPoint &&
-        rate.unload_point === selectedUnloadPoint &&
-        rate.vehicle_category === selectedVehicleCategory &&
-        rate.vehicle_size.toLowerCase().trim() ===
+    if (
+      (selectedVehicleCategory === "Dump Truck" ||
+        selectedVehicleCategory === "Trailer") &&
+      selectedLoadPoint &&
+      selectedUnloadPoint &&
+      selectedVehicleCategory &&
+      rates.length > 0
+    ) {
+      const foundRate = rates.find(
+        (rate) =>
+          rate.load_point === selectedLoadPoint &&
+          rate.unload_point === selectedUnloadPoint &&
+          rate.vehicle_category === selectedVehicleCategory &&
+          rate.vehicle_size.toLowerCase().trim() ===
           selectedVehicleSize.toLowerCase().trim()
-    );
+      );
 
-    if (foundRate) {
-      if (isFixedRateCustomer) {
-        setValue("rate", Number(foundRate.rate)); // 🔥 Auto rate for fixed customer
+      if (foundRate) {
+        if (isFixedRateCustomer) {
+          setValue("rate", Number(foundRate.rate)); // 🔥 Auto rate for fixed customer
+        } else {
+          setValue("rate", ""); // 🔥 Normal customer = blank
+        }
       } else {
-        setValue("rate", ""); // 🔥 Normal customer = blank
+        setValue("rate", "");
       }
-    } else {
-      setValue("rate", "");
     }
-  }
-}, [
-  selectedLoadPoint,
-  selectedUnloadPoint,
-  selectedVehicleCategory,
-  selectedVehicleSize,
-  isFixedRateCustomer,
-  rates,
-  setValue
-]);
+  }, [
+    selectedLoadPoint,
+    selectedUnloadPoint,
+    selectedVehicleCategory,
+    selectedVehicleSize,
+    isFixedRateCustomer,
+    rates,
+    setValue
+  ]);
 
   // select equipment size based on category
   const [selectedEquipment, setSelectedEquipment] = useState("");
@@ -758,18 +772,19 @@ export default function AddTripForm() {
                     name="vehicle_category"
                     label="ইকুইপমেন্টের ধরণ"
                     required
-                    options={[
-                      { value: "", label: "ইকুইপমেন্টের ধরণ নির্বাচন করুন..." },
-                      { value: "Exvator", label: "এক্সভেটর" },
-                      { value: "Concrete Mixer", label: "কংক্রিট মিক্সার" },
-                      { value: "Road Roller", label: "রোলার" },
-                      { value: "Payloader", label: "পে-লোডার" },
-                      { value: "Chain Dozer", label: "চেইন ডোজার" },
-                      { value: "Dump Truck", label: "ডাম্প ট্রাক" },
-                      { value: "Crane", label: "ক্রেন" },
-                      { value: "Trailer", label: "ট্রেইলার" },
-                      // { value: "Other", label: "অন্যান্য" }
-                    ]}
+                    // options={[
+                    //   { value: "", label: "ইকুইপমেন্টের ধরণ নির্বাচন করুন..." },
+                    //   { value: "Exvator", label: "এক্সভেটর" },
+                    //   { value: "Concrete Mixer", label: "কংক্রিট মিক্সার" },
+                    //   { value: "Road Roller", label: "রোলার" },
+                    //   { value: "Payloader", label: "পে-লোডার" },
+                    //   { value: "Chain Dozer", label: "চেইন ডোজার" },
+                    //   { value: "Dump Truck", label: "ডাম্প ট্রাক" },
+                    //   { value: "Crane", label: "ক্রেন" },
+                    //   { value: "Trailer", label: "ট্রেইলার" },
+                    //   // { value: "Other", label: "অন্যান্য" }
+                    // ]}
+                    options={vehicleCategoryOptions}
                     control={control}
                   />
                 </div>
@@ -872,7 +887,7 @@ export default function AddTripForm() {
                   <SelectField
                     name="helper_name"
                     label="হেলপার নাম"
-                    options={driverOptions}
+                    options={helperOptions}
                     control={control}
                     required={!id}
                     isCreatable={false}
@@ -965,7 +980,7 @@ export default function AddTripForm() {
                       required={id ? false : true}
                     />
                   </div></>) : null}
-                  {["Dump Truck", "Trailer"].includes(watch("vehicle_category")) ? (<><div className="w-full">
+                {["Dump Truck", "Trailer"].includes(watch("vehicle_category")) ? (<><div className="w-full">
                   <InputField
                     name="work_time"
                     label="সি এফ টি"
@@ -1024,7 +1039,7 @@ export default function AddTripForm() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="chada" label="চাঁদা" type="number" />
                   <InputField name="food_cost" label="খাবার খরচ" type="number" />
-                  <InputField name="trans__cost" label="ট্রান্সপোর্ট খরচ" type="number" />
+                  <InputField name="trans_cost" label="ট্রান্সপোর্ট খরচ" type="number" />
                   <InputField name="others_cost" label="অন্যান্য খরচ" type="number" />
                   <InputField name="total_exp" label="মোট খরচ" readOnly />
                 </div>
