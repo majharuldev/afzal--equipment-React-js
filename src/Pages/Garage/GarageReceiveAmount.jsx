@@ -207,11 +207,11 @@ const GarageReceiveAmount = () => {
             dataIndex: "amount",
             key: "amount",
         },
-        // {
-        //     title: "ক্যাটাগরি",
-        //     dataIndex: "category",
-        //     key: "category",
-        // },
+        {
+            title: "মাস - বছর",
+            dataIndex: "month_name",
+            key: "month_name",
+        },
         {
             title: "মন্তব্য",
             dataIndex: "remarks",
@@ -306,6 +306,33 @@ const GarageReceiveAmount = () => {
         win.print();
         win.close();
     };
+
+    // month yeayr options
+    const currentYear = new Date().getFullYear();
+const months = [
+  { num: "01", name: "জানুয়ারি" },
+  { num: "02", name: "ফেব্রুয়ারি" },
+  { num: "03", name: "মার্চ" },
+  { num: "04", name: "এপ্রিল" },
+  { num: "05", name: "মে" },
+  { num: "06", name: "জুন" },
+  { num: "07", name: "জুলাই" },
+  { num: "08", name: "আগস্ট" },
+  { num: "09", name: "সেপ্টেম্বর" },
+  { num: "10", name: "অক্টোবর" },
+  { num: "11", name: "নভেম্বর" },
+  { num: "12", name: "ডিসেম্বর" },
+];
+    const monthYearOptions = [];
+
+    for (let y = currentYear; y <= currentYear + 10; y++) {
+        months.forEach((m) => {
+            monthYearOptions.push({
+                value: `${m.num}-${y}`,
+                label: `${m.name} - ${y}`
+            });
+        });
+    }
 
     // pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -520,11 +547,16 @@ const GarageReceiveAmount = () => {
                         <Input placeholder="শাখার নাম লিখুন" />
                     </Form.Item> */}
                     <Form.Item
-                        label="মাসের নাম"
+                        label="মাস - বছর"
                         name="month_name"
-                        rules={[{ required: !editingId, message: "শাখার নাম আবশ্যক" }]}
+                        rules={[{ required: true, message: "মাস - বছর নির্বাচন করুন" }]}
                     >
-                        <Input placeholder="শাখার নাম লিখুন" />
+                        <Select
+                            placeholder="মাস - বছর নির্বাচন করুন"
+                            options={monthYearOptions}
+                            showSearch
+                            optionFilterProp="label"
+                        />
                     </Form.Item>
 
                     {/* নতুন Status ফিল্ড */}

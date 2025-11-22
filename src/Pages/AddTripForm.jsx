@@ -312,8 +312,8 @@ export default function AddTripForm() {
             };
             reset(parsedTripData);
             if (tripData.image) {
-              const imageUrl = `https://afzalcons.com/backend/uploads/trip/${tripData.image}`
-              setPreviewImage(imageUrl)
+              // const imageUrl = `https://afzalcons.com/backend/uploads/log/${tripData.image}`; 
+              setPreviewImage(tripData.image);
               setExistingImage(tripData.image)
             }
           }

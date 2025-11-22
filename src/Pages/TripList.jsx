@@ -123,14 +123,35 @@ const TripList = () => {
         SL: index + 1,
         Date: tableFormatDate(dt.date),
         Customer: dt.customer || "N/A",
-        "Vehicle No": dt.vehicle_no || "N/A",
+        "Equipment No": dt.vehicle_no || "N/A",
         Driver: dt.driver_name || "N/A",
+         "Vendor Name": dt.vendor_name || "N/A",
+        "Equipment Type": dt.equipment_type || "N/A",
+        "Equipment Category": dt.vehicle_category || "N/A",
+        "Equipment Size": dt.vehicle_size || "N/A",
+        "Helper Name": dt.helper_name || "N/A", 
         "Work Place": dt.work_place || "--",
         "Load Point": dt.load_point || "--",
         "Unload Point": dt.unload_point || "--",
-        "Total Rent": dt.total_rent || "0",
-        "Total Exp": dt.total_exp || "0",
+        "Transport Cost Type": dt.trans_cost_type || "--",
+        "Work Time": toNumber(dt.work_time) || "--",
+        Rate: toNumber(dt.rate) || "0",
+        "Total Rent": toNumber(dt.total_rent) || "0",
+        "parking_cost": toNumber(dt.parking_cost),
+        "night_guard": toNumber(dt.night_guard),
+        "toll_cost": toNumber(dt.toll_cost),
+        "feri_cost": toNumber(dt.feri_cost),
+        "police_cost": toNumber(dt.police_cost),
+        "others_cost": toNumber(dt.others_cost),
+        "chada": toNumber(dt.chada),
+        "labor": toNumber(dt.labor),
+        "fuel_cost": toNumber(dt.fuel_cost),
+        "challan_cost": toNumber(dt.challan_cost),
+        "Transport cost": toNumber(dt.trans_cost),
+        "Total Exp": toNumber(dt.total_exp) || "0",
         "Profit": parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0),
+         "log ref": dt.log_ref ? dt.log_ref : null,
+        "log sign": dt.log_sign ? dt.log_sign : null,
       }));
 
       const ws = XLSX.utils.json_to_sheet(data);
@@ -800,7 +821,7 @@ const TripList = () => {
               <p>{selectedTrip.customer || "—"}</p>
             </div>
 
-<div>
+            <div>
               <p className="font-semibold text-gray-900">ইকুইপমেন্টের ধরণ:</p>
               <p>{selectedTrip.vehicle_category || "—"}</p>
             </div>
@@ -856,15 +877,15 @@ const TripList = () => {
               <p className="font-semibold text-gray-900">ওয়ার্ক টাইম:</p>
               <p>{selectedTrip.work_time || "—"}</p>
             </div>
-             <div>
+            <div>
               <p className="font-semibold text-gray-900">ভেন্ডর ভাড়া:</p>
-              <p>{selectedTrip.transport_type==="vendor_trasport"? selectedTrip.total_exp:"--"}</p>
+              <p>{selectedTrip.transport_type === "vendor_trasport" ? selectedTrip.total_exp : "--"}</p>
             </div>
-             <div>
+            <div>
               <p className="font-semibold text-gray-900">ভেন্ডর অগ্রিম:</p>
               <p>{selectedTrip.advance || "—"}</p>
             </div>
-             <div>
+            <div>
               <p className="font-semibold text-gray-900">ভেন্ডর বাকি পরিমাণ:</p>
               <p>{selectedTrip.due_amount || "—"}</p>
             </div>
@@ -880,13 +901,13 @@ const TripList = () => {
                 {selectedTrip.challan_cost || "—"}
               </p>
             </div>
-             <div>
+            <div>
               <p className="font-semibold text-gray-900">শ্রমিক খরচ:</p>
               <p>
                 {selectedTrip.labor || "—"}
               </p>
             </div>
-             <div>
+            <div>
               <p className="font-semibold text-gray-900">চাদা খরচ:</p>
               <p>
                 {selectedTrip.chada || "—"}
@@ -909,14 +930,14 @@ const TripList = () => {
               <p>
                 {selectedTrip.feri_cost || "—"}
               </p>
-            
+
             </div>
             <div>
               <p className="font-semibold text-gray-900">নাইট গার্ড খরচ:</p>
               <p>
                 {selectedTrip.night_guard || "—"}
               </p>
-              
+
             </div>
             <div>
               <p className="font-semibold text-gray-900">পার্কিং খরচ:</p>
@@ -985,24 +1006,24 @@ const TripList = () => {
             </div>
             <div>
               <p className="font-semibold text-gray-900">লগ স্বাক্ষর:</p>
-              <p>{selectedTrip.log_sign|| "—"}</p>
+              <p>{selectedTrip.log_sign || "—"}</p>
             </div>
             <div>
               <p className="font-semibold text-gray-900">তৈরী করেছেন:</p>
               <p>{selectedTrip.created_by || "—"}</p>
             </div>
             {/* Trip Image */}
-      <div className="flex justify-center items-start">
-        {selectedTrip.image ? (
-          <img
-            src={`https://afzalcons.com/backend/uploads/trip/${selectedTrip.image}`}
-            alt="Trip"
-            className="max-w-full max-h-64 object-contain border border-gray-300 rounded-md shadow-md"
-          />
-        ) : (
-          <p className="text-gray-400">No image available</p>
-        )}
-      </div>
+            <div className="flex justify-center items-start">
+              {selectedTrip.image ? (
+                <img
+                  src={`${selectedTrip.image}`}
+                  alt="Trip"
+                  className="max-w-full max-h-64 object-contain border border-gray-300 rounded-md shadow-md"
+                />
+              ) : (
+                <p className="text-gray-400">No image available</p>
+              )}
+            </div>
           </div>
         ) : (
           <p className="text-center text-gray-500 py-6">লোড হচ্ছে...</p>

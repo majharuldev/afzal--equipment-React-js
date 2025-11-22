@@ -42,7 +42,7 @@ const GarageCustomerLedger = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Vendor ledger error:", err);
+        console.error("customer ledger error:", err);
         setLoading(false);
       });
   }, []);
@@ -59,35 +59,33 @@ const GarageCustomerLedger = () => {
 
 
   const selectedVendorInfo = vendorList.find(
-    (v) => v.vendor_name === selectedVendor
+    (v) => v.customer_name === selectedVendor
   );
   const openingBalance = selectedVendorInfo
     ? Number(selectedVendorInfo.opening_balance || 0)
     : 0;
 
   if (loading)
-    return <p className="text-center mt-16">Loading Vendor Ledger...</p>;
+    return <p className="text-center mt-16">Loading Customer Ledger...</p>;
 
   // Get unique months from data for dropdown
   const availableMonths = [
-    ...new Set(
-      vendorData
-        .filter((item) => item.date) // Make sure date exists
-        .map((item) => {
-          const date = new Date(item.date);
-          const monthNum = date.getMonth() + 1;
-          // Use slice for padding instead of padStart for broader compatibility
-          const paddedMonth = ('0' + monthNum).slice(-2);
-          return `${date.getFullYear()}-${paddedMonth}`;
-        })
-    ),
-  ].sort();
+  ...new Set(
+    vendorData
+      .filter((item) => item.date)
+      .map((item) => {
+        const d = new Date(item.date);
+        const y = d.getFullYear();
+        const m = ("0" + (d.getMonth() + 1)).slice(-2);
+        return `${y}-${m}`; // 2025-03
+      })
+  ),
+].sort();
 
-  const vendorNames = [...new Set(vendorData.map((v) => v.vendor_name))];
 
   // Filter data based on selected vendor and month, then sort by date
   const filteredVendors = vendorData.filter((v) => {
-    const matchesVendor = selectedVendor ? v.vendor_name === selectedVendor : true;
+    const matchesVendor = selectedVendor ? v.customer_name === selectedVendor : true;
     const matchesMonth = selectedMonth
       ? v.date && new Date(v.date).toISOString().slice(0, 7) === selectedMonth
       : true;
@@ -261,6 +259,7 @@ const GarageCustomerLedger = () => {
     doc.save(`Vendor_Ledger_${selectedVendor || "All"}.pdf`);
   };
 
+  // print table
   const printTable = () => {
     const content = document.getElementById("vendor-ledger-table").innerHTML;
     const style = `
@@ -351,13 +350,13 @@ const GarageCustomerLedger = () => {
                 <FaFileExcel className="" />
                 এক্সেল
               </button>
-              <button
+              {/* <button
                 onClick={exportToPDF}
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
               >
                 <FaFilePdf className="" />
                 পিডিএফ
-              </button>
+              </button> */}
               <button
                 onClick={printTable}
                 className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -382,15 +381,18 @@ const GarageCustomerLedger = () => {
                       className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
                     >
                       <option value="">সমস্ত মাস</option>
+
                       {availableMonths.map((month, idx) => {
-                        const [year, monthNum] = month.split("-");
-                        const date = new Date(`${month}-01`);
-                        const monthName = date.toLocaleString("default", {
+                        const [year, m] = month.split("-");
+                        const monthIndex = Number(m) - 1;
+
+                        const monthName = new Date(2000, monthIndex, 1).toLocaleString("bn-BD", {
                           month: "long",
-                        }); // e.g., July
+                        });
+
                         return (
                           <option key={idx} value={month}>
-                            {`${monthName}-${year}`}
+                            {monthName} - {year}
                           </option>
                         );
                       })}
@@ -411,8 +413,8 @@ const GarageCustomerLedger = () => {
                   >
                     <option value="">সব কাস্টমার</option>
                     {vendorList.map((vendor, idx) => (
-                      <option key={idx} value={vendor.vendor_name}>
-                        {vendor.vendor_name}
+                      <option key={idx} value={vendor.customer_name}>
+                        {vendor.customer_name}
                       </option>
                     ))}
                   </select>
@@ -470,7 +472,7 @@ const GarageCustomerLedger = () => {
                     বাকি{" "}
                     {selectedVendor && (
                       <p className="text-xs text-gray-600 font-normal">
-                         প্রারম্ভিক হিসাব: {openingBalance}
+                        প্রারম্ভিক হিসাব: {openingBalance}
                       </p>
                     )}
                   </th>

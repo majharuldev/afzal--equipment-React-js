@@ -95,6 +95,33 @@ const GarageCustomerForm = () => {
         }
     };
 
+    // month yeayr options
+    const currentYear = new Date().getFullYear();
+const months = [
+  { num: "01", name: "জানুয়ারি" },
+  { num: "02", name: "ফেব্রুয়ারি" },
+  { num: "03", name: "মার্চ" },
+  { num: "04", name: "এপ্রিল" },
+  { num: "05", name: "মে" },
+  { num: "06", name: "জুন" },
+  { num: "07", name: "জুলাই" },
+  { num: "08", name: "আগস্ট" },
+  { num: "09", name: "সেপ্টেম্বর" },
+  { num: "10", name: "অক্টোবর" },
+  { num: "11", name: "নভেম্বর" },
+  { num: "12", name: "ডিসেম্বর" },
+];
+const monthYearOptions = [];
+
+for (let y = currentYear; y <= currentYear + 10; y++) {
+  months.forEach((m) => {
+    monthYearOptions.push({
+      value: `${m.num}-${y}`,
+      label: `${m.name} - ${y}`
+    });
+  });
+}
+
     return (
         <div className="">
             <Toaster />
@@ -130,20 +157,7 @@ const GarageCustomerForm = () => {
                                     name="month_name"
                                     label="মাস"
                                     required
-                                    options={[
-                                        { value: "January", label: "জানুয়ারি" },
-                                        { value: "February", label: "ফেব্রুয়ারি" },
-                                        { value: "March", label: "মার্চ" },
-                                        { value: "April", label: "এপ্রিল" },
-                                        { value: "May", label: "মে" },
-                                        { value: "June", label: "জুন" },
-                                        { value: "July", label: "জুলাই" },
-                                        { value: "August", label: "আগস্ট" },
-                                        { value: "September", label: "সেপ্টেম্বর" },
-                                        { value: "October", label: "অক্টোবর" },
-                                        { value: "November", label: "নভেম্বর" },
-                                        { value: "December", label: "ডিসেম্বর" },
-                                    ]}
+                                  options={monthYearOptions}
                                 />
                             </div>
                         </div>
