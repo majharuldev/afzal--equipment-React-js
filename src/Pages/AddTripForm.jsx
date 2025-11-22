@@ -81,6 +81,7 @@ export default function AddTripForm() {
       branch_name: "",
       trip_id: "",
       trans_cost: "",
+      trans_cost_type: "",
     },
   });
 
@@ -132,9 +133,9 @@ export default function AddTripForm() {
     d_amount,
     additional_cost,
     trans_cost,
+    trans_cost_type 
   ] = watch([
     "fuel_cost",
-    "trans_cost",
     "toll_cost",
     "police_cost",
     "driver_commission",
@@ -148,10 +149,14 @@ export default function AddTripForm() {
     "d_day",
     "d_amount",
     "additional_cost",
+    "trans_cost",
+    "trans_cost_type",
+    
   ]);
 
   // মোট হিসাব করা
   useEffect(() => {
+     const transCostValue = selectedTransport === "own_transport" && trans_cost_type === "own_trans_cost" ? toNumber(trans_cost) : 0;
     // মোট খরচ হিসাব
     const totalExp =
       (toNumber(driverCommision) || 0) +
@@ -164,7 +169,8 @@ export default function AddTripForm() {
       (toNumber(foodCost) || 0) +
       (toNumber(chadaCost) || 0) +
       (toNumber(fuelCost) || 0) +
-      (toNumber(trans_cost) || 0) +
+      // (toNumber(trans_cost) || 0) +
+       (transCostValue || 0) +
       (toNumber(additional_cost) || 0) +
       (toNumber(othersCost) || 0);
 
@@ -189,6 +195,9 @@ export default function AddTripForm() {
     d_amount,
     additional_cost,
     setValue,
+    trans_cost,
+    trans_cost_type,
+    selectedTransport
   ]);
 
   // ভেন্ডর ট্রান্সপোর্ট ফিল্ডগুলি পর্যবেক্ষণ করা
@@ -464,9 +473,9 @@ export default function AddTripForm() {
 
       if (foundRate) {
         if (isFixedRateCustomer) {
-          setValue("rate", Number(foundRate.rate)); // 🔥 Auto rate for fixed customer
+          setValue("rate", Number(foundRate.rate)); //  Auto rate for fixed customer
         } else {
-          setValue("rate", ""); // 🔥 Normal customer = blank
+          setValue("rate", ""); //  Normal customer = blank
         }
       } else {
         setValue("rate", "");
@@ -1039,6 +1048,15 @@ export default function AddTripForm() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="chada" label="চাঁদা" type="number" />
                   <InputField name="food_cost" label="খাবার খরচ" type="number" />
+                  <SelectField
+                    name="trans_cost_type"
+                    label="যাতায়াত ভাড়া নিজের/গ্রাহকের"
+                    required={!id}
+                    options={[
+                      { value: "own_trans_cost", label: "Own Trans cost" },
+                      { value: "customer_trans_cost", label: "Customer Trans Cost" },
+                    ]}
+                  />
                   <InputField name="trans_cost" label="ট্রান্সপোর্ট খরচ" type="number" />
                   <InputField name="others_cost" label="অন্যান্য খরচ" type="number" />
                   <InputField name="total_exp" label="মোট খরচ" readOnly />

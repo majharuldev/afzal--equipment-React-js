@@ -20,10 +20,80 @@ export default function ExvatorBill({ trips }) {
         }))
     }
 
-    const handleSubmit = (tripId) => {
-        setSubmittedTrips((prev) => [...prev, tripId]);
-        alert("Bill Submitted Successfully!");
-    };
+    // Submit function
+    const handleSubmit = async () => {
+        const selectedData = filteredTrips.filter(
+            (dt, i) => selectedRows[dt.id] && dt.status === "Pending"
+        );
+        if (!selectedData.length) {
+            return toast.error("Please select at least one row for Not submitted.", {
+                position: "top-right",
+            });
+        }
+        try {
+            const loadingToast = toast.loading("Submitting selected rows...")
+
+            // Create array of promises for all updates
+            const updatePromises = selectedData.map((dt) =>
+                api.put(`/trip/${dt.id}`, {
+                    status: "Submitted",
+                    date: dt.date,
+                    customer: dt.customer,
+                    branch_name: dt.branch_name,
+                    load_point: dt.load_point,
+                    additional_load: dt.additional_load,
+                    unload_point: dt.unload_point,
+                    transport_type: dt.transport_type,
+                    trip_type: dt.trip_type,
+                    trip_id: dt.trip_id,
+                    sms_sent: dt.sms_sent,
+                    vehicle_no: dt.vehicle_no,
+                    driver_name: dt.driver_name,
+                    vehicle_category: dt.vehicle_category,
+                    vehicle_size: dt.vehicle_size,
+                    product_details: dt.product_details,
+                    driver_mobile: dt.driver_mobile,
+                    challan: dt.challan,
+                    driver_adv: dt.driver_adv,
+                    remarks: dt.remarks,
+                    food_cost: dt.food_cost,
+                    total_exp: dt.total_exp,
+                    total_rent: dt.total_rent,
+                    vendor_rent: dt.vendor_rent,
+                    advance: dt.advance,
+                    due_amount: dt.due_amount,
+                    parking_cost: dt.parking_cost,
+                    night_guard: dt.night_guard,
+                    toll_cost: dt.toll_cost,
+                    feri_cost: dt.feri_cost,
+                    police_cost: dt.police_cost,
+                    others_cost: dt.others_cost,
+                    chada: dt.chada,
+                    labor: dt.labor,
+                    vendor_name: dt.vendor_name,
+                    fuel_cost: dt.fuel_cost,
+                    challan_cost: dt.challan_cost,
+                    d_day: dt.d_day,
+                    d_amount: dt.d_amount,
+                    d_total: dt.d_total,
+                })
+            );
+
+            // Wait for all updates to complete
+            await Promise.all(updatePromises)
+
+            // Update local state immediately
+            setTrips((prev) =>
+                prev.map((trip) => (selectedData.some((dt) => dt.id === trip.id) ? { ...trip, status: "Submitted" } : trip)),
+            )
+
+            toast.success("Successfully submitted!", { id: loadingToast })
+            setSelectedRows({})
+        } catch (error) {
+            console.error("Submission error:", error)
+            toast.error("Submission failed. Check console for details.")
+        }
+    }
 
     // total word function
     const numberToWords = (num) => {
@@ -132,25 +202,33 @@ export default function ExvatorBill({ trips }) {
             return toast.error("Please select at least one row.")
         }
 
-        const excelData = selectedData.map((dt, idx) => ({
-            SL: idx + 1,
-            Date: tableFormatDate(dt.date),
-            Vehicle: dt.vehicle_no,
-            Remarks: dt.remarks,
-            "Rent Hour": toNumber(dt.work_time),
-            Rate: toNumber(dt.rate),
-            "Total Rent": (Number.parseFloat(dt.work_time) || 0) * (Number.parseFloat(dt.rate) || 0),
-            Status: dt.status,
-        }))
+        const excelData = selectedData.map((dt, idx) => {
+            const transCost = dt.trans_cost_type === "customer_trans_cost" ? (Number.parseFloat(dt.trans_cost) || 0) : 0
+            return {
+                SL: idx + 1,
+                Date: tableFormatDate(dt.date),
+                Vehicle: dt.vehicle_no,
+                Remarks: dt.remarks,
+                "Rent Hour": toNumber(dt.work_time),
+                Rate: toNumber(dt.rate),
+                "Transport Cost": transCost,
+                "Total Rent": (Number.parseFloat(dt.work_time) || 0) * (Number.parseFloat(dt.rate) || 0),
+                Status: dt.status,
+            }
+        })
 
         const worksheet = XLSX.utils.json_to_sheet(excelData)
         const workbook = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(workbook, worksheet, "Bill")
 
         // Footer totals যোগ করা
+        const { totalRent, totalWork, totalRate, totalTransCost } = calculateTotals(selectedData)
         XLSX.utils.sheet_add_aoa(
             worksheet,
-            [["", "", "", "মোট", totalWork, totalRate, totalRent]],
+            [
+                ["", "", "", "Total", totalWork, totalRate, totalTransCost, totalRent],
+                ["", "", "", "Total bill  + Transport Cost", "", "", "", totalRent + totalTransCost]
+            ],
             { origin: -1 }
         )
 
@@ -170,6 +248,7 @@ export default function ExvatorBill({ trips }) {
             totalRent: printTotalRent,
             totalRate: totalRate,
             totalWork: totalWork,
+            totalTransCost: printTotalTransCost,
             grandTotal: printGrandTotal,
         } = calculateTotals(selectedData)
 
@@ -219,6 +298,7 @@ export default function ExvatorBill({ trips }) {
                   <th>বিবরণ</th>
                   <th>ঘণ্টা</th>
                   <th>দর</th>
+                  <th>যাতায়াত ভাড়া</th>
                   <th>বিলের টাকা</th>
                 </tr>
               </thead>
@@ -231,6 +311,7 @@ export default function ExvatorBill({ trips }) {
                     <td>${dt.remarks}</td>
                     <td>${dt.work_time}</td>
                     <td>${dt.rate}</td>
+                    <td>${dt.trans_cost_type === "customer_trans_cost" ? (dt.trans_cost) : 0}</td>
                     <td>${toNumber(dt.work_time) * toNumber(dt.rate)}</td>
                   </tr>
                 `).join("")}
@@ -240,10 +321,17 @@ export default function ExvatorBill({ trips }) {
                   <td colspan="4">মোট</td>
                   <td>${totalWork}</td>
                   <td>${totalRate}</td>
+                  <td>${printTotalTransCost}</td>
                   <td>${printTotalRent}</td>
                 </tr>
+                <tr>
+              <td colspan="6">মোট বিলের টাকা + যাতায়াত ভাড়া</td>
+              <td></td>
+              <td>${printTotalRent + printTotalTransCost}</td>
+            </tr>
               </tfoot>
             </table>
+
             <p><strong>মোট পরিমাণ কথায়:</strong> ${totalInWords}</p>
           </body>
         </html>
@@ -259,14 +347,21 @@ export default function ExvatorBill({ trips }) {
         const totalRent = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.total_rent) || 0), 0)
         const totalRate = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.rate) || 0), 0)
         const totalWork = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.work_time) || 0), 0)
-        const totalDemurrage = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.d_total) || 0), 0)
-        const grandTotal = totalRent + totalDemurrage
-        return { totalRent, totalDemurrage, grandTotal, totalRate, totalWork }
+        // const totalDemurrage = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.d_total) || 0), 0)
+        // Customer trans cost যোগ করা
+        const totalTransCost = trips.reduce((sum, dt) => {
+            if (dt.trans_cost_type === "customer_trans_cost") {
+                return sum + (Number.parseFloat(dt.trans_cost) || 0)
+            }
+            return sum
+        }, 0)
+        const grandTotal = totalRent + totalTransCost
+        return { totalRent, grandTotal, totalRate, totalWork, totalTransCost, }
     }
     // Get selected data based on selectedRows for total calculation
     const selectedTripsForCalculation = trips.filter((trip) => selectedRows[trip.id])
     const tripsToCalculate = selectedTripsForCalculation.length > 0 ? selectedTripsForCalculation : trips
-    const { totalRent, totalDemurrage, grandTotal, totalWork, totalRate } = calculateTotals(tripsToCalculate)
+    const { totalRent, grandTotal, totalWork, totalRate, totalTransCost } = calculateTotals(tripsToCalculate)
 
     //   pagination
     const [currentPage, setCurrentPage] = useState(1)
@@ -326,7 +421,7 @@ export default function ExvatorBill({ trips }) {
                                 <td className="border border-gray-700 p-1">{dt.remarks}</td>
                                 <td className="border border-gray-700 p-1">{dt.work_time}</td>
                                 <td className="border border-gray-700 p-1">{dt.rate}</td>
-                                <td className="border border-gray-700 p-1">{dt.trans_cost}</td>
+                                <td className="border border-gray-700 p-1">{dt.trans_cost_type === "customer_trans_cost" ? (dt.trans_cost) : "--"}</td>
                                 <td className="border border-gray-700 p-1">
                                     {(Number.parseFloat(dt.work_time) || 0) * (Number.parseFloat(dt.rate) || 0)}
                                 </td>
@@ -345,7 +440,7 @@ export default function ExvatorBill({ trips }) {
                                                 Not Submitted
                                             </span>
                                         )}
-                                        {dt.status === "Approved" && (
+                                        {dt.status === "Submitted" && (
                                             <span className=" inline-block px-2  text-xs text-green-700 rounded">
                                                 Submitted
                                             </span>
@@ -365,8 +460,17 @@ export default function ExvatorBill({ trips }) {
 
                             <td className="border border-black px-2 py-1">{totalWork}</td>
                             <td className="border border-black px-2 py-1">{totalRate}</td>
-                            <td className="border border-black px-2 py-1"></td>
+                            <td className="border border-black px-2 py-1">{totalTransCost}</td>
                             <td className="border border-black px-2 py-1">{totalRent}</td>
+                            <td className="border border-black px-2 py-1"></td>
+                        </tr>
+                        {/* মোট বিলের টাকা + যাতায়াত ভাড়া যোগ করুন */}
+                        <tr className="font-bold">
+                            <td colSpan={6} className="border border-black px-2 py-1 text-right">
+                                মোট বিলের টাকা + যাতায়াত ভাড়া
+                            </td>
+                            <td className="border border-black px-2 py-1"></td>
+                            <td className="border border-black px-2 py-1">{totalRent + totalTransCost}</td>
                             <td className="border border-black px-2 py-1"></td>
                         </tr>
                         <tr className="font-bold">

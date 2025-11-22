@@ -837,6 +837,10 @@ const TripList = () => {
               <p>{selectedTrip.transport_type || "—"}</p>
             </div>
             <div>
+              <p className="font-semibold text-gray-900">ট্রান্সপোর্ট খরচ ধরণ:</p>
+              <p>{selectedTrip.trans_cost_type || "—"}</p>
+            </div>
+            <div>
               <p className="font-semibold text-gray-900">ভেন্ডর নাম:</p>
               <p>{selectedTrip.vendor_name || "—"}</p>
             </div>

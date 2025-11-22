@@ -465,8 +465,7 @@ const Bill = () => {
       const updatePromises = selectedData.map((dt) =>
         api.put(`/trip/${dt.id}`, {
           status: "Submitted",
-          start_date: dt.start_date,
-          end_date: dt.end_date,
+          date: dt.date,
           customer: dt.customer,
           branch_name: dt.branch_name,
           load_point: dt.load_point,
@@ -709,7 +708,7 @@ const Bill = () => {
                           Not Submitted
                         </span>
                       )}
-                      {dt.status === "Approved" && (
+                      {dt.status === "Submitted" && (
                         <span className=" inline-block px-2  text-xs text-green-700 rounded">
                           Submitted
                         </span>

@@ -10,22 +10,91 @@ import { FaFileExcel, FaPrint } from "react-icons/fa6";
 import { toNumber } from "../../hooks/toNumber";
 
 export default function RollerBill({ trips }) {
-    const [submittedTrips, setSubmittedTrips] = useState([]);
-    const [selectedRows, setSelectedRows] = useState({})
-console.log("trips in dump truck bill:", trips);
-    const handleCheckBox = (tripId) => {
-        setSelectedRows((prev) => ({
-            ...prev,
-            [tripId]: !prev[tripId],
-        }))
+  const [submittedTrips, setSubmittedTrips] = useState([]);
+  const [selectedRows, setSelectedRows] = useState({})
+  console.log("trips in dump truck bill:", trips);
+  const handleCheckBox = (tripId) => {
+    setSelectedRows((prev) => ({
+      ...prev,
+      [tripId]: !prev[tripId],
+    }))
+  }
+
+  const handleSubmit = async () => {
+    const selectedData = filteredTrips.filter(
+      (dt, i) => selectedRows[dt.id] && dt.status === "Pending"
+    );
+    if (!selectedData.length) {
+      return toast.error("Please select at least one row for Not submitted.", {
+        position: "top-right",
+      });
     }
+    try {
+      const loadingToast = toast.loading("Submitting selected rows...")
 
-    const handleSubmit = (tripId) => {
-        setSubmittedTrips((prev) => [...prev, tripId]);
-        alert("Bill Submitted Successfully!");
-    };
+      // Create array of promises for all updates
+      const updatePromises = selectedData.map((dt) =>
+        api.put(`/trip/${dt.id}`, {
+          status: "Submitted",
+          date: dt.date,
+          customer: dt.customer,
+          branch_name: dt.branch_name,
+          load_point: dt.load_point,
+          additional_load: dt.additional_load,
+          unload_point: dt.unload_point,
+          transport_type: dt.transport_type,
+          trip_type: dt.trip_type,
+          trip_id: dt.trip_id,
+          sms_sent: dt.sms_sent,
+          vehicle_no: dt.vehicle_no,
+          driver_name: dt.driver_name,
+          vehicle_category: dt.vehicle_category,
+          vehicle_size: dt.vehicle_size,
+          product_details: dt.product_details,
+          driver_mobile: dt.driver_mobile,
+          challan: dt.challan,
+          driver_adv: dt.driver_adv,
+          remarks: dt.remarks,
+          food_cost: dt.food_cost,
+          total_exp: dt.total_exp,
+          total_rent: dt.total_rent,
+          vendor_rent: dt.vendor_rent,
+          advance: dt.advance,
+          due_amount: dt.due_amount,
+          parking_cost: dt.parking_cost,
+          night_guard: dt.night_guard,
+          toll_cost: dt.toll_cost,
+          feri_cost: dt.feri_cost,
+          police_cost: dt.police_cost,
+          others_cost: dt.others_cost,
+          chada: dt.chada,
+          labor: dt.labor,
+          vendor_name: dt.vendor_name,
+          fuel_cost: dt.fuel_cost,
+          challan_cost: dt.challan_cost,
+          d_day: dt.d_day,
+          d_amount: dt.d_amount,
+          d_total: dt.d_total,
+        })
+      );
 
-     // total word function
+      // Wait for all updates to complete
+      await Promise.all(updatePromises)
+
+      // Update local state immediately
+      setTrips((prev) =>
+        prev.map((trip) => (selectedData.some((dt) => dt.id === trip.id) ? { ...trip, status: "Submitted" } : trip)),
+      )
+
+      toast.success("Successfully submitted!", { id: loadingToast })
+      setSelectedRows({})
+    } catch (error) {
+      console.error("Submission error:", error)
+      toast.error("Submission failed. Check console for details.")
+    }
+  }
+
+  // total word function
   const numberToWords = (num) => {
     if (!num || isNaN(num)) return "Zero Taka only"
 
@@ -125,8 +194,8 @@ console.log("trips in dump truck bill:", trips);
     return result.trim() + " টাকা মাত্র";
   };
 
-    // Excel Export function
-   const exportToExcel = () => {
+  // Excel Export function
+  const exportToExcel = () => {
     const selectedData = trips.filter((trip) => selectedRows[trip.id])
     if (!selectedData.length) {
       return toast.error("Please select at least one row.")
@@ -158,25 +227,25 @@ console.log("trips in dump truck bill:", trips);
     saveAs(new Blob([wbout], { type: "application/octet-stream" }), "Bill.xlsx")
   }
 
-     // Print function
-      const handlePrint = () => {
-        const selectedData = trips.filter((trip) => selectedRows[trip.id])
-        if (!selectedData.length) {
-          return toast.error("Please select at least one row.")
-        }
-        // Get customer name from first selected trip
-        const customerName = selectedData[0]?.customer || "Customer Name"
-        const {
-          totalRent: printTotalRent,
-          totalRate: totalRate,
-          totalWork: totalWork,
-          grandTotal: printGrandTotal,
-        } = calculateTotals(selectedData)
-    
-        const totalInWords = numberToBanglaWords(printGrandTotal)
-    
-        const newWindow = window.open("", "_blank")
-        const html = `
+  // Print function
+  const handlePrint = () => {
+    const selectedData = trips.filter((trip) => selectedRows[trip.id])
+    if (!selectedData.length) {
+      return toast.error("Please select at least one row.")
+    }
+    // Get customer name from first selected trip
+    const customerName = selectedData[0]?.customer || "Customer Name"
+    const {
+      totalRent: printTotalRent,
+      totalRate: totalRate,
+      totalWork: totalWork,
+      grandTotal: printGrandTotal,
+    } = calculateTotals(selectedData)
+
+    const totalInWords = numberToBanglaWords(printGrandTotal)
+
+    const newWindow = window.open("", "_blank")
+    const html = `
         <html>
           <head>
           <title>.</title>
@@ -231,7 +300,7 @@ console.log("trips in dump truck bill:", trips);
                     <td>${dt.remarks}</td>
                     <td>${dt.work_time} দিন</td>
                     <td>${dt.rate}</td>
-                    <td>${toNumber(dt.work_time)* toNumber(dt.rate)}</td>
+                    <td>${toNumber(dt.work_time) * toNumber(dt.rate)}</td>
                   </tr>
                 `).join("")}
               </tbody>
@@ -248,153 +317,153 @@ console.log("trips in dump truck bill:", trips);
           </body>
         </html>
       `
-        newWindow.document.write(html)
-        newWindow.document.close()
-        newWindow.focus()
-        newWindow.print()
-      }
+    newWindow.document.write(html)
+    newWindow.document.close()
+    newWindow.focus()
+    newWindow.print()
+  }
 
-    // Fixed calculation functions
-    const calculateTotals = (trips) => {
-        const totalRent = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.total_rent) || 0), 0)
-        const totalRate = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.rate) || 0), 0)
-        const totalWork = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.work_time) || 0), 0)
-        const totalDemurrage = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.d_total) || 0), 0)
-        const grandTotal = totalRent + totalDemurrage
-        return { totalRent, totalDemurrage, grandTotal, totalRate, totalWork }
-    }
-    // Get selected data based on selectedRows for total calculation
-    const selectedTripsForCalculation = trips.filter((trip) => selectedRows[trip.id])
-    const tripsToCalculate = selectedTripsForCalculation.length > 0 ? selectedTripsForCalculation : trips
-    const { totalRent, totalDemurrage, grandTotal, totalWork, totalRate } = calculateTotals(tripsToCalculate)
+  // Fixed calculation functions
+  const calculateTotals = (trips) => {
+    const totalRent = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.total_rent) || 0), 0)
+    const totalRate = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.rate) || 0), 0)
+    const totalWork = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.work_time) || 0), 0)
+    const totalDemurrage = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.d_total) || 0), 0)
+    const grandTotal = totalRent + totalDemurrage
+    return { totalRent, totalDemurrage, grandTotal, totalRate, totalWork }
+  }
+  // Get selected data based on selectedRows for total calculation
+  const selectedTripsForCalculation = trips.filter((trip) => selectedRows[trip.id])
+  const tripsToCalculate = selectedTripsForCalculation.length > 0 ? selectedTripsForCalculation : trips
+  const { totalRent, totalDemurrage, grandTotal, totalWork, totalRate } = calculateTotals(tripsToCalculate)
 
-    //   pagination
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 10
-    const indexOfLastItem = currentPage * itemsPerPage
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage
-    const currentItems = trips.slice(indexOfFirstItem, indexOfLastItem)
-    const totalPages = Math.ceil(trips.length / itemsPerPage)
-    return (
-        <div>
-            <div className="flex flex-wrap md:flex-row gap-1 md:gap-3 text-primary font-semibold rounded-md">
-                <button
-                    onClick={exportToExcel}
-                    className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                >
-                    <FaFileExcel className="" />
-                    এক্সেল
-                </button>
-                {/* <button
+  //   pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = trips.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(trips.length / itemsPerPage)
+  return (
+    <div>
+      <div className="flex flex-wrap md:flex-row gap-1 md:gap-3 text-primary font-semibold rounded-md">
+        <button
+          onClick={exportToExcel}
+          className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+        >
+          <FaFileExcel className="" />
+          এক্সেল
+        </button>
+        {/* <button
                     onClick={exportToPDF}
                     className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
                   >
                     <FaFilePdf className="" />
                     পিডিএফ
                   </button> */}
-                <button
-                    onClick={handlePrint}
-                    className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-                >
-                    <FaPrint className="" />
-                    প্রিন্ট
-                </button>
-            </div>
+        <button
+          onClick={handlePrint}
+          className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+        >
+          <FaPrint className="" />
+          প্রিন্ট
+        </button>
+      </div>
 
-            <div className="mt-5 overflow-x-auto">
-                <table className="min-w-full text-sm text-left text-gray-900">
-                    <thead className="capitalize text-sm">
-                        <tr>
-                            <th className="border border-gray-700 px-2 py-1">ক্রমিক</th>
-                            <th className="border border-gray-700 px-2 py-1">তারিখ</th>
+      <div className="mt-5 overflow-x-auto">
+        <table className="min-w-full text-sm text-left text-gray-900">
+          <thead className="capitalize text-sm">
+            <tr>
+              <th className="border border-gray-700 px-2 py-1">ক্রমিক</th>
+              <th className="border border-gray-700 px-2 py-1">তারিখ</th>
 
-                            <th className="border border-gray-700 px-2 py-1">গাড়ি নং</th>
-                            <th className="border border-gray-700 px-2 py-1">বিবরণ</th>
-                            <th className="border border-gray-700 px-2 py-1">মাস</th>
-                            <th className="border border-gray-700 px-2 py-1">দর</th>
-                            <th className="border border-gray-700 px-2 py-1">বিলের টাকা</th>
-                            <th className="border border-gray-700 px-2 py-1">বিলের অবস্থা</th>
-                        </tr>
-                    </thead>
-                    <tbody className="font-semibold">
-                        {currentItems.map((dt, index) => (
-                            <tr key={index} className="hover:bg-gray-50 transition-all">
-                                <td className="border border-gray-700 p-1 font-bold">{index + 1}.</td>
-                                <td className="border border-gray-700 p-1">{tableFormatDate(dt.date)}</td>
-                                <td className="border border-gray-700 p-1">{dt.vehicle_no}</td>
-                                <td className="border border-gray-700 p-1">{dt.remarks}</td>
-                                <td className="border border-gray-700 p-1">{dt.work_time} দিন</td>
-                                <td className="border border-gray-700 p-1">{dt.rate}</td>
+              <th className="border border-gray-700 px-2 py-1">গাড়ি নং</th>
+              <th className="border border-gray-700 px-2 py-1">বিবরণ</th>
+              <th className="border border-gray-700 px-2 py-1">মাস</th>
+              <th className="border border-gray-700 px-2 py-1">দর</th>
+              <th className="border border-gray-700 px-2 py-1">বিলের টাকা</th>
+              <th className="border border-gray-700 px-2 py-1">বিলের অবস্থা</th>
+            </tr>
+          </thead>
+          <tbody className="font-semibold">
+            {currentItems.map((dt, index) => (
+              <tr key={index} className="hover:bg-gray-50 transition-all">
+                <td className="border border-gray-700 p-1 font-bold">{index + 1}.</td>
+                <td className="border border-gray-700 p-1">{tableFormatDate(dt.date)}</td>
+                <td className="border border-gray-700 p-1">{dt.vehicle_no}</td>
+                <td className="border border-gray-700 p-1">{dt.remarks}</td>
+                <td className="border border-gray-700 p-1">{dt.work_time} দিন</td>
+                <td className="border border-gray-700 p-1">{dt.rate}</td>
 
-                                <td className="border border-gray-700 p-1">
-                                    {(Number.parseFloat(dt.work_time) || 0) * (Number.parseFloat(dt.rate) || 0)}
-                                </td>
+                <td className="border border-gray-700 p-1">
+                  {(Number.parseFloat(dt.work_time) || 0) * (Number.parseFloat(dt.rate) || 0)}
+                </td>
 
-                                <td className="border border-gray-700 p-1 text-center ">
-                                    <div className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            className="w-4 h-4"
-                                            checked={!!selectedRows[dt.id]}
-                                            onChange={() => handleCheckBox(dt.id)}
-                                            disabled={false}
-                                        />
-                                        {dt.status === "Pending" && (
-                                            <span className=" inline-block px-2  text-xs text-yellow-600 rounded">
-                                                Not Submitted
-                                            </span>
-                                        )}
-                                        {dt.status === "Approved" && (
-                                            <span className=" inline-block px-2  text-xs text-green-700 rounded">
-                                                Submitted
-                                            </span>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                    <tfoot>
-                        <tr className="font-bold">
-                            <td colSpan={2} className="border border-black px-2 py-1 text-right">
-                                মোট
-                            </td>
-                            <td className="border border-black px-2 py-1">{"totalVehicle"}</td>
-                            <td className="border border-black px-2 py-1"></td>
-
-                          <td className="border border-black px-2 py-1">{totalWork} দিন</td>
-                            <td className="border border-black px-2 py-1">{totalRate}</td>
-                            
-                              <td className="border border-black px-2 py-1">{totalRent}</td>
-                            <td className="border border-black px-2 py-1"></td>
-                        </tr>
-                        <tr className="font-bold">
-                      <td colSpan={11} className="border border-black px-2 py-1">
-                        মোট পরিমাণ কথায়: <span className="font-medium">{numberToBanglaWords(grandTotal)}</span>
-                      </td>
-                    </tr>
-                    </tfoot>
-                </table>
-
-                {/* pagination */}
-                {trips.length > 0 && totalPages >= 1 && (
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={(page) => setCurrentPage(page)}
-                        maxVisible={8}
+                <td className="border border-gray-700 p-1 text-center ">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4"
+                      checked={!!selectedRows[dt.id]}
+                      onChange={() => handleCheckBox(dt.id)}
+                      disabled={false}
                     />
-                )}
-                <div className="flex justify-end mt-5">
-                    <button
-                        className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 cursor-pointer"
-                        onClick={handleSubmit}
-                    >
-                        পরিবর্তন সংরক্ষণ করুন
-                    </button>
-                </div>
-            </div>
+                    {dt.status === "Pending" && (
+                      <span className=" inline-block px-2  text-xs text-yellow-600 rounded">
+                        Not Submitted
+                      </span>
+                    )}
+                    {dt.status === "Submitted" && (
+                      <span className=" inline-block px-2  text-xs text-green-700 rounded">
+                        Submitted
+                      </span>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="font-bold">
+              <td colSpan={2} className="border border-black px-2 py-1 text-right">
+                মোট
+              </td>
+              <td className="border border-black px-2 py-1">{"totalVehicle"}</td>
+              <td className="border border-black px-2 py-1"></td>
+
+              <td className="border border-black px-2 py-1">{totalWork} দিন</td>
+              <td className="border border-black px-2 py-1">{totalRate}</td>
+
+              <td className="border border-black px-2 py-1">{totalRent}</td>
+              <td className="border border-black px-2 py-1"></td>
+            </tr>
+            <tr className="font-bold">
+              <td colSpan={11} className="border border-black px-2 py-1">
+                মোট পরিমাণ কথায়: <span className="font-medium">{numberToBanglaWords(grandTotal)}</span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        {/* pagination */}
+        {trips.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
+        <div className="flex justify-end mt-5">
+          <button
+            className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 cursor-pointer"
+            onClick={handleSubmit}
+          >
+            পরিবর্তন সংরক্ষণ করুন
+          </button>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
