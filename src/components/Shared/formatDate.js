@@ -1,8 +1,26 @@
+// // English format: 09-Dec-2024
+// export const tableFormatDate = (dateString, locale = "en-GB") => {
+//   if (!dateString) return "N/A";
+//   const date = new Date(dateString);
+
+//   const parts = new Intl.DateTimeFormat(locale, {
+//     day: "2-digit",
+//     month: "short",
+//     year: "numeric",
+//   }).formatToParts(date);
+
+//   const day = parts.find(p => p.type === "day")?.value;
+//   const month = parts.find(p => p.type === "month")?.value;
+//   const year = parts.find(p => p.type === "year")?.value;
+
+//   return `${day}-${month}-${year}`;
+// };
 // English format: 09-Dec-2024
 export const tableFormatDate = (dateString, locale = "en-GB") => {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
-
+// Prevent Invalid Date crash
+  if (isNaN(date.getTime())) return "N/A";
   const parts = new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
@@ -10,11 +28,12 @@ export const tableFormatDate = (dateString, locale = "en-GB") => {
   }).formatToParts(date);
 
   const day = parts.find(p => p.type === "day")?.value;
-  const month = parts.find(p => p.type === "month")?.value;
+  const month = parts.find(p => p.type === "month")?.value.toLowerCase();
   const year = parts.find(p => p.type === "year")?.value;
 
   return `${day}-${month}-${year}`;
 };
+
 
 // date formate
 export const formatDate = (dateString) => {

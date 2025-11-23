@@ -1087,7 +1087,7 @@ export default function AddTripForm() {
               </div>
               <div className="w-[40%]">
                 <label className="text-gray-700 text-sm font-semibold">
-                  ইমেজ
+                  লগ ছবি
                 </label>
                 <Controller
                   name="image"

@@ -404,10 +404,10 @@ const OverViewCard = () => {
             <table className="min-w-full text-sm text-left border border-gray-200">
               <thead className="bg-gray-100 text-primary">
                 <tr>
-                  <th className="p-2">SL.</th>
-                  <th className="p-2">Vehicle Number</th>
-                  <th className="p-2">Document</th>
-                  <th className="p-2">Remaining</th>
+                  <th className="p-2">ক্রমিক</th>
+                  <th className="p-2">ইকুইপমেন্ট নং</th>
+                  <th className="p-2">ডকুমেন্ট</th>
+                  <th className="p-2">অবশিষ্ট</th>
                 </tr>
               </thead>
               <tbody>

@@ -278,6 +278,7 @@ const AddEmployeeForm = () => {
   const [branch, setBranch] = useState([]);
   const navigate = useNavigate();
   const methods = useForm();
+  const [existingImage, setExistingImage] = useState(null);
   const { handleSubmit, control, register, reset, setValue } = methods;
 
   const dateRef = useRef(null);
@@ -306,35 +307,66 @@ const AddEmployeeForm = () => {
           const emp = res.data.data;
           reset(emp); // form set value
           if (emp.image) setPreviewImage(`https://afzalcons.com/backend/uploads/employee/${emp.image}`);
+          setExistingImage(emp.image);
         }
       })
       .catch((err) => console.error("Employee fetch error:", err));
   }, [id, reset]);
 
+// submit func
   const onSubmit = async (data) => {
     try {
-      setLoading(true);
       const formData = new FormData();
-      for (const key in data) formData.append(key, data[key]);
 
-      if (id) {
-        // Update employee
-        await api.post(`/employee/${id}`, formData);
-        toast.success("কর্মচারীর তথ্য সফলভাবে আপডেট হয়েছে");
+      // সব ফর্ম ফিল্ড ফর্মডাটায় যোগ করা
+      for (const key in data) {
+      if (key === "image") {
+        // নতুন ফাইল এসেছে কিনা চেক
+        if (data.image instanceof File) {
+          formData.append("image", data.image);
+        } else if (existingImage) {
+          // আগের ইমেজ থাকলে সেট করুন
+          formData.append("existingImage", existingImage);
+        }
       } else {
-        // Add new employee
-        await api.post(`/employee`, formData);
-        toast.success("নতুন কর্মচারী সফলভাবে সংরক্ষিত হয়েছে");
+        formData.append(key, data[key] ?? "");
       }
-      navigate("/tramessy/HR/HRM/employee-list");
+    }
+
+      let response;
+      if (id) {
+        // Update employee (multipart সহ)
+        response = await api.post(`/employee/${id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } else {
+        // Add new employee (multipart সহ)
+        response = await api.post(`/employee`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+
+      if (response.data.status === "Success") {
+        toast.success(
+          id
+            ? "Employee updated successfully!"
+            : "Employee added successfully!"
+        );
+        navigate("/tramessy/HR/HRM/employee-list");
+      } else {
+        toast.error("Server Error: " + (response.data.message || "Unknown issue"));
+      }
     } catch (error) {
       console.error(error);
-      toast.error("সার্ভার সমস্যা: " + (error.response?.data?.message || error.message));
-    } finally {
-      setLoading(false);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Unknown error";
+      toast.error("Server Error: " + errorMessage);
     }
   };
-
   return (
     <div className="">
       <Toaster position="top-center" />
@@ -344,18 +376,18 @@ const AddEmployeeForm = () => {
           className="mx-auto p-6 border border-gray-300 rounded-b-md rounded-t-md shadow space-y-4"
         >
           <h3 className=" pb-4 text-primary font-semibold ">
-        {id ? "কর্মচারীর তথ্য আপডেট করুন" : "নতুন কর্মচারী যোগ করুন"}
-      </h3>
+            {id ? "কর্মচারীর তথ্য আপডেট করুন" : "নতুন কর্মচারী যোগ করুন"}
+          </h3>
           {/* Row 1 */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
               <InputField name="employee_name" label="পূর্ণ নাম" required={!id} />
             </div>
-            
+
             <div className="w-full">
-                <InputField name="nid" label="Nid" required={!id} type="number" />
-              </div>
-              <div className="w-full">
+              <InputField name="nid" label="Nid" required={!id} type="number" />
+            </div>
+            <div className="w-full">
               <InputField name="mobile" label="মোবাইল" required={!id} />
             </div>
           </div>
@@ -363,22 +395,22 @@ const AddEmployeeForm = () => {
           {/* Row 2 */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full relative">
-                <SelectField
-                  name="blood_group"
-                  label="Blood Group"
-                  required={!id}
-                  options={[
-                    { value: "A+", label: "A+" },
-                    { value: "A-", label: "A-" },
-                    { value: "B+", label: "B+" },
-                    { value: "B-", label: "B-" },
-                    { value: "AB+", label: "AB+" },
-                    { value: "AB-", label: "AB-" },
-                    { value: "O+", label: "O+" },
-                    { value: "O-", label: "O-" },
-                  ]}
-                />
-              </div>
+              <SelectField
+                name="blood_group"
+                label="Blood Group"
+                required={!id}
+                options={[
+                  { value: "A+", label: "A+" },
+                  { value: "A-", label: "A-" },
+                  { value: "B+", label: "B+" },
+                  { value: "B-", label: "B-" },
+                  { value: "AB+", label: "AB+" },
+                  { value: "AB-", label: "AB-" },
+                  { value: "O+", label: "O+" },
+                  { value: "O-", label: "O-" },
+                ]}
+              />
+            </div>
             <div className="w-full">
               <SelectField
                 name="gender"
@@ -508,7 +540,9 @@ const AddEmployeeForm = () => {
                 type="button"
                 onClick={() => {
                   setPreviewImage(null);
+                  setExistingImage(null);
                   document.getElementById("image").value = "";
+                  setValue("image", null); // Controller কে আপডেট করুন
                 }}
                 className="absolute top-2 right-2 text-red-600 bg-white shadow rounded-sm hover:text-white hover:bg-secondary transition-all duration-300 cursor-pointer font-bold text-xl p-[2px]"
                 title="ছবি মুছে দিন"

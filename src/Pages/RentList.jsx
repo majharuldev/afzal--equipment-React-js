@@ -294,7 +294,7 @@ const RentList = () => {
           </div>
           {/*  */}
           <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
+            {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
             <input
               type="text"
               value={searchTerm}

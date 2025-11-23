@@ -392,7 +392,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Daily Income</p>
+              <p className="text-gray-600 text-sm">দৈনিক আয়</p>
               <p className="text-2xl font-bold text-gray-900">
                 {stats.todaySales.toLocaleString()} TK
               </p>
@@ -421,7 +421,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Daily Trip</p>
+              <p className="text-gray-600 text-sm">দৈনিক ইকুইপমেন্ট অপারেশন</p>
               <p className="text-2xl font-bold text-gray-900">
                 {stats.todayTrips}
               </p>
@@ -436,7 +436,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Average Trip Value</p>
+              <p className="text-gray-600 text-sm">গড় ট্রিপ মান</p>
               <p className="text-2xl font-bold text-gray-900">
                 {stats.avgTripValue.toFixed(0)} TK
               </p>
@@ -451,7 +451,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Active Vehicles</p>
+              <p className="text-gray-600 text-sm">সক্রিয় ইকুইপমেন্ট</p>
               <p className="text-2xl font-bold text-gray-900">
                 {stats.activeVehicles}
               </p>
