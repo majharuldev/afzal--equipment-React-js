@@ -91,15 +91,13 @@ const CarList = () => {
       const response = await api.get(
         `/driver/${id}`
       );
-      if (response.data.status === "Success") {
-        setSelectedDriver(response.data.data);
+      
+        setSelectedDriver(response.data);
         setIsViewOpen(true);
-      } else {
-        toast.error("ড্রাইভারের তথ্য লোড করা যায়নি.");
-      }
+      
     } catch (error) {
       console.error("View error:", error);
-      toast.error("ড্রাইভারের তথ্য পাওয়ার সময় সমস্যা হয়েছে");
+      toast.error("ড্রাইভারের তথ্য লোড করা যায়নি.");
     }
   };
   // export functionality
@@ -127,6 +125,7 @@ const CarList = () => {
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "drivers_data.xlsx");
   };
+  // pdf export functionality
   const exportDriversToPDF = () => {
     const doc = new jsPDF("landscape");
 
@@ -176,6 +175,7 @@ const CarList = () => {
 
     doc.save("drivers_data.pdf");
   };
+  // print functionality 
   const printDriversTable = () => {
     // Hide Action column
     const actionColumns = document.querySelectorAll(".action_column");
@@ -267,7 +267,7 @@ const CarList = () => {
   return (
     <main className="">
       <Toaster />
-      <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
+      <div className="w-xs md:w-full overflow-hidden overflow-x-auto  mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-6 border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">

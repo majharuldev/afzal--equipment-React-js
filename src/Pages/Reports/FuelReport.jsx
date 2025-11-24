@@ -324,7 +324,7 @@ export default function FuelReport() {
               <option value="">সকল ভেহিকল</option>
               {getAvailableVehicles().map(vehicle => <option key={vehicle} value={vehicle}>{vehicle}</option>)}
             </select>
-            <div className="flex items-end"><button onClick={clearFilters} className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2"><FiFilter />Clear</button></div>
+            <div className="flex items-end"><button onClick={clearFilters} className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2"><FiFilter />ক্লিয়ার</button></div>
           </div>
         )}
 

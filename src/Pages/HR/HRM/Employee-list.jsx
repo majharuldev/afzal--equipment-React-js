@@ -285,7 +285,7 @@ const EmployeeList = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
-// view modal states
+  // view modal states
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
@@ -332,7 +332,7 @@ const EmployeeList = () => {
       key: "image",
       render: (image) => (
         <img
-          src={`https://afzalcons.com/backend/uploads/employee/${image}`}
+          src={`${image}`}
           alt="employee"
           className="w-16 h-16 rounded-full"
         />
@@ -340,12 +340,13 @@ const EmployeeList = () => {
     },
     { title: "পূর্ণ নাম", dataIndex: "employee_name", key: "employee_name" },
     { title: "ইমেইল", dataIndex: "email", key: "email" },
-    { title: "যোগদানের তারিখ", dataIndex: "join_date", key: "join_date",
+    {
+      title: "যোগদানের তারিখ", dataIndex: "join_date", key: "join_date",
       render: (date) => {
         const formattedDate = tableFormatDate(date);
         return formattedDate;
       }
-     },
+    },
     { title: "পদবী", dataIndex: "designation", key: "designation" },
     { title: "মোবাইল", dataIndex: "mobile", key: "mobile" },
     {
@@ -359,7 +360,7 @@ const EmployeeList = () => {
             </Button>
           </Link>
           <Button type="primary" size="small" className="!bg-white !text-primary !shadow-md"
-          onClick={() => handleView(record)}>
+            onClick={() => handleView(record)}>
             <FaEye />
           </Button>
           <Button
@@ -415,28 +416,28 @@ const EmployeeList = () => {
               <img
                 src={
                   selectedEmployee.image
-                    ? `https://afzalcons.com/backend/uploads/employee/${selectedEmployee.image}`
+                    ? `${selectedEmployee.image}`
                     : "https://via.placeholder.com/100"
                 }
                 alt={selectedEmployee.full_name}
                 className="w-24 h-24 rounded-full border"
               />
               <div className="flex flex-col gap-1">
-                <p><span className="font-semibold">Name:</span> {selectedEmployee.employee_name}</p>
-                <p><span className="font-semibold">Email:</span> {selectedEmployee.email}</p>
-                <p><span className="font-semibold">Mobile:</span> {selectedEmployee.mobile}</p>
-                <p><span className="font-semibold">Designation:</span> {selectedEmployee.designation}</p>
-                <p><span className="font-semibold">Join Date:</span> {tableFormatDate(selectedEmployee.join_date)}</p>
+                <p><span className="font-semibold">নাম:</span> {selectedEmployee.employee_name}</p>
+                <p><span className="font-semibold">ইমেইল:</span> {selectedEmployee.email}</p>
+                <p><span className="font-semibold">মোবাইল:</span> {selectedEmployee.mobile}</p>
+                <p><span className="font-semibold">পদবি:</span> {selectedEmployee.designation}</p>
+                <p><span className="font-semibold">যোগদানের তারিখ:</span> {tableFormatDate(selectedEmployee.join_date)}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <p><span className="font-semibold">Gender:</span> {selectedEmployee.gender}</p>
-              <p><span className="font-semibold">Blood Group:</span> {selectedEmployee.blood_group}</p>
-              <p><span className="font-semibold">Birth Date:</span> {tableFormatDate(selectedEmployee.birth_date)}</p>
-              <p><span className="font-semibold">NID:</span> {selectedEmployee.nid}</p>
-              <p><span className="font-semibold">Salary:</span> {selectedEmployee.salary}</p>
-              <p><span className="font-semibold">Status:</span> {selectedEmployee.status}</p>
+              <p><span className="font-semibold">লিঙ্গ:</span> {selectedEmployee.gender}</p>
+              <p><span className="font-semibold">রক্তের গ্রুপ:</span> {selectedEmployee.blood_group}</p>
+              <p><span className="font-semibold">জন্ম তারিখ:</span> {tableFormatDate(selectedEmployee.birth_date)}</p>
+              <p><span className="font-semibold">জাতীয় পরিচয়পত্র নং:</span> {selectedEmployee.nid}</p>
+              <p><span className="font-semibold">বেতন:</span> {selectedEmployee.salary}</p>
+              <p><span className="font-semibold">স্ট্যাটাস:</span> {selectedEmployee.status}</p>
             </div>
 
             <p><span className="font-semibold">Address:</span> {selectedEmployee.address}</p>

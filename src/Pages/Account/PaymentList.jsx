@@ -423,7 +423,7 @@ const PaymentList = () => {
               onChange={(e) => {
                 setSearchTerm(e.target.value);
               }}
-              placeholder="Search list..."
+              placeholder="খুঁজুন..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
           </div>

@@ -117,7 +117,7 @@ const OfficialProducts = () => {
 
       // Remove driver from local list
       setPurchase((prev) => prev.filter((account) => account.id !== id));
-      toast.success("Advance Salary deleted successfully", {
+      toast.success("অফিসিয়াল প্রোডাক্টস সফলভাবে মুছে ফেলা হয়েছে", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -126,7 +126,7 @@ const OfficialProducts = () => {
       setSelectedOfficialProductId(null);
     } catch (error) {
       console.error("Delete error:", error.response || error);
-      toast.error("There was a problem deleting!", {
+      toast.error("মুছে ফেলতে সমস্যা হয়েছে!", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -203,18 +203,18 @@ const OfficialProducts = () => {
     const tableHeader = `
     <thead>
       <tr>
-        <th>SL</th>
-        <th>Date</th>
-        <th>Product ID</th>
-        <th>Supplier</th>
-        <th>Branch</th>
-        <th>Category</th>
-        <th>Item</th>
-        <th>Qty</th>
-        <th>Unit Price</th>
-        <th>Total</th>
-        <th>Service Charge</th>
-        <th>Purchase Amount</th>
+         <th>ক্রমিক</th>
+        <th>তারিখ</th>
+        <th>প্রোডাক্ট আইডি</th>
+        <th>সাপ্লায়ার</th>
+        <th>ব্রাঞ্চ</th>
+        <th>ক্যাটাগরি</th>
+        <th>আইটেম</th>
+        <th>পরিমাণ</th>
+        <th>ইউনিট প্রাইস</th>
+        <th>মোট</th>
+        <th>সার্ভিস চার্জ</th>
+        <th>পারচেজ অ্যামাউন্ট</th>
       </tr>
     </thead>
   `
@@ -271,7 +271,7 @@ const OfficialProducts = () => {
     printWindow.document.write(`
     <html>
       <head>
-        <title>Purchase List</title>
+        <title>-</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h2 { color: #11375B; text-align: center; font-size: 22px; margin-bottom: 10px; }
@@ -295,7 +295,7 @@ const OfficialProducts = () => {
         </style>
       </head>
       <body>
-        <h2>Purchase List</h2>
+        <h2>অফিসিয়াল প্রোডাক্টস</h2>
         ${printContent}
         <div class="footer">
           Printed on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
@@ -600,13 +600,13 @@ const OfficialProducts = () => {
               {/* Vehicle Information */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  গাড়ির তথ্য
+                  ইকুইপমেন্ট তথ্য
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
                   <p><span className="font-medium text-gray-600">ড্রাইভার নাম:</span> {selectedPurchase.driver_name}</p>
                   <p><span className="font-medium text-gray-600">ব্রাঞ্চ নাম:</span> {selectedPurchase.branch_name}</p>
-                  <p><span className="font-medium text-gray-600">গাড়ি নম্বর:</span> {selectedPurchase.vehicle_no}</p>
-                  <p><span className="font-medium text-gray-600">গাড়ি ক্যাটাগরি:</span> {selectedPurchase.vehicle_category}</p>
+                  <p><span className="font-medium text-gray-600">ইকুইপমেন্ট নম্বর:</span> {selectedPurchase.vehicle_no}</p>
+                  <p><span className="font-medium text-gray-600">ইকুইপমেন্ট ক্যাটাগরি:</span> {selectedPurchase.vehicle_category}</p>
                 </div>
               </section>
 
@@ -689,7 +689,7 @@ const OfficialProducts = () => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                আপনি কি নিশ্চিত যে আপনি এই কাস্টমারটি ডিলিট করতে চান?
+                আপনি কি নিশ্চিত যে আপনি এই অফিসিয়াল প্রোডাক্ট ডিলিট করতে চান?
               </p>
               <div className="flex justify-center space-x-4">
                 <button

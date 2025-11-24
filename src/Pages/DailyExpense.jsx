@@ -69,8 +69,8 @@ const DailyExpense = () => {
 const showModal = async (record = null) => {
   if (record) {
     try {
-      const res = await api.get(`/garageExp/${record.id}`);
-      const data = res.data?.data;
+      const res = await api.get(`/expense/${record.id}`);
+      const data = res.data;
 
       // Form field গুলো prefill করুন
       expenseForm.setFieldsValue({
@@ -619,11 +619,12 @@ const printColumns = columns.filter(col => col.key !== "action");
           </Form.Item>
 
           <div className="flex justify-end gap-3 mt-5 md:col-span-2">
-            <Button onClick={handleCancel}>বাতিল</Button>
+            <Button onClick={handleCancel} type="default" className="!outline-primary">বাতিল</Button>
             <Button
               type="primary"
               htmlType="submit"
               loading={isSubmitting}
+              className="!bg-primary"
             >
               {editingId ? "আপডেট করুন" : "সংরক্ষণ করুন"}
             </Button>

@@ -828,24 +828,24 @@ const DriverLedger = () => {
   // });
 
   const formatDate = (date) => {
-  if (!date) return "";
-  const d = new Date(date);
-  return d.toISOString().split("T")[0];
-};
-// filter
-const filteredDriver = driver.filter((d) => {
-  const matchesDriver = selectedDriver ? d.driver_name === selectedDriver : true;
+    if (!date) return "";
+    const d = new Date(date);
+    return d.toISOString().split("T")[0];
+  };
+  // filter
+  const filteredDriver = driver.filter((d) => {
+    const matchesDriver = selectedDriver ? d.driver_name === selectedDriver : true;
 
-  const dateOnly = d.date?.split("T")[0]; 
+    const dateOnly = d.date?.split("T")[0];
 
-  const start = formatDate(startDate);
-  const end = formatDate(endDate);
+    const start = formatDate(startDate);
+    const end = formatDate(endDate);
 
-  const matchesStart = start ? dateOnly >= start : true;
-  const matchesEnd = end ? dateOnly <= end : true;
+    const matchesStart = start ? dateOnly >= start : true;
+    const matchesEnd = end ? dateOnly <= end : true;
 
-  return matchesDriver && matchesStart && matchesEnd;
-});
+    return matchesDriver && matchesStart && matchesEnd;
+  });
 
 
 
@@ -976,8 +976,8 @@ const filteredDriver = driver.filter((d) => {
       dataToExport.push({
         Date: "TADA Total",
         Driver: selectedDriver,
-        "Work Place":"",
-        "Work Time":"",
+        "Work Place": "",
+        "Work Time": "",
         Load: "",
         Unload: "",
         Commission: "",
@@ -1002,8 +1002,8 @@ const filteredDriver = driver.filter((d) => {
       dataToExport.push({
         Date: "Helper Salary",
         Driver: selectedHelper,
-        "Work Place":"",
-        "Work Time":"",
+        "Work Place": "",
+        "Work Time": "",
         Load: "",
         Unload: "",
         Commission: "",
@@ -1202,7 +1202,7 @@ const filteredDriver = driver.filter((d) => {
 
   return (
     <div className="p-2">
-      <div className="w-[24rem] md:w-full max-w-7xl overflow-x-auto mx-auto border border-gray-200 p-2 py-10 md:p-4 rounded-md">
+      <div className="w-[24rem] md:w-full  overflow-x-auto mx-auto border border-gray-200 p-2 py-10 md:p-4 rounded-md">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 capitalize flex items-center gap-3">
@@ -1244,7 +1244,7 @@ const filteredDriver = driver.filter((d) => {
         {/* Month Filter Section */}
         {showFilter && (
           <div className="flex flex-col md:flex-row gap-5 border border-gray-300 rounded shadow p-5 my-5 transition-all duration-300 pb-5">
-              {/* <div className="relative w-full">
+            {/* <div className="relative w-full">
                 <label className="text-gray-700 text-sm font-semibold">
                   Select Month
                 </label>
@@ -1261,32 +1261,32 @@ const filteredDriver = driver.filter((d) => {
                   ))}
                 </select>
               </div> */}
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                selectsStart
-                startDate={startDate}
-                endDate={endDate}
-                dateFormat="dd/MM/yyyy"
-                placeholderText="শুরুর তারিখ"
-                locale="en-GB"
-                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-                isClearable
-              />
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শুরুর তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
 
-              <DatePicker
-                selected={endDate}
-                onChange={(date) => setEndDate(date)}
-                selectsEnd
-                startDate={startDate}
-                endDate={endDate}
-                minDate={startDate}
-                dateFormat="dd/MM/yyyy"
-                placeholderText="শেষ তারিখ"
-                locale="en-GB"
-                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-                isClearable
-              />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শেষ তারিখ"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
             {/* Driver dropdown */}
             <div className="w-full">
               <div className="relative w-full">
@@ -1393,17 +1393,17 @@ const filteredDriver = driver.filter((d) => {
                 <th className="border px-2 py-1">কাজের জায়গা</th>
                 <th className="border px-2 py-1">কাজের সময়</th>
                 <th className="border px-2 py-1">কমিশন</th>
-                <th className="border px-2 py-1">Labor</th>
-                <th className="border px-2 py-1">Parking</th>
-                <th className="border px-2 py-1">Night</th>
-                <th className="border px-2 py-1">Toll</th>
-                <th className="border px-2 py-1">Ferry</th>
-                <th className="border px-2 py-1">Police</th>
-                <th className="border px-2 py-1">Chada</th>
-                <th className="border px-2 py-1">Fuel</th>
-                <th className="border px-2 py-1">Callan</th>
-                <th className="border px-2 py-1">Others</th>
-                <th className="border px-2 py-1">Total</th>
+                <th className="border px-2 py-1">শ্রমিক</th>
+                <th className="border px-2 py-1">পার্কিং</th>
+                <th className="border px-2 py-1">নাইট</th>
+                <th className="border px-2 py-1">টোল</th>
+                <th className="border px-2 py-1">ফেরি</th>
+                <th className="border px-2 py-1">পুলিশ</th>
+                <th className="border px-2 py-1">চাঁদা</th>
+                <th className="border px-2 py-1">জ্বালানি</th>
+                <th className="border px-2 py-1">চালান</th>
+                <th className="border px-2 py-1">অন্যান্য</th>
+                <th className="border px-2 py-1">মোট</th>
               </tr>
             </thead>
             <tbody className="overflow-x-auto">

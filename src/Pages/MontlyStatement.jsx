@@ -325,7 +325,7 @@ const MonthlyStatement = () => {
               onChange={(e) => setSelectedMonth(e.target.value)}
               className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
             >
-              <option value="">All Months</option>
+              <option value="">সব মাস</option>
               {availableMonths.map((month) => (
                 <option key={month.value} value={month.value}>
                   {month.label}

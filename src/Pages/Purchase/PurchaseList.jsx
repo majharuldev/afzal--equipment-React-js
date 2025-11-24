@@ -710,7 +710,7 @@ const PurchaseList = () => {
 
       // Remove driver from local list
       setPurchase((prev) => prev.filter((account) => account.id !== id));
-      toast.success("Maintenance deleted successfully", {
+      toast.success("মেইনটেনেন্স সফলভাবে মুছে ফেলা হয়েছে", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -719,7 +719,7 @@ const PurchaseList = () => {
       setSelectedOfficialProductId(null);
     } catch (error) {
       console.error("Delete error:", error.response || error);
-      toast.error("There was a problem deleting!", {
+      toast.error("মুছে ফেলতে সমস্যা হয়েছে!", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -854,20 +854,20 @@ const PurchaseList = () => {
     const tableHeader = `
     <thead>
       <tr>
-        <th>SL</th>
-        <th>Date</th>
-        <th>Product ID</th>
-        <th>Supplier</th>
-        <th>Driver</th>
-        <th>Vehicle No</th>
-        <th>Vehicle Category</th>
-        <th>Category</th>
-        <th>Item</th>
-        <th>Qty</th>
-        <th>Unit Price</th>
-        <th>Total</th>
-        <th>Service Charge</th>
-        <th>Purchase Amount</th>
+       <th>ক্রমিক</th>
+        <th>তারিখ</th>
+        <th>প্রোডাক্ট আইডি</th>
+        <th>সরবরাহকারী</th>
+        <th>ড্রাইভার</th>
+        <th>গাড়ির নম্বর</th>
+        <th>গাড়ির ধরন</th>
+        <th>ক্যাটাগরি</th>
+        <th>আইটেম</th>
+        <th>পরিমাণ</th>
+        <th>ইউনিট মূল্য</th>
+        <th>মোট</th>
+        <th>সার্ভিস চার্জ</th>
+        <th>ক্রয়ের পরিমাণ</th>
       </tr>
     </thead>
   `
@@ -928,7 +928,7 @@ const PurchaseList = () => {
     printWindow.document.write(`
     <html>
       <head>
-        <title>Purchase List</title>
+        <title>-</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h2 { color: #11375B; text-align: center; font-size: 22px; margin-bottom: 10px; }
@@ -952,7 +952,7 @@ const PurchaseList = () => {
         </style>
       </head>
       <body>
-        <h2>Purchase List</h2>
+        <h2>মেইনটেনেন্স তালিকা</h2>
         ${printContent}
         <div class="footer">
           Printed on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
@@ -1199,7 +1199,7 @@ const PurchaseList = () => {
             {/* Header */}
             <div className="sticky top-0 bg-white z-10 flex justify-between items-center p-5">
               <h2 className="text-2xl font-semibold text-gray-800">
-                Purchase Details
+                মেইনটেনেন্স বিস্তারিত
               </h2>
               <button
                 onClick={() => setViewModalOpen(false)}
@@ -1226,16 +1226,16 @@ const PurchaseList = () => {
               {/* Basic Information */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  Basic Information
+                   মূল তথ্য
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
-                  <p><span className="font-medium text-gray-600">Date:</span> {tableFormatDate(selectedPurchase.date)}</p>
-                  <p><span className="font-medium text-gray-600">Supplier Name:</span> {selectedPurchase.supplier_name}</p>
-                  <p><span className="font-medium text-gray-600">Category:</span> {selectedPurchase.category}</p>
-                  <p><span className="font-medium text-gray-600">Purchase Amount:</span> {selectedPurchase.purchase_amount}</p>
-                  <p><span className="font-medium text-gray-600">Service Charge:</span> {selectedPurchase.service_charge || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Remarks:</span> {selectedPurchase.remarks}</p>
-                  <p><span className="font-medium text-gray-600">Status:</span>
+                  <p><span className="font-medium text-gray-600">তারিখ:</span> {tableFormatDate(selectedPurchase.date)}</p>
+                  <p><span className="font-medium text-gray-600">সরবরাহকারী নাম:</span> {selectedPurchase.supplier_name}</p>
+                  <p><span className="font-medium text-gray-600">ক্যাটাগরি</span> {selectedPurchase.category}</p>
+                  <p><span className="font-medium text-gray-600">ক্রয়ের পরিমাণ:</span> {selectedPurchase.purchase_amount}</p>
+                  <p><span className="font-medium text-gray-600">সার্ভিস চার্জ:</span> {selectedPurchase.service_charge || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">মন্তব্য:</span> {selectedPurchase.remarks}</p>
+                  <p><span className="font-medium text-gray-600">স্ট্যাটাস:</span>
                     <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${selectedPurchase.status === "pending"
                       ? "bg-yellow-100 text-yellow-700"
                       : selectedPurchase.status === "completed"
@@ -1251,40 +1251,40 @@ const PurchaseList = () => {
               {/* Vehicle Information */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  Vehicle Information
+                  ইকুইপমেন্ট তথ্য
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
-                  <p><span className="font-medium text-gray-600">Driver Name:</span> {selectedPurchase.driver_name}</p>
-                  <p><span className="font-medium text-gray-600">Branch Name:</span> {selectedPurchase.branch_name}</p>
-                  <p><span className="font-medium text-gray-600">Vehicle No:</span> {selectedPurchase.vehicle_no}</p>
-                  <p><span className="font-medium text-gray-600">Vehicle Category:</span> {selectedPurchase.vehicle_category}</p>
+                  <p><span className="font-medium text-gray-600">ড্রাইভার নাম:</span> {selectedPurchase.driver_name}</p>
+                  <p><span className="font-medium text-gray-600">শাখার নাম:</span> {selectedPurchase.branch_name}</p>
+                  <p><span className="font-medium text-gray-600">ইকুইপমেন্ট নং:</span> {selectedPurchase.vehicle_no}</p>
+                  <p><span className="font-medium text-gray-600">ইকুইপমেন্ট ক্যাটাগরি:</span> {selectedPurchase.vehicle_category}</p>
                 </div>
               </section>
 
               {/* Service Information */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  Service Information
+                  সার্ভিস তথ্য
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
-                  <p><span className="font-medium text-gray-600">Service Date:</span> {selectedPurchase.service_date || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Next Service Date:</span> {selectedPurchase.next_service_date || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Last KM:</span> {selectedPurchase.last_km || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Next KM:</span> {selectedPurchase.next_km || "N/A"}</p>
-                  <p><span className="font-medium text-gray-600">Priority:</span> {selectedPurchase.priority}</p>
-                  <p><span className="font-medium text-gray-600">Validity:</span> {selectedPurchase.validity || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">সার্ভিস তারিখ:</span> {selectedPurchase.service_date || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">পরবর্তী সার্ভিস তারিখ:</span> {selectedPurchase.next_service_date || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">শেষ কিমি:</span> {selectedPurchase.last_km || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">পরবর্তী কিমি:</span> {selectedPurchase.next_km || "N/A"}</p>
+                  <p><span className="font-medium text-gray-600">অগ্রাধিকার:</span> {selectedPurchase.priority}</p>
+                  <p><span className="font-medium text-gray-600">ভ্যালিডিটি:</span> {selectedPurchase.validity || "N/A"}</p>
                 </div>
               </section>
 
               {/* Creator Info */}
               <section>
                 <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                  System Info
+                   সিস্টেম তথ্য
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
-                  <p><span className="font-medium text-gray-600">Created By:</span> {selectedPurchase.created_by}</p>
+                  <p><span className="font-medium text-gray-600">তৈরি করেছেন:</span> {selectedPurchase.created_by}</p>
                   <div className="flex flex-col items-start ">
-                    <span className="font-medium mb-2">Bill Image:</span>
+                    <span className="font-medium mb-2">বিলের ছবি:</span>
                     <img
                       src={`https://afzalcons.com/backend/uploads/purchase/${selectedPurchase.image}`}
                       alt="Bill"
@@ -1298,16 +1298,16 @@ const PurchaseList = () => {
               {(
                 <section>
                   <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-4">
-                    Purchased Items
+                    মেইনটেনেন্স আইটেমসমূহ
                   </h3>
                   <div className="overflow-x-auto">
                     <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm md:text-base">
                       <thead className="bg-gray-100 text-gray-700">
                         <tr>
-                          <th className="p-3 text-left">Item Name</th>
-                          <th className="p-3 text-center">Quantity</th>
-                          <th className="p-3 text-center">Unit Price</th>
-                          <th className="p-3 text-center">Total</th>
+                          <th className="p-3 text-left">আইটেম নাম</th>
+                          <th className="p-3 text-center">পরিমাণ</th>
+                          <th className="p-3 text-center">ইউনিট প্রাইস</th>
+                          <th className="p-3 text-center">মোট</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1333,7 +1333,7 @@ const PurchaseList = () => {
                 onClick={() => setViewModalOpen(false)}
                 className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-all font-medium"
               >
-                Close
+                বন্ধ করুন
               </button>
             </div>
           </div>
@@ -1355,7 +1355,7 @@ const PurchaseList = () => {
                 <FaTrashAlt />
               </div>
               <p className="text-center text-gray-700 font-medium mb-6">
-                Are you sure you want to delete this Customer?
+               আপনি কি নিশ্চিত যে আপনি এই মেইনটেনেন্স প্রোডাক্ট ডিলিট করতে চান?
               </p>
               <div className="flex justify-center space-x-4">
                 <button

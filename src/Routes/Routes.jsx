@@ -386,7 +386,7 @@ export const router = createBrowserRouter([
         element: <AdvanceSalary />,
       },
       {
-        path: "/tramessy/HRM/Payroll/Advance-Salary-Form",
+        path: "/tramessy/HR/Payroll/Advance-Salary-Form",
         element: <AdvanceSalaryForm />,
       },
       {

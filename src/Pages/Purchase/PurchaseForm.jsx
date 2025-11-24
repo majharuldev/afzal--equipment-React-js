@@ -296,7 +296,7 @@ const PurchaseForm = () => {
         </h3>
         <FormProvider {...methods}>
           {isLoading  ? (
-            <div className="p-4 bg-white rounded-md shadow border-t-2 border-primary">
+            <div className="p-4 bg-white rounded-md">
               <FormSkeleton />
             </div>
           ) : (<form

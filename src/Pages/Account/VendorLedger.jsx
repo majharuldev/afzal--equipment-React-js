@@ -691,7 +691,7 @@ const VendorLedger = () => {
   return (
     <div className="md:p-2">
       <div className="border border-gray-200 md:p-4 rounded-xl">
-        <div className="overflow-x-auto max-w-5xl mx-auto">
+        <div className="overflow-x-auto  mx-auto">
           <div className="md:flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-[#11375B] capitalize">
               ভেন্ডর লেজার: {selectedVendor || "সকল ভেন্ডর"}

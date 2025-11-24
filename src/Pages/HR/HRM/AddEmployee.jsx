@@ -306,67 +306,54 @@ const AddEmployeeForm = () => {
         if (res.data.success) {
           const emp = res.data.data;
           reset(emp); // form set value
-          if (emp.image) setPreviewImage(`https://afzalcons.com/backend/uploads/employee/${emp.image}`);
+          if (emp.image) setPreviewImage(`${emp.image}`);
           setExistingImage(emp.image);
         }
       })
       .catch((err) => console.error("Employee fetch error:", err));
   }, [id, reset]);
 
-// submit func
+// submit function
   const onSubmit = async (data) => {
-    try {
-      const formData = new FormData();
+  try {
+    setLoading(true);
+    const formData = new FormData();
 
-      // সব ফর্ম ফিল্ড ফর্মডাটায় যোগ করা
-      for (const key in data) {
-      if (key === "image") {
-        // নতুন ফাইল এসেছে কিনা চেক
-        if (data.image instanceof File) {
-          formData.append("image", data.image);
-        } else if (existingImage) {
-          // আগের ইমেজ থাকলে সেট করুন
-          formData.append("existingImage", existingImage);
-        }
-      } else {
+    // সব fields যোগ করুন except image
+    for (const key in data) {
+      if (key !== "image") {
         formData.append(key, data[key] ?? "");
       }
     }
 
-      let response;
-      if (id) {
-        // Update employee (multipart সহ)
-        response = await api.post(`/employee/${id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      } else {
-        // Add new employee (multipart সহ)
-        response = await api.post(`/employee`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      }
-
-      if (response.data.status === "Success") {
-        toast.success(
-          id
-            ? "Employee updated successfully!"
-            : "Employee added successfully!"
-        );
-        navigate("/tramessy/HR/HRM/employee-list");
-      } else {
-        toast.error("Server Error: " + (response.data.message || "Unknown issue"));
-      }
-    } catch (error) {
-      console.error(error);
-      const errorMessage =
-        error.response?.data?.message || error.message || "Unknown error";
-      toast.error("Server Error: " + errorMessage);
+    // শুধুমাত্র নতুন image থাকলে image field যোগ করুন
+    if (data.image && data.image instanceof File) {
+      formData.append("image", data.image);
     }
-  };
+
+    const url = id ? `/employee/${id}` : `/employee`;
+    const response = await api.post(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (response.data.status === "Success") {
+      toast.success(
+        id ? "Employee updated successfully!" : "Employee added successfully!"
+      );
+      navigate("/tramessy/HR/HRM/employee-list");
+    } else {
+      toast.error("Server Error: " + (response.data.message || "Unknown issue"));
+    }
+  } catch (error) {
+    console.error(error);
+    const errorMessage =
+      error.response?.data?.message || error.message || "Unknown error";
+    toast.error("Server Error: " + errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <div className="">
       <Toaster position="top-center" />

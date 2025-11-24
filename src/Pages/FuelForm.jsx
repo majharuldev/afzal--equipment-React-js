@@ -275,8 +275,8 @@ const FuelForm = () => {
       return sum + quantity * unitPrice;
     }, 0);
 
-    const grandTotal = totalItemsAmount + (parseFloat(serviceCharge) || 0);
-    setValue("purchase_amount", grandTotal);
+    // const grandTotal = totalItemsAmount + (parseFloat(serviceCharge) || 0);
+    setValue("purchase_amount", totalItemsAmount);
   }, [items, serviceCharge, setValue]);
 
   // Preview image
@@ -324,7 +324,7 @@ const FuelForm = () => {
             remarks: purchaseData.remarks,
             priority: purchaseData.priority,
             created_by: purchaseData.created_by,
-            service_charge: purchaseData.service_charge,
+            // service_charge: purchaseData.service_charge,
             items:
               purchaseData.items && purchaseData.items.length > 0
                 ? purchaseData.items
@@ -392,7 +392,7 @@ const FuelForm = () => {
 
       //  মোট পারচেজ অ্যামাউন্ট হিসাব করা
       const purchase_amount =
-        total.reduce((sum, val) => sum + val, 0) + Number(data.service_charge || 0);
+        total.reduce((sum, val) => sum + val, 0);
 
       //  ফর্মডেটা তৈরি
       const formData = new FormData();
@@ -403,7 +403,7 @@ const FuelForm = () => {
       formData.append("purchase_amount", purchase_amount);
       formData.append("vehicle_no", data.vehicle_no);
       formData.append("driver_name", data.driver_name);
-      formData.append("service_charge", data.service_charge || 0);
+      // formData.append("service_charge", data.service_charge || 0);
       formData.append("remarks", data.remarks || "");
       formData.append("branch_name", data.branch_name || "");
       formData.append("priority", data.priority || "");
@@ -574,7 +574,7 @@ const FuelForm = () => {
 
                 <button
                   type="button"
-                  onClick={() => append({ item_name: "", quantity: 0, unit_price: 0, total: 0 })}
+                  onClick={() => append({ item_name: "", quantity: "", unit_price: "", total: 0 })}
                   className="bg-primary text-white px-3 py-1 rounded-md hover:bg-primary/80"
                 >
                   + আইটেম যোগ করুন
@@ -583,14 +583,14 @@ const FuelForm = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row justify-between gap-3">
-              <div className="w-full">
+              {/* <div className="w-full">
                 <InputField
                   name="service_charge"
                   label="সার্ভিস চার্জ"
                   type="number"
                   required={false}
                 />
-              </div>
+              </div> */}
               <div className="w-full">
                 <InputField
                   name="purchase_amount"
@@ -636,7 +636,7 @@ const FuelForm = () => {
                 <Controller
                   name="bill_image"
                   control={control}
-                  rules={isEditMode ? false : { required: "এই ফিল্ডটি প্রয়োজনীয়" }}
+                  // rules={isEditMode ? false : { required: "এই ফিল্ডটি প্রয়োজনীয়" }}
                   render={({
                     field: { onChange, ref },
                     fieldState: { error },

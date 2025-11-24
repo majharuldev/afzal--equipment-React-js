@@ -37,15 +37,15 @@ const DailyIncome = () => {
     const term = searchTerm.toLowerCase();
     const tripDate = new Date(dt.date);
     const matchesSearch =
-       String(dt.date || "").toLowerCase().includes(term) ||
-        String(dt.trip_time || "").toLowerCase().includes(term) ||
-        String(dt.load_point || "").toLowerCase().includes(term) ||
-        String(dt.unload_point || "").toLowerCase().includes(term) ||
-        String(dt.driver_name || "").toLowerCase().includes(term) ||
-        String(dt.driver_mobile || "").includes(term) ||
-        String(dt.driver_commission || "").includes(term) ||
-        String(dt.work_place || "").includes(term) ||
-        String(dt.vehicle_no || "").toLowerCase().includes(term) 
+      String(dt.date || "").toLowerCase().includes(term) ||
+      String(dt.trip_time || "").toLowerCase().includes(term) ||
+      String(dt.load_point || "").toLowerCase().includes(term) ||
+      String(dt.unload_point || "").toLowerCase().includes(term) ||
+      String(dt.driver_name || "").toLowerCase().includes(term) ||
+      String(dt.driver_mobile || "").includes(term) ||
+      String(dt.driver_commission || "").includes(term) ||
+      String(dt.work_place || "").includes(term) ||
+      String(dt.vehicle_no || "").toLowerCase().includes(term)
 
     const matchesDateRange =
       (!startDate || new Date(tripDate) >= new Date(startDate)) &&
@@ -54,7 +54,7 @@ const DailyIncome = () => {
     return matchesSearch && matchesDateRange;
   });
 
- // full data for export (ignore pagination)
+  // full data for export (ignore pagination)
   const exportData = filteredIncome.map((dt, index) => {
     const totalRent = toNumber(dt.total_rent || 0);
     const totalExp = toNumber(dt.total_exp || 0);
@@ -75,58 +75,103 @@ const DailyIncome = () => {
   });
 
   // excel function
+  // const exportExcel = () => {
+  //   const worksheet = XLSX.utils.json_to_sheet(exportData);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Trip Data");
+
+  //   // Number formatting for total_rent, total_exp, profit
+  //   const numberCols = ["G", "H", "I"]; // assuming total_rent=G, total_exp=H, profit=I
+  //   numberCols.forEach((col) => {
+  //     for (let row = 2; row <= exportData.length + 1; row++) {
+  //       const cellRef = `${col}${row}`;
+  //       if (worksheet[cellRef]) worksheet[cellRef].t = "n"; // type number
+  //     }
+  //   });
+
+  //   const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  //   const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  //   saveAs(data, "dailyincome_data.xlsx");
+  // };
+
   const exportExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Calculate totals
+    const totalWorkTimeSum = exportData.reduce((acc, cur) => acc + cur.work_time, 0);
+    const totalRateSum = exportData.reduce((acc, cur) => acc + cur.rate, 0);
+    const totalRentSum = exportData.reduce((acc, cur) => acc + cur.total_rent, 0);
+    const totalExpSum = exportData.reduce((acc, cur) => acc + cur.total_exp, 0);
+    const totalProfitSum = exportData.reduce((acc, cur) => acc + cur.profit, 0);
+
+    const totalRow = {
+      index: "মোট",
+      date: "",
+      vehicle_no: "",
+      work_place: "",
+      load_point: "",
+      unload_point: "",
+      work_time: totalWorkTimeSum,
+      rate: totalRateSum,
+      total_rent: totalRentSum,
+      total_exp: totalExpSum,
+      profit: totalProfitSum,
+    };
+
+    const finalData = [...exportData, totalRow];
+
+    const finalSheet = XLSX.utils.json_to_sheet(finalData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Trip Data");
-
-    // Number formatting for total_rent, total_exp, profit
-    const numberCols = ["G", "H", "I"]; // assuming total_rent=G, total_exp=H, profit=I
-    numberCols.forEach((col) => {
-      for (let row = 2; row <= exportData.length + 1; row++) {
-        const cellRef = `${col}${row}`;
-        if (worksheet[cellRef]) worksheet[cellRef].t = "n"; // type number
-      }
-    });
-
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "dailyincome_data.xlsx");
+    XLSX.utils.book_append_sheet(workbook, finalSheet, "Trip Data");
+    XLSX.writeFile(workbook, "dailyincome_data.xlsx");
   };
+
 
   // pdf function
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    const tableColumn = ["#", "Date", "Equipment No", "Work Place", "Load", "Unload", "Work Time", "Rate", "Total Rent", "Total Expense", "Profit"];
-    const tableRows = exportData.map((row) => [
-      row.index,
-      row.date,
-      row.vehicle_no,
-      row.work_place,
-      row.load_point,
-      row.unload_point,
-      row.work_time,
-      row.rate,
-      row.total_rent,
-      row.total_exp,
-      row.profit,
-    ]);
-    autoTable(doc, { head: [tableColumn], body: tableRows, styles: { font: "helvetica", fontSize: 8 } });
-    doc.save("dailyincome_data.pdf");
-  };
+ const exportPDF = () => {
+  const doc = new jsPDF();
+  const tableColumn = ["#", "Date", "Equipment No", "Work Place", "Load", "Unload", "Work Time", "Rate", "Total Rent", "Total Expense", "Profit"];
+  const tableRows = exportData.map((row) => [
+    row.index,
+    row.date,
+    row.vehicle_no,
+    row.work_place,
+    row.load_point,
+    row.unload_point,
+    row.work_time,
+    row.rate,
+    row.total_rent,
+    row.total_exp,
+    row.profit,
+  ]);
+
+  // Total Row
+  const totalWorkTimeSum = exportData.reduce((acc, cur) => acc + cur.work_time, 0);
+  const totalRateSum = exportData.reduce((acc, cur) => acc + cur.rate, 0);
+  const totalRentSum = exportData.reduce((acc, cur) => acc + cur.total_rent, 0);
+  const totalExpSum = exportData.reduce((acc, cur) => acc + cur.total_exp, 0);
+  const totalProfitSum = exportData.reduce((acc, cur) => acc + cur.profit, 0);
+  tableRows.push([
+    "মোট", "", "", "", "", "", totalWorkTimeSum, totalRateSum, totalRentSum, totalExpSum, totalProfitSum
+  ]);
+
+  autoTable(doc, { head: [tableColumn], body: tableRows, styles: { font: "helvetica", fontSize: 8 } });
+  doc.save("dailyincome_data.pdf");
+};
 
 
   // print function
-// Print all pages
+  // Print all pages
   const printTable = () => {
     let printHtml = "<table border='1' style='border-collapse: collapse; width: 100%; text-align: center;'>";
-    printHtml += "<thead><tr><th>#</th><th>তারিখ</th><th>গাড়ি</th><th>লোড</th><th>আনলোড</th><th>কাজের সময়</th><th>রেট</th><th>ট্রিপের ভাড়া</th><th>চলমান খরচ</th><th>লাভ</th></tr></thead>";
+    printHtml += "<thead><tr><th>#</th><th>তারিখ</th><th>ইকুইপমেন্ট</th><th>কাজের জায়গা</th><th>লোড</th><th>আনলোড</th><th>কাজের সময়</th><th>রেট</th><th>ট্রিপের ভাড়া</th><th>চলমান খরচ</th><th>লাভ</th></tr></thead>";
     printHtml += "<tbody>";
     exportData.forEach((row) => {
       printHtml += `<tr>
         <td>${row.index}</td>
         <td>${row.date}</td>
         <td>${row.vehicle_no}</td>
+        <td>${row.work_place}</td>
         <td>${row.load_point}</td>
         <td>${row.unload_point}</td>
         <td>${row.work_time}</td>
@@ -157,22 +202,26 @@ const DailyIncome = () => {
       title: "কাজের জায়গা",
       dataIndex: "work_place",
       key: "work_place",
-      render: (_, record)=> record.work_place || "N/A",
+      render: (_, record) => record.work_place || "N/A",
     },
-    { title: "লোড", dataIndex: "load_point", key: "load_point",
+    {
+      title: "লোড", dataIndex: "load_point", key: "load_point",
       render: (_, record) => record.load_point || "N/A",
-     },
-    { title: "আনলোড", dataIndex: "unload_point", key: "unload_point", 
-      render: (_, record) => record.unload_point || "N/A", },
-       {
+    },
+    {
+      title: "আনলোড", dataIndex: "unload_point", key: "unload_point",
+      render: (_, record) => record.unload_point || "N/A",
+    },
+    {
       title: "কাজের সময়",
       dataIndex: "work_time",
       key: "work_time",
-      render: (_, record)=> record.work_time || "N/A",
+      render: (_, record) => record.work_time || "N/A",
     },
-     { title: "রেট", dataIndex: "rate", key: "rate",
+    {
+      title: "রেট", dataIndex: "rate", key: "rate",
       render: (_, record) => record.rate || "N/A",
-     },
+    },
     { title: "ট্রিপের ভাড়া", dataIndex: "total_rent", key: "total_rent" },
     { title: "চলমান খরচ", dataIndex: "total_exp", key: "total_exp" },
     { title: "লাভ", dataIndex: "profit", key: "profit" },
@@ -198,13 +247,13 @@ const DailyIncome = () => {
             </CSVLink> */}
             <button
               onClick={exportExcel}
-              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer" > <FaFileExcel className="" /> Excel </button>
-            <button
+              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer" > <FaFileExcel className="" /> এক্সেল </button>
+            {/* <button
               onClick={exportPDF}
-              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer" > <FaFilePdf className="" /> PDF </button>
+              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-amber-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer" > <FaFilePdf className="" /> পিডিএফ </button> */}
             <button
               onClick={printTable}
-              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer" > <FaPrint className="" /> Print </button>
+              className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-blue-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer" > <FaPrint className="" /> প্রিন্ট </button>
           </div>
           {/* search */}
           <div className="mt-3 md:mt-0">
@@ -216,7 +265,7 @@ const DailyIncome = () => {
               }}
               placeholder="Search..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5" />
-               {/*  Clear button */}
+            {/*  Clear button */}
             {searchTerm && (
               <button
                 onClick={() => {
@@ -285,6 +334,8 @@ const DailyIncome = () => {
         <Table
           columns={columns}
           dataSource={filteredIncome.map((trip, index) => {
+            // const totalWorkTime = trip.work_time || 0;
+            // const totalRate = trip.rate || 0;
             const totalRent = Number(trip.total_rent || 0);
             const totalExp = Number(trip.total_exp || 0);
             return {
@@ -294,7 +345,34 @@ const DailyIncome = () => {
               profit: parseFloat(totalRent) - parseFloat(totalExp),
             };
           })}
+
           pagination={{ pageSize: 10, current: currentPage, onChange: setCurrentPage }}
+          summary={(pageData) => {
+            let totalWorkTimeSum = 0;
+            let totalRateSum = 0;
+            let totalRentSum = 0;
+            let totalExpSum = 0;
+            let totalProfitSum = 0;
+
+            pageData.forEach(({ total_rent, total_exp, profit, work_time, rate }) => {
+              totalWorkTimeSum += Number(work_time || 0);
+              totalRateSum += Number(rate || 0);
+              totalRentSum += Number(total_rent || 0);
+              totalExpSum += Number(total_exp || 0);
+              totalProfitSum += Number(profit || 0);
+            });
+
+            return (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0} colSpan={6} className="text-right font-bold">মোট</Table.Summary.Cell>
+                <Table.Summary.Cell index={6} className="font-bold">{totalWorkTimeSum}</Table.Summary.Cell>
+                <Table.Summary.Cell index={7} className="font-bold">{totalRateSum}</Table.Summary.Cell>
+                <Table.Summary.Cell index={8} className="font-bold">{totalRentSum}</Table.Summary.Cell>
+                <Table.Summary.Cell index={9} className="font-bold">{totalExpSum}</Table.Summary.Cell>
+                <Table.Summary.Cell index={10} className="font-bold">{totalProfitSum}</Table.Summary.Cell>
+              </Table.Summary.Row>
+            );
+          }}
         />
       </div>
     </main>

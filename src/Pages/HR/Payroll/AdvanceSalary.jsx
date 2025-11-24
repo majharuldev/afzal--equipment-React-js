@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaPen, FaPlus, FaTrashAlt, FaUserSecret } from "react-icons/fa";
+import { FaFilter, FaPen, FaPlus, FaTrashAlt, FaUserSecret } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { IoMdClose } from "react-icons/io";
 import toast, { Toaster } from "react-hot-toast";
@@ -8,6 +8,8 @@ import { Table, Button } from "antd";
 import api from "../../../utils/axiosConfig";
 import { tableFormatDate } from "../../../components/Shared/formatDate";
 import { RiEditLine } from "react-icons/ri";
+import DatePicker from "react-datepicker";
+import { FiFilter } from "react-icons/fi";
 
 const AdvanceSalary = () => {
   const [advanceSalary, setAdvanceSalary] = useState([]);
@@ -16,6 +18,9 @@ const AdvanceSalary = () => {
   const [itemsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterMonth, setFilterMonth] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedAdvanceSalaryId, setSelectedAdvanceSalaryId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
 
@@ -73,14 +78,36 @@ const AdvanceSalary = () => {
     return emp ? emp.employee_name || emp.email : empId;
   };
 
+  // মাসের লিস্ট 
+  const uniqueMonthList = [...new Set(
+    advanceSalary
+      .map(item => item.salary_month)
+      .filter(Boolean)
+  )];
+
+
   // সার্চ ফিল্টার
   const filteredData = advanceSalary.filter((item) => {
     const empName = getEmployeeName(item.employee_id)?.toLowerCase() || "";
     const amount = item.amount?.toString() || "";
     const month = item.salary_month?.toLowerCase() || "";
     const term = searchTerm.toLowerCase();
-    return empName.includes(term) || amount.includes(term) || month.includes(term);
+
+    // search
+    const matchSearch =
+      empName.includes(term) || amount.includes(term) || month.includes(term);
+
+    // employee filter
+    const matchEmployee = selectedEmployee
+      ? Number(item.employee_id) === Number(selectedEmployee)
+      : true;
+
+    // month filter (single)
+    const matchMonth = filterMonth ? item.salary_month === filterMonth : true;
+
+    return matchSearch && matchEmployee && matchMonth;
   });
+
 
   // পেজিনেশন
   const indexOfLast = currentPage * itemsPerPage;
@@ -168,7 +195,7 @@ const AdvanceSalary = () => {
   // AntD Table Columns
   const columns = [
     { title: "#", render: (_, __, index) => indexOfFirst + index + 1 },
-    { title: "তারিখ", dataIndex: "created_at", render: (text) => tableFormatDate(text) },
+    { title: "তারিখ", render: (_, record) => tableFormatDate(record.created_at) },
     { title: "কর্মচারীর নাম", dataIndex: "employee_id", render: (id) => getEmployeeName(id) },
     { title: "পরিমাণ", dataIndex: "amount", render: (amt) => `${amt} ৳` },
     { title: "বেতন মাস", dataIndex: "salary_month" },
@@ -203,18 +230,28 @@ const AdvanceSalary = () => {
   return (
     <div className="p-2">
       <Toaster />
-      <div className="max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-4 border border-gray-200">
+      <div className=" mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-4 border border-gray-200">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-xl" />
             অগ্রিম বেতন
           </h1>
-          <div>
-            <Link to="/tramessy/HR/Payroll/Advance-Salary-Form">
-              <Button type="primary" className="!bg-primary" icon={<FaPlus />}>অগ্রিম</Button>
-            </Link>
+          <div className=" flex gap-2">
+            <button
+              onClick={() => setShowFilter(prev => !prev)}
+              className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+            >
+              <FaFilter /> ফিল্টার
+            </button>
+            <div>
+
+              <Link to="/tramessy/HR/Payroll/Advance-Salary-Form">
+                <Button type="primary" className="!bg-primary" icon={<FaPlus />}>অগ্রিম</Button>
+              </Link>
+            </div>
           </div>
+
         </div>
 
         {/* Export & Search */}
@@ -260,6 +297,36 @@ const AdvanceSalary = () => {
             )}
           </div>
         </div>
+        {showFilter && (
+          <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+            <select
+              value={filterMonth}
+              onChange={(e) => {
+                setFilterMonth(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border px-3 py-2 rounded-md w-full"
+            >
+              <option value="">-- মাস নির্বাচন করুন --</option>
+
+              {uniqueMonthList.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+
+            <select value={selectedEmployee} onChange={e => { setSelectedEmployee(e.target.value); setCurrentPage(1); }}
+              className="border px-3 py-2 rounded-md w-full">
+              <option value="">-- কর্মচারী নির্বাচন করুন --</option>
+              {employee.map(emp => <option key={emp.id} value={emp.id}>{emp.employee_name}</option>)}
+            </select>
+            <div className="flex items-end"><button onClick={() => {
+              setCurrentPage(1)
+              setSelectedEmployee("")
+              setFilterMonth("")
+              setShowFilter(false)
+            }} className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2"><FiFilter />Clear</button></div>
+          </div>
+        )}
 
         {/* AntD Table */}
         <Table

@@ -110,7 +110,7 @@ const activeEmployees = employees.filter(emp => emp.status === "Active");
     const deductionTotal = advance + loanDeduction;
     const netPay = totalEarnings - deductionTotal;
 
-    // ✅ Return merged data row
+    //  Return merged data row
     return {
       empId: emp.id,
       name: emp.employee_name,

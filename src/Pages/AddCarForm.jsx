@@ -130,8 +130,8 @@ const AddCarForm = () => {
       { value: "9m", label: "৯ মিটার" },
     ],
     "Dump Truck": [
-      { value: "6_caka", label: "৬ চাক" },
-      { value: "10_caka", label: "১০ চাক" },
+      { value: "6_caka", label: "৬ চাকা" },
+      { value: "10_caka", label: "১০ চাকা" },
     ],
     Crane: [
       { value: "mobile_crane", label: "মোবাইল ক্রেন" },

@@ -262,7 +262,7 @@ const exportToExcel = () => {
               onChange={(e) => {
                 setSearchTerm(e.target.value);
               }}
-              placeholder="Search list..."
+              placeholder="খুঁজুন..."
               className="lg:w-60 border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}

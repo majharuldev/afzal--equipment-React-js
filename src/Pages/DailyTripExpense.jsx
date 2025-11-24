@@ -15,6 +15,7 @@ import DatePicker from "react-datepicker"
 import { set } from "react-hook-form"
 import { Button } from "antd"
 import api from "../utils/axiosConfig"
+import { tableFormatDate } from "../components/Shared/formatDate"
 
 const DailyTripExpense = () => {
   const [showFilter, setShowFilter] = useState(false)
@@ -277,7 +278,7 @@ const DailyTripExpense = () => {
                   return (
                     <tr key={item.id} className="hover:bg-gray-50 transition-all">
                       <td className="px-4 py-4 font-bold">{indexOfFirstItem + index + 1}</td>
-                      <td className="px-4 py-4">{item.date}</td>
+                      <td className="px-4 py-4">{tableFormatDate(item.date)}</td>
                       <td className="px-4 py-4">{item.vehicle_no}</td>
                       <td className="px-4 py-4">{item.driver_name}</td>
                       {/* <td className="px-4 py-4">{totalRent}</td> */}

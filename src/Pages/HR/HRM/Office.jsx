@@ -130,12 +130,12 @@ const Office = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <RiHomeOfficeLine className="text-gray-800 text-2xl" />
-            Office
+            অফিস
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/HR/HRM/OfficeForm">
               <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Office
+                <FaPlus /> অফিস
               </button>
             </Link>
           </div>
