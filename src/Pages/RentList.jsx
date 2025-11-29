@@ -93,9 +93,9 @@ const RentList = () => {
   const csvData = filteredData.map((dt, index) => ({
     index: index + 1,
     driver_name: dt.vendor_name,
-    vehicle_name: dt.vehicle_name_model,
-    "Vehicle Category": dt.vehicle_category,
-    "vehcile Size": dt.vehicle_size_capacity,
+    Equipment_name: dt.vehicle_name_model,
+    "Equipment Category": dt.vehicle_category,
+    "Equipment Size": dt.vehicle_size_capacity,
     "Reg. No": dt.registration_number,
     "Reg. Serial": dt.registration_serial,
     "Reg. Zone": dt.registration_zone,
@@ -212,9 +212,9 @@ const RentList = () => {
   const columns = [
     { title: "#", key: "index", render: (_, __, index) => index + 1 },
     { title: "ভেন্ডর/ড্রাইভারের নাম", dataIndex: "vendor_name", key: "vendor_name" },
-    { title: "গাড়ির নাম/মডেল", dataIndex: "vehicle_name_model", key: "vehicle_name_model" },
-    { title: "গাড়ির শ্রেণী", dataIndex: "vehicle_category", key: "vehicle_category" },
-    { title: "গাড়ির আকার/ধারণ ক্ষমতা", dataIndex: "vehicle_size_capacity", key: "vehicle_size_capacity" },
+    { title: "ইকুইপমেন্ট নাম/মডেল", dataIndex: "vehicle_name_model", key: "vehicle_name_model" },
+    { title: "ইকুইপমেন্ট শ্রেণী", dataIndex: "vehicle_category", key: "vehicle_category" },
+    { title: "ইকুইপমেন্ট আকার/ধারণ ক্ষমতা", dataIndex: "vehicle_size_capacity", key: "vehicle_size_capacity" },
     { title: "রেজি. নম্বর", dataIndex: "registration_number", key: "registration_number" },
     { title: "স্ট্যাটাস", dataIndex: "status", key: "status" },
     {
@@ -257,7 +257,7 @@ const RentList = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
             <FaTruck className="text-[#11375B] text-2xl" />
-            ভাড়া গাড়ি
+            ভাড়া ইকুইপমেন্ট
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/AddRentVehicleForm">

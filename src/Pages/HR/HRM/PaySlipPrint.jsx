@@ -69,15 +69,15 @@ console.log(data, "data")
           <div className="">
             {/* Logo */}
             {/* <img src={logo} alt="" /> */}
-            <div className="text-xs text-secondary">
-              <div className="font-bold">Afzal Construction</div>
-            </div>
+            {/* <div className="text-xs text-secondary">
+              <div className="font-bold">আফজাল কনস্ট্রাকশন</div>
+            </div> */}
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-secondary mb-2">Afzal Construction</h1>
+            <h1 className="text-2xl font-bold text-secondary mb-2">আফজাল কনস্ট্রাকশন</h1>
             <div className="text-xs text-gray-700">
-              <div>House-1/Ga, Block-C, Road-1</div>
-              <div>Mirpur-2,  Dhaka-1216, Bangladesh</div>
+              <div>হাউস-১/গা, ব্লক-সি, রোড-১  </div>
+              <div>মিরপুর-২, ঢাকা-১২১৬, বাংলাদেশ</div>
             </div>
           </div>
           <div className="w-16"></div> {/* Spacer for balance */}
@@ -85,7 +85,7 @@ console.log(data, "data")
 
         {/* Pay Slip Title */}
         <div className="text-center py-3 px-28">
-          <h2 className="text-xl font-bold italic border-b-2 border-gray-700">Salary Pay Slip</h2>
+          <h2 className="text-xl font-bold italic border-b-2 border-gray-700">বেতন স্লিপ</h2>
         </div>
 
         {/* table info */}
@@ -95,15 +95,15 @@ console.log(data, "data")
             <table className="w-full">
               <tbody>
                 <tr>
-                  <td className="border-r border-black p-2 font-semibold bg-gray-100 w-32">Employee ID</td>
+                  <td className="border-r border-black p-2 font-semibold bg-gray-100 w-32">কর্মী আইডি</td>
                   <td className="border-r border-black p-2 w-40">{data.empId}</td>
-                  <td className="border-r border-black p-2 font-semibold bg-gray-100 w-32">Employee Name</td>
+                  <td className="border-r border-black p-2 font-semibold bg-gray-100 w-32">কর্মীর নাম</td>
                   <td className="p-2">{data.name}</td>
                 </tr>
                 <tr className="border-t border-black">
-                  <td className="border-r border-black p-2 font-semibold bg-gray-100">Designation</td>
+                  <td className="border-r border-black p-2 font-semibold bg-gray-100">পদবী</td>
                   <td className="border-r border-black p-2">{data.designation}</td>
-                  <td className="border-r border-black p-2 font-semibold bg-gray-100">Month/Year</td>
+                  <td className="border-r border-black p-2 font-semibold bg-gray-100">মাস/বছর</td>
                   <td className="p-2">{data.monthYear}</td>
                 </tr>
               </tbody>
@@ -115,15 +115,15 @@ console.log(data, "data")
             <table className="w-full">
               <tbody>
                 <tr>
-                  <td colSpan={2} className="border-r border-black p-2 text-center font-bold bg-gray-100 w-1/4">Earnings</td>
+                  <td colSpan={2} className="border-r border-black p-2 text-center font-bold bg-gray-100 w-1/4">আয়</td>
                   {/* <td className="border-r border-black p-2 text-center font-bold bg-gray-100 w-1/4"></td> */}
-                  <td colSpan={2} className=" p-2 text-center font-bold bg-gray-100 w-1/4">Deductions</td>
+                  <td colSpan={2} className=" p-2 text-center font-bold bg-gray-100 w-1/4">কর্তন</td>
                   {/* <td className="p-2 text-center font-bold bg-gray-100 w-1/4"></td> */}
                 </tr>
                 <tr className="border-t border-black">
-                  <td className="border-r border-black p-2 font-semibold">Basic</td>
+                  <td className="border-r border-black p-2 font-semibold">মূল বেতন</td>
                   <td className="border-r border-black p-2 text-right">{data?.salary}</td>
-                  <td className="border-r border-black p-2 font-semibold">Advance</td>
+                  <td className="border-r border-black p-2 font-semibold">অগ্রিম</td>
                   <td className="p-2 text-right">{data?.advance}</td>
                 </tr>
                 {/* <tr className="border-t border-black">
@@ -161,9 +161,9 @@ console.log(data, "data")
                   <td className="p-2"></td>
                 </tr> */}
                 <tr className="border-t border-r border-black bg-gray-100">
-                  <td className="border-r border-black p-2 font-bold">Total Addition</td>
+                  <td className="border-r border-black p-2 font-bold">মোট সংযোজন</td>
                   <td className="border-r border-black p-2 text-right font-bold"> {data?.total}</td>
-                  <td className="border-r border-black p-2 font-bold">Total Deductions</td>
+                  <td className="border-r border-black p-2 font-bold">মোট কর্তন</td>
                   <td className=" border-black p-2 text-right font-bold">{data?.deductionTotal}.00</td>
                 </tr>
               </tbody>
@@ -175,12 +175,12 @@ console.log(data, "data")
             <table className="w-full">
               <tbody>
                 <tr className="border-t border-black">
-                  <td className=" p-2 font-bold bg-gray-100 w-1/4">Net Salary</td>
+                  <td className=" p-2 font-bold bg-gray-100 w-1/4">নেট বেতন</td>
                   <td className="p-2 text-center font-bold text-lg"> {data.netPay} </td>
                   <td className="p-2"></td>
                 </tr>
                 <tr className="border-t border-black">
-                  <td className=" p-2 font-bold bg-gray-100">Salary in Words:</td>
+                  <td className=" p-2 font-bold bg-gray-100">কথায় বেতন:</td>
                   <td className="p-2 font-semibold">{numberToWords(data.netPay).toUpperCase()}</td>
                 </tr>
               </tbody>
@@ -191,15 +191,15 @@ console.log(data, "data")
           <div className="p-10">
             <div className="flex justify-between items-start mb-8">
               <div>
-                <div className="mb-2 font-semibold">Salary Paid by:</div>
+                <div className="mb-2 font-semibold">বেতন পরিশোধ মাধ্যম:</div>
                 <div className="flex gap-8">
                   <label className="flex items-center gap-2">
                     <input type="checkbox" className="w-4 h-4" defaultChecked />
-                    <span>Cash</span>
+                    <span>নগদ</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input type="checkbox" className="w-4 h-4" />
-                    <span>Cheque</span>
+                    <span>চেক</span>
                   </label>
                 </div>
               </div>
@@ -207,11 +207,11 @@ console.log(data, "data")
 
             <div className="flex justify-between">
               <div>
-                <div className="mb-2">Employee Signature</div>
+                <div className="mb-2">কর্মীর স্বাক্ষর</div>
                 <div className="border-b border-black w-64 h-8"></div>
               </div>
               <div>
-                <div className="mb-2">Authorized</div>
+                <div className="mb-2">অনুমোদিত</div>
                 <div className="border-b border-black w-64 h-8"></div>
               </div>
             </div>

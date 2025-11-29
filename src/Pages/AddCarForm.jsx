@@ -253,7 +253,7 @@ const AddCarForm = () => {
           {/* Vehicle & Driver Name */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
-              <InputField name="vehicle_name" label="গাড়ির নাম" required={!id} />
+              <InputField name="vehicle_name" label="ইকুইপমেন্ট/গাড়ির নাম" required={!id} />
             </div>
             <div className="relative mt-2 md:mt-0 w-full">
               <SelectField

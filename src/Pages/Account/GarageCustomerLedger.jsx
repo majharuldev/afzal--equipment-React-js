@@ -37,7 +37,7 @@ const GarageCustomerLedger = () => {
       .then((res) => {
         if (res.data.success) {
           // Filter out entries without a vendor name early if needed, or handle nulls in calculations
-          setVendorData(res.data.filter((v) => !!v.customer_name));
+          setVendorData(res.data.data.filter((v) => !!v.customer_name));
         }
         setLoading(false);
       })
@@ -100,7 +100,7 @@ const GarageCustomerLedger = () => {
   // Calculate running balance for filtered data
   let currentRunningBalance = openingBalance;
   const rowsWithRunningBalance = filteredVendors.map((item) => {
-    const tripRent = toNumber(item.trip_rent || 0);
+    const tripRent = toNumber(item.amount || 0);
     const advance = toNumber(item.advance || 0);
     const payAmount = toNumber(item.pay_amount || 0);
 
@@ -119,7 +119,7 @@ const GarageCustomerLedger = () => {
   // Calculate totals for filtered data
   const totals = rowsWithRunningBalance.reduce(
     (acc, item) => {
-      acc.rent += toNumber(item.trip_rent || 0);
+      acc.rent += toNumber(item.amount || 0);
       acc.advance += toNumber(item.advance || 0);
       acc.pay_amount += toNumber(item.pay_amount || 0);
       return acc;
@@ -483,8 +483,8 @@ const GarageCustomerLedger = () => {
                   return (
                     <tr key={idx}>
                       <td className="border px-2 py-1">{idx + 1}</td>
-                      <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
-                      <td className="border px-2 py-1">{item.vendor_name}</td>
+                      <td className="border px-2 py-1">{tableFormatDate(item.bill_date)}</td>
+                      <td className="border px-2 py-1">{item.month_name}</td>
                       <td className="border px-2 py-1">
                         {item.vehicle_no || (
                           <span className="flex justify-center items-center">
@@ -493,14 +493,14 @@ const GarageCustomerLedger = () => {
                         )}
                       </td>
                       <td className="border px-2 py-1">
-                        {item.driver_name || (
+                        {item.customer_name || (
                           <span className="flex justify-center items-center">
                             --
                           </span>
                         )}
                       </td>
                       <td className="border px-2 py-1">
-                        {item.trip_rent ? toNumber(item.trip_rent) : "--"}
+                        {item.amount ? toNumber(item.amount) : "--"}
                       </td>
                       <td className="border px-2 py-1">
                         {item.advance ? toNumber(item.advance) : "--"}

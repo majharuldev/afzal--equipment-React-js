@@ -246,13 +246,13 @@ const OfficialProductForm = () => {
   return (
     <div className="mt-5 md:p-2">
       <Toaster />
-      <div className="mx-auto p-6 border-t-2 border-primary rounded-md shadow">
+      <div className="mx-auto p-6 rounded-md shadow">
         <h3 className=" pb-4 text-primary font-semibold ">
           {isEditMode ? "অফিসিয়াল পারচেজ আপডেট করুন" : "অফিসিয়াল পারচেজ যোগ করুন"}
         </h3>
         <FormProvider {...methods}>
           {isLoading  ? (
-                      <div className="p-4 bg-white rounded-md shadow border-t-2 border-primary">
+                      <div className="p-4 bg-white rounded-md ">
                         <FormSkeleton />
                       </div>
                     ) : (<form

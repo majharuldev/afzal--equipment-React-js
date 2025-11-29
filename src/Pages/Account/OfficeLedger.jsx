@@ -548,7 +548,7 @@ const OfficeLedger = () => {
                 <td colSpan="7" className="text-right border border-gray-700 px-2 py-2">
                   ক্লোজিং ব্যালেন্স:
                 </td>
-                <td className="border border-gray-700 px-2 py-2">
+                <td className={`border border-gray-700 px-2 py-2 ${calculateRunningBalance() < 0 ? 'text-red-600' : 'text-gray-800'}`}>
                   {calculateRunningBalance() < 0
                     ? `(${Math.abs(calculateRunningBalance())})`
                     : calculateRunningBalance()}
@@ -583,8 +583,8 @@ const OfficeLedger = () => {
                     <td className="border border-gray-700 px-2 py-1">{dt.unload_point || "--"}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.cash_in}</td>
                     <td className="border border-gray-700 px-2 py-1">{dt.cash_out}</td>
-                    <td className="border border-gray-700 px-2 py-1">
-                      {currentBalance < 0 ? `${Math.abs(currentBalance)}` : currentBalance}
+                    <td className={`border border-gray-700 px-2 py-1`}>
+                      {currentBalance < 0 ? `(${Math.abs(currentBalance)})` : currentBalance}
                     </td>
                   </tr>
                 );

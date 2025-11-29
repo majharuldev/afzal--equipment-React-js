@@ -16,6 +16,7 @@ import { tableFormatDate } from "../../components/Shared/formatDate";
 import { Button } from "antd";
 import DatePicker from "react-datepicker";
 import api from "../../utils/axiosConfig";
+import { toNumber } from "../../hooks/toNumber";
 
 const PaymentList = () => {
   const generateRefId = useRefId();
@@ -81,8 +82,8 @@ const PaymentList = () => {
   const exportToExcel = () => {
     const exportData = filteredPaymentList.map((dt, index) => {
       const item = dt.purchase?.items?.[0];
-      const total = parseFloat(dt.total_amount) || 0;
-      const paid = parseFloat(dt.pay_amount) || 0;
+      const total = toNumber(dt.total_amount) || 0;
+      const paid = toNumber(dt.pay_amount) || 0;
       const due = total - paid;
       
       let status = "Unpaid";
@@ -94,15 +95,15 @@ const PaymentList = () => {
 
       return {
         "SL": index + 1,
-        "Date": dt.date,
+        "Date": tableFormatDate(dt.date),
         "Supplier Name": dt.supplier_name,
         "Category": dt.category,
         "Item name": item?.item_name || "-",
-        "Quantity": item?.quantity || "-",
-        "Rate": item?.unit_price || "-",
-        "Service charge": dt.purchase?.service_charge || 0,
-        "Total Amount": dt?.total_amount || "-",
-        "Pay Amount": dt.pay_amount,
+        "Quantity": toNumber(item?.quantity) || "-",
+        "Rate": toNumber(item?.unit_price) || "-",
+        "Service charge": toNumber(dt.purchase?.service_charge) || 0,
+        "Total Amount": toNumber(dt?.total_amount) || "-",
+        "Pay Amount": toNumber(dt.pay_amount),
         "Due": due,
         "Status": dt.status
       };
@@ -157,7 +158,7 @@ const PaymentList = () => {
       return `
         <tr>
           <td>${index + 1}</td>
-          <td>${dt.date}</td>
+          <td>${tableFormatDate(dt.date)}</td>
           <td>${dt.supplier_name}</td>
           <td>${dt.category}</td>
           <td>${item?.item_name || "-"}</td>

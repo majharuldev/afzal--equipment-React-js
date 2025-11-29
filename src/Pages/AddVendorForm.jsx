@@ -268,7 +268,7 @@ const AddVendorForm = () => {
             `/vendor/${id}`
           );
           if (response.data.success) {
-            methods.reset(response.data.data); 
+            methods.reset(response.data.data);
           }
         } catch (error) {
           toast.error("ডাটা লোড করতে ব্যর্থ হয়েছে!");
@@ -345,7 +345,7 @@ const AddVendorForm = () => {
             </div>
 
             {/* ইমেইল + শুরুর বাকি */}
-            <div className="mt-1 md:flex justify-between gap-3">            
+            <div className="mt-1 md:flex justify-between gap-3">
               <div className="mt-3 md:mt-0 w-full relative">
                 <InputField name="email" label="ইমেইল" />
               </div>
@@ -367,36 +367,16 @@ const AddVendorForm = () => {
                   label="রেন্ট ক্যাটাগরি"
                   required
                   options={[
-                    { value: "", label: "ভাড়া নির্বাচন করুন..." },
-                    { value: "Pickup", label: "পিকআপ" },
-                    { value: "Covered Van", label: "কাভার্ড ভ্যান" },
-                    { value: "Open Truck", label: "ওপেন ট্রাক" },
-                    { value: "Trailer", label: "ট্রেইলার" },
-                    { value: "Mini Truck", label: "মিনি ট্রাক" },
-                    { value: "Dump Truck", label: "ডাম্প ট্রাক" },
-                    { value: "Truck", label: "ট্রাক" },
-                    { value: "Tanker", label: "ট্যাংকার" },
-                    { value: "Fridge Van", label: "ফ্রিজ ভ্যান" },
-                    { value: "Cargo Van", label: "কার্গো ভ্যান" },
-                    { value: "Delivery Van", label: "ডেলিভারি ভ্যান" },
-                    { value: "Mini Van", label: "মিনি ভ্যান" },
-                    { value: "Bus", label: "বাস" },
-                    { value: "Micro Bus", label: "মাইক্রোবাস" },
-                    { value: "Car", label: "কার" },
-                    { value: "CNG", label: "সিএনজি" },
-                    { value: "Auto Rickshaw", label: "অটোরিকশা" },
-                    { value: "Bike", label: "বাইক" },
-                    { value: "Loader", label: "লোডার" },
-                    { value: "Crane", label: "ক্রেন" },
-                    { value: "Forklift", label: "ফর্কলিফট" },
-                    { value: "Excavator", label: "এক্সকাভেটর" },
-                    { value: "Bulldozer", label: "বুলডোজার" },
-                    { value: "Road Roller", label: "রোড রোলার" },
+                    { value: "", label: "ইকুইপমেন্টের ধরণ নির্বাচন করুন..." },
+                    { value: "Exvator", label: "এক্সভেটর" },
                     { value: "Concrete Mixer", label: "কংক্রিট মিক্সার" },
-                    { value: "Generator", label: "জেনারেটর" },
-                    { value: "Compressor", label: "কম্প্রেসার" },
-                    { value: "Welding Machine", label: "ওয়েল্ডিং মেশিন" },
-                    { value: "Other", label: "অন্যান্য" },
+                    { value: "Road Roller", label: "রোলার" },
+                    { value: "Payloader", label: "পে-লোডার" },
+                    { value: "Chain Dozer", label: "চেইন ডোজার" },
+                    { value: "Dump Truck", label: "ডাম্প ট্রাক" },
+                    { value: "Crane", label: "ক্রেন" },
+                    { value: "Trailer", label: "ট্রেইলার" },
+                    // { value: "Other", label: "অন্যান্য" }
                   ]}
                 />
               </div>

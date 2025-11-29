@@ -663,7 +663,7 @@ export default function AddTripForm() {
       })
       .catch((error) => console.error("Upazila API Error:", error));
   }, []);
-  console.log("Upazilas:", upazilas);
+
   //  Dropdown options বানানো
   const upazilaOptions = upazilas.map((u) => ({
     value: u.name,

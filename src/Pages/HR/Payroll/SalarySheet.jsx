@@ -376,33 +376,32 @@ const handlePrintTable = () => {
 
               {/* Sub header row for SL numbers - merged for names */}
               <tr className=" text-black text-center">
-                <th className="border border-gray-400 px-2 py-1" rowSpan={2}>SL</th>
-                <th className="border border-gray-400 px-2 py-1" rowSpan={2}>Month</th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={2}>ক্রমিক</th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={2}>মাস</th>
                 <th className="border border-gray-400 px-2 py-1" colSpan={1} rowSpan={2}>
-                  Name &<br />Designation
-                </th>
-                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>Working<br />DAY</th>
-                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>Designation</th>
+                  নাম </th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>কর্মদিবস</th>
+                <th className="border border-gray-400 px-2 py-1" rowSpan={3}>পদবি</th>
                 <th className="border border-gray-400 px-2 py-1 " colSpan={1} >
-                  E A R N I N G S
+                 উপার্জন
                 </th>
                 <th className="border border-gray-400 px-2 py-1 " colSpan={1}>
-                  D E D U C T I O N
+                  কর্তন
                 </th>
                 {/* <th className="border border-gray-400 px-2 py-1">By CEO</th> */}
-                <th className="border border-gray-400 px-2 py-1">Net Pay Half</th>
-                <th className="border border-gray-400 px-2 py-1">Action</th>
+                <th className="border border-gray-400 px-2 py-1">নেট পে(অর্ধেক)</th>
+                <th className="border border-gray-400 px-2 py-1">অ্যাকশন</th>
               </tr>
               {/* Main header row */}
               <tr className=" text-black text-center">
-                <th className="border border-gray-400 px-2 py-1">Salary</th>
+                <th className="border border-gray-400 px-2 py-1">বেতন</th>
                 {/* <th className="border border-gray-400 px-2 py-1">H/Rent</th> */}
                 {/* <th className="border border-gray-400 px-2 py-1">Conv</th> */}
                 {/* <th className="border border-gray-400 px-2 py-1">Medical</th> */}
                 {/* <th className="border border-gray-400 px-2 py-1">Allowan Ce/Ot</th> */}
                 {/* <th className="border border-gray-400 px-2 py-1">Bonus</th> */}
                 {/* <th className="border border-gray-400 px-2 py-1 ">Total</th> */}
-                <th className="border border-gray-400 px-2 py-1">Advance</th>
+                <th className="border border-gray-400 px-2 py-1">অ্যাডভান্স</th>
                 {/* <th className="border border-gray-400 px-2 py-1">Loan</th> */}
                 {/* <th className="border border-gray-400 px-2 py-1">Total</th> */}
                 <th className="border border-gray-400 px-2 py-1"></th>
@@ -413,7 +412,7 @@ const handlePrintTable = () => {
               {loading ? (
                 <tr>
                   <td colSpan={16} className="text-center py-4">
-                    Loading...
+                   লোড হচ্ছে...
                   </td>
                 </tr>
               ) :
@@ -449,7 +448,7 @@ const handlePrintTable = () => {
                         className="flex items-center w-full px-3 py-1 text-sm text-gray-700 bg-white shadow rounded"
                       >
                         <BiPrinter className="mr-1 h-4 w-4" />
-                        PaySlip
+                        পে-স্লিপ
                       </button>
                     </td>
                   </tr>
@@ -458,7 +457,7 @@ const handlePrintTable = () => {
             <tfoot>
               <tr className=" font-bold text-center">
                 <td className="border border-gray-400 px-2 py-1" colSpan={5}>
-                  Grand Total
+                  মোট
                 </td>
                 <td className="border border-gray-400 px-2 py-1">
                   {grandTotal.toLocaleString()}

@@ -32,7 +32,7 @@ const AddRentVehicleForm = () => {
           }
         })
         .catch((err) => {
-          toast.error("গাড়ির তথ্য লোড করা যায়নি");
+          toast.error("ইকুইপমেন্ট তথ্য লোড করা যায়নি");
         })
         .finally(() => setLoading(false));
     }
@@ -131,7 +131,7 @@ const AddRentVehicleForm = () => {
 
       if (resData.success) {
         toast.success(
-          id ? "গাড়ির তথ্য সফলভাবে আপডেট হয়েছে!" : "গাড়ির তথ্য সফলভাবে সংরক্ষিত হয়েছে!",
+          id ? "ইকুইপমেন্ট তথ্য সফলভাবে আপডেট হয়েছে!" : "ইকুইপমেন্ট তথ্য সফলভাবে সংরক্ষিত হয়েছে!",
           { position: "top-right" }
         );
         reset();
@@ -155,7 +155,7 @@ const AddRentVehicleForm = () => {
 
       <div className="mx-auto p-6 rounded-b-md rounded-t-md shadow border border-gray-300">
         <h3 className=" pb-4 text-primary font-semibold ">
-          {id ? "ভাড়া গাড়ির তথ্য আপডেট করুন" : "ভাড়া গাড়ির তথ্য যোগ করুন"}
+          {id ? "ভাড়া ইকুইপমেন্ট তথ্য আপডেট করুন" : "ভাড়া ইকুইপমেন্ট তথ্য যোগ করুন"}
         </h3>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
@@ -165,7 +165,7 @@ const AddRentVehicleForm = () => {
                 <div className="w-full mt-2 md:mt-0">
                   <InputField
                     name="vehicle_name_model"
-                    label="গাড়ির নাম / মডেল"
+                    label="ইকুইপমেন্ট নাম / মডেল"
                     required
                   />
                 </div>
@@ -201,7 +201,7 @@ const AddRentVehicleForm = () => {
                 <div className="w-full">
                   <SelectField
                     name="vehicle_size_capacity"
-                    label="গাড়ির সাইজ/ক্ষমতা"
+                    label="ইকুইপমেন্ট সাইজ/ক্ষমতা"
                     required
                     options={[
                       { value: "", label: "সাইজ নির্বাচন করুন..." },
@@ -262,7 +262,7 @@ const AddRentVehicleForm = () => {
             <div className="border border-gray-300 p-5 rounded-md mt-3">
               <h5 className="text-primary font-semibold text-center pb-5">
                 <span className="py-2 border-b-2 border-primary">
-                  গাড়ির রেজিস্ট্রেশন তথ্য
+                 ইকুইপমেন্ট রেজিস্ট্রেশন তথ্য
                 </span>
               </h5>
               <div className="md:flex justify-between gap-3">

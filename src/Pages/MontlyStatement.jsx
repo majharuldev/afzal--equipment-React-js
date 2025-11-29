@@ -276,7 +276,6 @@ const MonthlyStatement = () => {
     <FaPrint /> Print
   </button>;
 
-  console.log(filteredData, "fil")
 
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);

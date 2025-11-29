@@ -713,6 +713,7 @@ import autoTable from "jspdf-autotable";
 import { FaFilter } from "react-icons/fa";
 import api from "../../utils/axiosConfig";
 import DatePicker from "react-datepicker";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const DriverLedger = () => {
   const [driver, setDriver] = useState([]);
@@ -1409,7 +1410,7 @@ const DriverLedger = () => {
             <tbody className="overflow-x-auto">
               {rowsWithBalance.map((item, index) => (
                 <tr key={index}>
-                  <td className="border px-2 py-1">{item.date}</td>
+                  <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
                   <td className="border px-2 py-1">{item.load_point}</td>
                   <td className="border px-2 py-1">{item.unload_point}</td>
                   <td className="border px-2 py-1">{item.work_place}</td>

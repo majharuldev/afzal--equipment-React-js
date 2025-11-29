@@ -82,12 +82,12 @@ const CarList = () => {
       vehicle.fitness_date?.toLowerCase().includes(term)
     );
   });
-  if (loading) return <p className="text-center mt-16">গাড়ির তথ্য লোড হচ্ছে...</p>;
+  if (loading) return <p className="text-center mt-16">ইকুইপমেন্ট তথ্য লোড হচ্ছে...</p>;
 
   const csvData = filteredCarList.map((dt, index) => ({
     index: index + 1,
     driver_name: dt.driver_name,
-    vehicle_name: dt.vehicle_name,
+    Equipment_name: dt.vehicle_name,
     "Equipment category": dt.vehicle_category,
     size: dt.size,
     "Equipment type": dt.vehicle_type,
@@ -119,10 +119,10 @@ const CarList = () => {
     const tableColumn = [
       "#",
       "Driver Name",
-      "Vehicle Name",
-      "Vehicle Category",
-      "Vehicle Size",
-      "Vehicle No",
+      "Equipment Name",
+      "Equipment Category",
+      "Equipment Size",
+      "Equipment No",
       "Status",
     ];
     const tableRows = filteredCarList.map((v, index) => [
@@ -187,10 +187,10 @@ const CarList = () => {
               <tr>
                 <th>#</th>
                 <th>Driver Name</th>
-                <th>Vehicle Name</th>
-                <th>Vehicle Category</th>
-                <th>Vehicle Size</th>
-                <th>Vehicle No</th>
+                <th>Equipment Name</th>
+                <th>Equipment Category</th>
+                <th>Equipment Size</th>
+                <th>Equipment No</th>
                 <th>Status</th>
               </tr>
             </thead>

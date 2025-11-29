@@ -524,12 +524,12 @@ export const router = createBrowserRouter([
           ),
       },
       // garage mangement
-      { path: "/tramessy/garage", element: <GarageCustomer /> },
-      {path: "/tramessy/GarageCustomerForm", element: <GarageCustomerForm />},
-      { path: "/tramessy/GarageCustomerForm/update/:id", element: <GarageCustomerForm />},
-      { path: "/tramessy/garage-expense", element: <GarageExpense /> },
-      { path: "/tramessy/garage-customer-ledger", element: <GarageCustomerLedger /> },
-      { path: "/tramessy/garage-recieve-amount", element: <GarageReceiveAmount /> },
+      { path: "/tramessy/yard", element: <GarageCustomer /> },
+      {path: "/tramessy/yard-CustomerForm", element: <GarageCustomerForm />},
+      { path: "/tramessy/yard-CustomerForm/update/:id", element: <GarageCustomerForm />},
+      { path: "/tramessy/yard-expense", element: <GarageExpense /> },
+      { path: "/tramessy/yard-customer-ledger", element: <GarageCustomerLedger /> },
+      { path: "/tramessy/yard-recieve-amount", element: <GarageReceiveAmount /> },
       // Reports
       {
         path: "/tramessy/Reports/Employee-Report",

@@ -106,7 +106,7 @@ const GarageCustomer = () => {
       key: "action",
       render: (_, record) => (
         <div className="flex gap-2">
-          <Link to={`/tramessy/GarageCustomerForm/update/${record.id}`}>
+          <Link to={`/tramessy/garage-CustomerForm/update/${record.id}`}>
             <Button
               type="primary"
               size="small"
@@ -143,7 +143,7 @@ const GarageCustomer = () => {
             সকল গ্যারেজ কাস্টমার তথ্য
           </h1>
           <div>
-            <Link to="/tramessy/GarageCustomerForm">
+            <Link to="/tramessy/garage-CustomerForm">
               <Button
                 type="primary"
                 icon={<FaPlus />}

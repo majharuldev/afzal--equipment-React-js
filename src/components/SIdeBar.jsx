@@ -232,35 +232,35 @@ const Sidebar = () => {
     },
     // গ্যারেজ ম্যানেজমেন্ট
     {
-      key: "garage",
+      key: "yard",
       icon: <PiWarehouse className="mr-1"/>,
-      label: "গ্যারেজ ম্যানেজমেন্ট",
+      label: "ইয়ার্ড ম্যানেজমেন্ট",
       children: [
         {
-          key: "garage",
-          label: <Link to="/tramessy/garage">গ্যারেজ কাস্টমার</Link>,
-          className: isActive("/tramessy/garage")
+          key: "yard",
+          label: <Link to="/tramessy/yard">ইয়ার্ড কাস্টমার</Link>,
+          className: isActive("/tramessy/yard")
             ? "ant-menu-item-selected"
             : "",
         },
         {
-          key: "garage-expense",
-          label: <Link to="/tramessy/garage-expense">গ্যারেজ খরচের হিসাব</Link>,
-          className: isActive("/tramessy/garage-expense")
+          key: "yard-expense",
+          label: <Link to="/tramessy/yard-expense">ইয়ার্ড খরচের হিসাব</Link>,
+          className: isActive("/tramessy/yard-expense")
             ? "ant-menu-item-selected"
             : "",
         },
         {
-          key: "garage-recieve-amount",
-          label: <Link to="/tramessy/garage-recieve-amount">ভাড়া উত্তোলন</Link>,
-          className: isActive("/tramessy/garage-recieve-amount")
+          key: "yard-recieve-amount",
+          label: <Link to="/tramessy/yard-recieve-amount">ভাড়া উত্তোলন</Link>,
+          className: isActive("/tramessy/yard-recieve-amount")
             ? "ant-menu-item-selected"
             : "",
         },
         {
-          key: "garage-customer-ledger",
-          label: <Link to="/tramessy/garage-customer-ledger">গ্যারেজ কাস্টমার লেজার</Link>,
-          className: isActive("/tramessy/garage-customer-ledger")
+          key: "yard-customer-ledger",
+          label: <Link to="/tramessy/yard-customer-ledger">ইয়ার্ড কাস্টমার লেজার</Link>,
+          className: isActive("/tramessy/yard-customer-ledger")
             ? "ant-menu-item-selected"
             : "",
         },

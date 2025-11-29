@@ -5,6 +5,9 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import pdfMake from "pdfmake/build/pdfmake";
 import api from "../../utils/axiosConfig";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import { toNumber } from "../../hooks/toNumber";
+import DatePicker from "react-datepicker";
 
 const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const [startDate, setStartDate] = useState("");
@@ -34,7 +37,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const selectedCustomer = customerList.find(
     cust => cust.customer_name === selectedCustomerName
   );
-  const dueAmount = selectedCustomer ? parseFloat(selectedCustomer.due) : 0;
+  const dueAmount = selectedCustomer ? toNumber(selectedCustomer.due) : 0;
 
   // filter date 
   const filteredLedger = customer.filter((entry) => {
@@ -54,8 +57,8 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   // Calculate totals including opening balance
   const totals = filteredLedger.reduce(
     (acc, item) => {
-      acc.rent += Number(item.bill_amount || 0);
-      acc.rec_amount += Number(item.rec_amount || 0);
+      acc.rent += toNumber(item.bill_amount || 0);
+      acc.rec_amount += toNumber(item.rec_amount || 0);
       return acc;
     },
     { rent: 0, rec_amount: 0 }
@@ -75,26 +78,37 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   // };
 
   const totalRent = filteredLedger.reduce(
-    (sum, entry) => sum + parseFloat(entry.rec_amount || 0),
+    (sum, entry) => sum + toNumber(entry.rec_amount || 0),
     0
   );
 
   const customerName = filteredLedger[0]?.customer_name || "All Customers";
 
-  // excel
+  //  Excel Export (Filtered Data)
   const exportToExcel = () => {
-    const rows = filteredLedger.map((dt, index) => ({
+    const rows = filteredLedger.map((dt, index) => {
+        const bill = toNumber(dt.bill_amount || 0);
+    const rec = toNumber(dt.rec_amount || 0);
+
+    cumulative += bill;
+    cumulative -= rec;
+      return {
       SL: index + 1,
-      Date: dt.bill_date,
+      Date: tableFormatDate(dt.working_date),
       Customer: dt.customer_name,
-      "Vehicle No": dt.vehicle_no,
-      "Loading Point": dt.load_point,
-      "Unloading Point": dt.unload_point,
-      "Total Rent": dt.body_cost,
-    }));
+      Load: dt.load_point || "--",
+      Unload: dt.unload_point || "--",
+      Vehicle: dt.vehicle_no || "--",
+      Driver: dt.driver_name || "--",
+      // "Trip Rent": toNumber(dt.bill_amount || 0),
+      // Demurage: toNumber(dt.d_total || 0),
+      "Bill Amount": toNumber(dt.bill_amount || 0),
+      "Received Amount": toNumber(dt.rec_amount || 0),
+      Balance: cumulative
+  }});
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Ledger");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Customer Ledger");
     XLSX.writeFile(workbook, `${customerName}-Ledger.xlsx`);
   };
 
@@ -147,16 +161,28 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   };
 
   // print
-  const handlePrint = () => {
-    const printContent = tableRef.current;
-    const printWindow = window.open("", "", "width=900,height=600");
-    printWindow.document.write("<html><head><title>Print Ledger</title></head><body>");
-    printWindow.document.write(printContent.innerHTML);
-    printWindow.document.write("</body></html>");
+    const handlePrint = () => {
+    const printContent = tableRef.current.innerHTML;
+    const printWindow = window.open("", "", "width=900,height=700");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${customerName} Ledger</title>
+          <style>
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #333; padding: 5px; text-align: center; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h2 style="text-align:center;">${customerName} - Customer Ledger</h2>
+          <h4 style="text-align:center;">Date Range: ${startDate ? tableFormatDate(startDate) : "All"} - ${endDate ? tableFormatDate(endDate) : "All"}</h4>
+          ${printContent}
+        </body>
+      </html>
+    `);
     printWindow.document.close();
-    printWindow.focus();
     printWindow.print();
-    printWindow.close();
   };
 
   return (
@@ -178,12 +204,12 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
             >
               <FaFileExcel /> এক্সেল
             </button>
-            <button
+            {/* <button
               onClick={exportToPDF}
               className="flex items-center gap-2 py-2 px-5 bg-gray-50 hover:bg-primary text-primary hover:text-white rounded-md shadow-md shadow-amber-200 transition-all duration-300"
             >
               <FaFilePdf /> পিডিএফ
-            </button>
+            </button> */}
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 py-2 px-5 bg-gray-50 hover:bg-primary text-primary hover:text-white rounded-md shadow-md shadow-blue-200 transition-all duration-300"
@@ -203,55 +229,32 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
 
         {showFilter && (
           <div className="flex gap-4 border border-gray-300 rounded-md p-5 mb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setCurrentPage(0);
-                }}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-              {startDate && (
-                <button
-                  onClick={() => {
-                    setStartDate("");
-                    setCurrentPage(0);
-                  }}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="Clear start date"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
 
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setCurrentPage(0);
-                }}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-              {endDate && (
-                <button
-                  onClick={() => {
-                    setEndDate("");
-                    setCurrentPage(0);
-                  }}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="Clear end date"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
-            </div>
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              locale="en-GB"
+              className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+              isClearable
+            />
             <div className="w-xs ">
                               <button
                                 onClick={() => {
@@ -313,8 +316,8 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                 {(() => {
                   let cumulativeDue = dueAmount; // Opening balance
                   return filteredLedger.map((item, idx) => {
-                    const billAmount = parseFloat(item.bill_amount || 0);
-                    const receivedAmount = parseFloat(item.rec_amount || 0);
+                    const billAmount = toNumber(item.bill_amount || 0);
+                    const receivedAmount = toNumber(item.rec_amount || 0);
 
                     cumulativeDue += billAmount;
                     cumulativeDue -= receivedAmount;
@@ -322,7 +325,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                     return (
                       <tr key={idx}>
                         <td className="border px-2 py-1">{idx + 1}</td>
-                        <td className="border px-2 py-1">{(item.bill_date)}</td>
+                        <td className="border px-2 py-1">{tableFormatDate(item.bill_date)}</td>
                         <td className="border px-2 py-1">{item.customer_name}</td>
                         <td className="border px-2 py-1">
                           {item.working_area || <span className="flex justify-center items-center">--</span>}
@@ -345,9 +348,10 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
                         <td className="border px-2 py-1">
                           {receivedAmount ? receivedAmount : "--"}
                         </td>
-                        <td className="border px-2 py-1">
-                          {cumulativeDue}
-                        </td>
+                        
+                         <td className={`border border-gray-700 px-2 py-1 ${cumulativeDue < 0 ? 'text-red-600' : ''}`}>
+                      {cumulativeDue < 0 ? `(${Math.abs(cumulativeDue)})` : cumulativeDue}
+                    </td>
                       </tr>
                     );
                   });

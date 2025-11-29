@@ -280,7 +280,7 @@ const StatisticsCard = () => {
       try {
         setLoading(true);
 
-        // 🟢 Fetch trip data
+        //  Fetch trip data
         const tripResponse = await api.get(
           `/trip`
         );
