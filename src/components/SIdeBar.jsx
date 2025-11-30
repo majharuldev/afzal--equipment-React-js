@@ -88,7 +88,7 @@ const Sidebar = () => {
 
         {
           key: "rent-list",
-          label: <Link to="/tramessy/RentList">ভাড়ার গাড়ি</Link>,
+          label: <Link to="/tramessy/RentList">ভাড়ার ইকুইপমেন্ট</Link>,
           className: isActive("/tramessy/RentList")
             ? "ant-menu-item-selected"
             : "",
@@ -264,6 +264,13 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
+         {
+          key: "yard-profit-loss",
+          label: <Link to="/tramessy/yard-profit-loss">ইয়ার্ড লাভ/ক্ষতি</Link>,
+          className: isActive("/tramessy/yard-profit-loss")
+            ? "ant-menu-item-selected"
+            : "",
+        },
         
       ],
     },
@@ -305,7 +312,7 @@ const Sidebar = () => {
         {
           key: "driver-report",
           label: (
-            <Link to="/tramessy/Reports/Driver-Report"> ড্রাইভার রিপোর্ট </Link>
+            <Link to="/tramessy/Reports/Driver-Report">অপারেটর রিপোর্ট </Link>
           ),
           className: isActive("/tramessy/Reports/Driver-Report")
             ? "ant-menu-item-selected"
@@ -322,7 +329,7 @@ const Sidebar = () => {
           key: "vehicle-report",
           label: (
             <Link to="/tramessy/Reports/vehicle-report">
-              গাড়ির রিপোর্ট
+              ইকুইপমেন্ট রিপোর্ট
             </Link>
           ),
           className: isActive("/tramessy/Reports/vehicle-report")

@@ -21,6 +21,7 @@ import { Button, Form, Input, Modal, Select, Space, Table } from "antd";
 import api from "../../utils/axiosConfig";
 import { AuthContext } from "../../providers/AuthProvider";
 import { RiEditLine } from "react-icons/ri";
+import { toNumber } from "../../hooks/toNumber";
 
 const GarageReceiveAmount = () => {
     const [expenses, setExpenses] = useState([]);
@@ -176,12 +177,36 @@ const GarageReceiveAmount = () => {
         }
     };
 
-    const filteredData = expenses.filter((item) =>
-        [item.customer_name, item.amount, item.month_name, item.remarks]
-            .join(" ")
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-    );
+    // const filteredData = expenses.filter((item) =>
+    //     [item.customer_name, item.amount, item.month_name, item.remarks]
+    //         .join(" ")
+    //         .toLowerCase()
+    //         .includes(searchTerm.toLowerCase())
+    // );
+
+ const filteredData = expenses.filter((item) => {
+    // Search filter
+    const matchesSearch = [
+        item.customer_name,
+        item.amount,
+        item.month_name,
+        item.remarks
+    ]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+    // Convert to JS Date
+    const itemDate = new Date(item.date);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    // Date filter
+    const matchesStartDate = start ? itemDate >= start : true;
+    const matchesEndDate = end ? itemDate <= end : true;
+
+    return matchesSearch && matchesStartDate && matchesEndDate;
+});
 
     // column for table
     const columns = [
@@ -198,7 +223,7 @@ const GarageReceiveAmount = () => {
             render: (text) => tableFormatDate(text),
         },
         {
-            title: "যাকে প্রদান",
+            title: "কাস্টমার",
             dataIndex: "customer_name",
             key: "customer_name",
         },
@@ -232,9 +257,9 @@ const GarageReceiveAmount = () => {
             key: "action",
             render: (_, record) => (
                 <Space>
-                    <Button onClick={() => showModal(record)} size="small" type="primary" className="!bg-white !text-primary !shadow-md">
+                    {record.status==="Unpaid"&&<Button onClick={() => showModal(record)} size="small" type="primary" className="!bg-white !text-primary !shadow-md">
                         <RiEditLine />
-                    </Button>
+                    </Button>}
                     <button
                         onClick={() => {
                             setSelectedExpenseId(record.id);
@@ -250,23 +275,25 @@ const GarageReceiveAmount = () => {
     ]
 
     // excel
-    const exportExcel = () => {
-        const data = filteredData.map((item, i) => ({
-            ক্রমিক: i + 1,
-            তারিখ: item.date,
-            মাস: item.মাস,
-            "যাকে প্রদান": item.paid_to,
-            পরিমাণ: item.pay_amount,
-            স্ট্যাটাস: item.status,
-            মন্তব্য: item.remarks,
-        }));
+   const exportExcel = () => {
+    const data = filteredData.map((item, index) => ({
+        "Sl": index + 1,
+        "Date": tableFormatDate(item.date),
+        "Customer": item.customer_name,
+        "Amount": toNumber(item.amount),
+        "Month-Year": item.month_name,
+        "Status": item.status,
+        "Remarks": item.remarks,
+        "Created By": item.created_by,
+    }));
 
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "General Expense");
-        const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        saveAs(new Blob([buffer]), "general_expense.xlsx");
-    };
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Garage Receive");
+    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([buffer]), "garage_receive.xlsx");
+};
+
     // pdf
     const exportPDF = () => {
         const doc = new jsPDF();
@@ -284,28 +311,64 @@ const GarageReceiveAmount = () => {
         doc.save("general_expense.pdf");
     };
     // print
-    const printTable = () => {
-        const content = printRef.current.innerHTML;
-        const win = window.open("", "", "width=900,height=650");
-        win.document.write(`
+  const printTable = () => {
+    // Temporary window for printing
+    const win = window.open("", "", "width=900,height=650");
+
+    // Build Table from FULL filteredData (NOT paginated)
+    const tableHTML = `
+      <table border="1" cellspacing="0" cellpadding="6" style="width:100%; font-size:14px; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th>ক্রমিক</th>
+            <th>তারিখ</th>
+            <th>কাস্টমার</th>
+            <th>পরিমাণ</th>
+            <th>মাস - বছর</th>
+            <th>মন্তব্য</th>
+            <th>স্ট্যাটাস</th>
+            <th>ক্রিয়েটেড</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredData
+              .map(
+                (item, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${tableFormatDate(item.date)}</td>
+                <td>${item.customer_name}</td>
+                <td>${item.amount}</td>
+                <td>${item.month_name}</td>
+                <td>${item.remarks ?? ""}</td>
+                <td>${item.status}</td>
+                <td>${item.created_by}</td>
+              </tr>
+            `
+              )
+              .join("")}
+        </tbody>
+      </table>
+    `;
+
+    win.document.write(`
       <html>
         <head>
           <title>Print</title>
-          <style>
-            body { font-family: Arial, sans-serif; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f5f5f5; }
-          </style>
         </head>
-        <body>${content}</body>
+        <body>
+          <h2 style="text-align:center; margin-bottom:20px;">ভাড়া উত্তোলন</h2>
+          ${tableHTML}
+        </body>
       </html>
     `);
-        win.document.close();
-        win.focus();
-        win.print();
-        win.close();
-    };
+
+    win.document.close();
+    win.focus();
+    win.print();
+    setTimeout(() => win.close(), 500);
+};
+
 
     // month yeayr options
     const currentYear = new Date().getFullYear();
@@ -460,7 +523,11 @@ const months = [
                         />
                         <div className="w-xs mt-3 md:mt-0 flex gap-2">
                             <button
-                                onClick={() => setCurrentPage(1)}
+                                onClick={() => {setCurrentPage(1)
+                                      setStartDate("");
+                                    setEndDate("");
+                                    setShowFilter(false);
+                                }}
                                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                             >
                                 <FaFilter /> মুছে ফেলুন
@@ -568,8 +635,8 @@ const months = [
                         ]}
                     >
                         <Select placeholder="অবস্থা নির্বাচন করুন">
-                            <Select.Option value="paid">Paid</Select.Option>
-                            <Select.Option value="unpaid">Unpaid</Select.Option>
+                            <Select.Option value="Paid">Paid</Select.Option>
+                            <Select.Option value="Unpaid">Unpaid</Select.Option>
                         </Select>
                     </Form.Item>
 

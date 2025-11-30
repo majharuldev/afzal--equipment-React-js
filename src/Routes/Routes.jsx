@@ -79,6 +79,7 @@ import SalarySheet from "../Pages/HR/Payroll/SalarySheet";
 import DailyIncome from "../Pages/DailyIncome";
 import HelperList from "../Pages/HR/Helper";
 import HelperForm from "../Pages/Reports/HelperForm";
+import GarageProfitLoss from "../Pages/Garage/GarageProfitLoss";
 
 export const router = createBrowserRouter([
   {
@@ -525,11 +526,12 @@ export const router = createBrowserRouter([
       },
       // garage mangement
       { path: "/tramessy/yard", element: <GarageCustomer /> },
-      {path: "/tramessy/yard-CustomerForm", element: <GarageCustomerForm />},
-      { path: "/tramessy/yard-CustomerForm/update/:id", element: <GarageCustomerForm />},
+      {path: "/tramessy/garage-CustomerForm", element: <GarageCustomerForm />},
+      { path: "/tramessy/garage-CustomerForm/update/:id", element: <GarageCustomerForm />},
       { path: "/tramessy/yard-expense", element: <GarageExpense /> },
       { path: "/tramessy/yard-customer-ledger", element: <GarageCustomerLedger /> },
       { path: "/tramessy/yard-recieve-amount", element: <GarageReceiveAmount /> },
+      { path: "/tramessy/yard-profit-loss", element: <GarageProfitLoss /> },
       // Reports
       {
         path: "/tramessy/Reports/Employee-Report",

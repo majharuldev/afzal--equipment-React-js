@@ -81,7 +81,7 @@ const GarageCustomerForm = () => {
                         : "গ্রাহকের তথ্য সফলভাবে সংরক্ষণ করা হয়েছে!"
                 );
                 reset();
-                navigate("/tramessy/garage");
+                navigate("/tramessy/yard");
             } else {
                 toast.error("সার্ভার সমস্যা: " + (resData.message || "অজানা ত্রুটি"));
             }

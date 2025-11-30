@@ -100,12 +100,12 @@ const GarageCustomerLedger = () => {
   // Calculate running balance for filtered data
   let currentRunningBalance = openingBalance;
   const rowsWithRunningBalance = filteredVendors.map((item) => {
-    const tripRent = toNumber(item.amount || 0);
-    const advance = toNumber(item.advance || 0);
-    const payAmount = toNumber(item.pay_amount || 0);
+    const tripRent = toNumber(item.due_amount || 0);
+    // const advance = toNumber(item.advance || 0);
+    const payAmount = toNumber(item.rec_amount || 0);
 
     // Calculate the net effect of this transaction on the balance
-    const transactionEffect = tripRent - advance - payAmount;
+    const transactionEffect = tripRent - payAmount;
 
     currentRunningBalance += transactionEffect;
 
@@ -119,12 +119,12 @@ const GarageCustomerLedger = () => {
   // Calculate totals for filtered data
   const totals = rowsWithRunningBalance.reduce(
     (acc, item) => {
-      acc.rent += toNumber(item.amount || 0);
-      acc.advance += toNumber(item.advance || 0);
-      acc.pay_amount += toNumber(item.pay_amount || 0);
+      acc.rent += toNumber(item.due_amount || 0);
+      // acc.advance += toNumber(item.advance || 0);
+      acc.rec_amount += toNumber(item.rec_amount || 0);
       return acc;
     },
-    { rent: 0, advance: 0, pay_amount: 0 }
+    { rent: 0, rec_amount: 0 }
   );
 
   // The grand total due is the last running balance, or opening balance if no transactions
@@ -140,46 +140,38 @@ const GarageCustomerLedger = () => {
     // Add opening balance row if a specific vendor is selected
     if (selectedVendor) {
       dataToExport.push({
+        SL: "",
         Date: "",
-        Vendor: "Opening Balance",
-        Load: "",
-        Unload: "",
-        Vehicle: "",
-        Driver: "",
-        "Trip Rent": "",
-        Advance: "",
+        Month: "",
+        Customer: "",
+        " Rent": "",
         "Pay Amount": "",
         Due: openingBalance,
       });
     }
 
     // Add transaction rows
-    rowsWithRunningBalance.forEach((item) => {
+    rowsWithRunningBalance.forEach((item, index) => {
       dataToExport.push({
+        SL: index+1,
         Date: item.date,
-        Vendor: item.vendor_name,
-        Load: item.load_point || "--",
-        Unload: item.unload_point || "--",
-        Vehicle: item.vehicle_no || "--",
-        Driver: item.driver_name || "--",
-        "Trip Rent": item.trip_rent ? toNumber(item.trip_rent) : "--",
-        Advance: item.advance ? toNumber(item.advance) : "--",
-        "Pay Amount": item.pay_amount ? toNumber(item.pay_amount) : "--",
+        month: item.month_name,
+        Customer: item.customer || "--",
+        "Rent": item.due_amount ? toNumber(item.due_amount) : "--",
+        // Advance: item.advance ? toNumber(item.advance) : "--",
+        "Pay Amount": item.rec_amount ? toNumber(item.rec_amount) : "--",
         Due: item.running_balance,
       });
     });
 
     // Add totals row
     dataToExport.push({
+      SL: "",
       Date: "",
-      Vendor: "TOTAL",
-      Load: "",
-      Unload: "",
-      Vehicle: "",
-      Driver: "",
-      "Trip Rent": totals.rent,
-      Advance: totals.advance,
-      "Pay Amount": totals.pay_amount,
+      Month: "TOTAL",
+      Customer: "",
+      " Rent": totals.rent,
+      "Pay Amount": totals.due_amount,
       Due: grandDue,
     });
 
@@ -261,7 +253,7 @@ const GarageCustomerLedger = () => {
 
   // print table
   const printTable = () => {
-    const content = document.getElementById("vendor-ledger-table").innerHTML;
+    const content = document.getElementById("garageCustomer-ledger-table").innerHTML;
     const style = `
       <style>
         table, th, td {
@@ -440,12 +432,12 @@ const GarageCustomerLedger = () => {
             <table className="min-w-full text-sm text-left text-gray-900">
               <thead className="bg-gray-100">
                 <tr className="font-bold bg-gray-100">
-                  <td colSpan={5} className="border px-2 py-1 text-right">
+                  <td colSpan={4} className="border px-2 py-1 text-right">
                     TOTAL:
                   </td>
                   <td className="border px-2 py-1">{totals.rent}</td>
-                  <td className="border px-2 py-1">{totals.advance}</td>
-                  <td className="border px-2 py-1">{totals.pay_amount}</td>
+                  {/* <td className="border px-2 py-1">{totals.advance}</td> */}
+                  <td className="border px-2 py-1">{totals.rec_amount}</td>
                   <td className="border px-2 py-1">
                     <span className={grandDue < 0 ? "text-red-500" : ""}>
                       {grandDue < 0
@@ -463,10 +455,10 @@ const GarageCustomerLedger = () => {
                   <th className="border px-2 py-1">ক্রমিক.</th>
                   <th className="border px-2 py-1">তারিখ</th>
                   <th className="border px-2 py-1">মাস</th>
-                  <th className="border px-2 py-1">ইকুইপমেন্ট</th>
+                  {/* <th className="border px-2 py-1">ইকুইপমেন্ট</th> */}
                   <th className="border px-2 py-1">কাস্টমার</th>
                   <th className="border px-2 py-1">ভাড়া</th>
-                  <th className="border px-2 py-1">অগ্রিম</th>
+                  {/* <th className="border px-2 py-1">অগ্রিম</th> */}
                   <th className="border px-2 py-1">পরিশোধিত</th>
                   <th className="border px-2 py-1">
                     বাকি{" "}
@@ -485,13 +477,13 @@ const GarageCustomerLedger = () => {
                       <td className="border px-2 py-1">{idx + 1}</td>
                       <td className="border px-2 py-1">{tableFormatDate(item.bill_date)}</td>
                       <td className="border px-2 py-1">{item.month_name}</td>
-                      <td className="border px-2 py-1">
+                      {/* <td className="border px-2 py-1">
                         {item.vehicle_no || (
                           <span className="flex justify-center items-center">
                             --
                           </span>
                         )}
-                      </td>
+                      </td> */}
                       <td className="border px-2 py-1">
                         {item.customer_name || (
                           <span className="flex justify-center items-center">
@@ -500,13 +492,13 @@ const GarageCustomerLedger = () => {
                         )}
                       </td>
                       <td className="border px-2 py-1">
-                        {item.amount ? toNumber(item.amount) : "--"}
+                        {item.due_amount ? toNumber(item.due_amount) : "--"}
                       </td>
-                      <td className="border px-2 py-1">
+                      {/* <td className="border px-2 py-1">
                         {item.advance ? toNumber(item.advance) : "--"}
-                      </td>
+                      </td> */}
                       <td className="border px-2 py-1">
-                        {item.pay_amount ? toNumber(item.pay_amount) : "--"}
+                        {item.rec_amount ? toNumber(item.rec_amount) : "--"}
                       </td>
                       <td className="border px-2 py-1">
                         <span

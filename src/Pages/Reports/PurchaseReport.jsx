@@ -731,7 +731,7 @@ const PurchaseReport = () => {
               onChange={e => setSupplierFilter(e.target.value)}
               className="border p-2 rounded"
             >
-              <option value="">All Suppliers</option>
+              <option value="">সকল সরবরাহকারী</option>
               {[...new Set(purchases.map(p => p.supplier_name))].map(s => (
                 <option key={s} value={s}>{s}</option>
               ))}
@@ -741,7 +741,7 @@ const PurchaseReport = () => {
               onChange={e => setCategoryFilter(e.target.value)}
               className="border p-2 rounded"
             >
-              <option value="">All Categories</option>
+              <option value="">সকল ক্যাটেগরি</option>
               {[...new Set(purchases.map(p => p.category))].map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}

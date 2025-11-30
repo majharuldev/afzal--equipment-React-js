@@ -930,7 +930,7 @@ console.log(profitData, "prof")
         {/* Header and filter section remains the same */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
-            গাড়ির পারফরমেন্স রিপোর্ট
+            ইকুইপমেন্ট/গাড়ির পারফরমেন্স রিপোর্ট
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
