@@ -1,216 +1,219 @@
-
 import { useEffect, useState } from "react";
-import { FaTruck, FaFilter, FaFileExcel, FaFilePdf, FaPrint } from "react-icons/fa";
+import { FaTruck, FaFilter, FaFileExcel, FaPrint } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { saveAs } from "file-saver";
 import { Table, Button } from "antd";
 import DatePicker from "react-datepicker";
-import { toNumber } from "../../hooks/toNumber";
 import api from "../../utils/axiosConfig";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import { set } from "react-hook-form";
 
 const GarageProfitLoss = () => {
-  const [trips, setTrips] = useState([]);
+  const [garageVara, setGarageVara] = useState([]);   // Income
+  const [garageExp, setGarageExp] = useState([]);     // Expense
+  const [mergedData, setMergedData] = useState([]);
+  const [filterMonth, setFilterMonth] = useState("");
+
   const [showFilter, setShowFilter] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const uniqueMonthList = [...new Set(mergedData.map((item) => item.month_name))];
 
+  // Load Garage Vara (Income)
   useEffect(() => {
-    const fetchTrips = async () => {
+    const fetchGarageVara = async () => {
       try {
-        const res = await api.get(`/trip`);
-        const sorted = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setTrips(sorted);
+        const res = await api.get(`/garageVara`);
+        const sorted = res.data.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setGarageVara(sorted);
       } catch (err) {
-        console.error("ডেটা আনার সময় ত্রুটি:", err);
+        console.error("Garage Vara Load Error:", err);
       }
     };
-    fetchTrips();
+    fetchGarageVara();
   }, []);
 
-  // filter
-  const filteredIncome = trips.filter((dt) => {
-    const term = searchTerm.toLowerCase();
-    const tripDate = new Date(dt.date);
-    const matchesSearch =
-      String(dt.date || "").toLowerCase().includes(term) ||
-      String(dt.trip_time || "").toLowerCase().includes(term) ||
-      String(dt.load_point || "").toLowerCase().includes(term) ||
-      String(dt.unload_point || "").toLowerCase().includes(term) ||
-      String(dt.driver_name || "").toLowerCase().includes(term) ||
-      String(dt.driver_mobile || "").includes(term) ||
-      String(dt.driver_commission || "").includes(term) ||
-      String(dt.work_place || "").includes(term) ||
-      String(dt.vehicle_no || "").toLowerCase().includes(term)
-
-    const matchesDateRange =
-      (!startDate || new Date(tripDate) >= new Date(startDate)) &&
-      (!endDate || new Date(tripDate) <= new Date(endDate));
-
-    return matchesSearch && matchesDateRange;
-  });
-
-  // full data for export (ignore pagination)
-  const exportData = filteredIncome.map((dt, index) => {
-    const totalRent = toNumber(dt.total_rent || 0);
-    const totalExp = toNumber(dt.total_exp || 0);
-    const profit = totalRent - totalExp;
-    return {
-      index: index + 1,
-      date: new Date(dt.date).toLocaleDateString("en-GB"),
-      vehicle_no: dt.vehicle_no,
-      work_place: dt.work_place || "N/A",
-      load_point: dt.load_point || "N/A",
-      unload_point: dt.unload_point || "N/A",
-      work_time: dt.work_time || "N/A",
-      rate: dt.rate || "N/A",
-      total_rent: totalRent,
-      total_exp: totalExp,
-      profit: profit,
+  // Load Garage Expense
+  useEffect(() => {
+    const fetchGarageExp = async () => {
+      try {
+        const res = await api.get(`/garageExp`);
+        const sorted = res.data.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setGarageExp(sorted);
+      } catch (err) {
+        console.error("Garage Expense Load Error:", err);
+      }
     };
-  });
+    fetchGarageExp();
+  }, []);
 
+  //  Merge Income + Expense by DATE
+  useEffect(() => {
+    const merge = [];
+
+    const allDates = new Set([
+      ...garageVara.map((x) => x.date),
+      ...garageExp.map((x) => x.date),
+    ]);
+
+    allDates.forEach((dt) => {
+      const income = garageVara.filter((x) => x.date === dt);
+      const expense = garageExp.filter((x) => x.date === dt);
+
+      const incomeTotal = income.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+      const expenseTotal = expense.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+      merge.push({
+        date: dt,
+        month_name: income[0]?.month_name || "",
+        customer_name: income.map((i) => i.customer_name).join(", "),
+        garageVara: incomeTotal,
+        garageExp: expenseTotal,
+        profit: incomeTotal - expenseTotal,
+      });
+    });
+
+    const sorted = merge.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setMergedData(sorted);
+  }, [garageVara, garageExp]);
+
+  // Search + Date Filter
+  // const filteredData = mergedData.filter((item) => {
+  //   const term = searchTerm.toLowerCase();
+  //   const matchesSearch =
+  //     item.customer_name?.toLowerCase().includes(term) ||
+  //     item.month_name?.toLowerCase().includes(term) ||
+  //     item.date?.includes(term);
+
+  //   const matchesDate =
+  //     (!startDate || new Date(item.date) >= new Date(startDate)) &&
+  //     (!endDate || new Date(item.date) <= new Date(endDate));
+
+  //   return matchesSearch && matchesDate;
+  // });
+
+ const filteredData = mergedData.filter((item) => {
+  const term = searchTerm.toLowerCase();
+
+  const matchesSearch =
+    item.customer_name?.toLowerCase().includes(term) ||
+    item.month_name?.toLowerCase().includes(term) ||
+    item.date?.includes(term);
+
+  // Convert item.date → YYYY-MM-DD only
+  const itemDate = new Date(item.date + "T23:59:59");
+
+  // Convert startDate
+  const start = startDate ? new Date(startDate.setHours(0, 0, 0, 0)) : null;
+
+  // Convert endDate → 23:59:59 (VERY IMPORTANT FIX)
+  const end = endDate ? new Date(endDate.setHours(23, 59, 59, 999)) : null;
+
+  const matchesDate =
+    (!start || itemDate >= start) &&
+    (!end || itemDate <= end);
+
+  const matchesMonth =
+    !filterMonth || item.month_name === filterMonth;
+
+  return matchesSearch && matchesDate && matchesMonth;
+});
+
+
+  // Excel Export
   const exportExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    // Convert all number fields to actual numbers
+    const exportData = filteredData.map((row) => ({
+      date: row.date,
+      customer_name: row.customer_name,
+      month_name: row.month_name,
+      garageVara: Number(row.garageVara) || 0,
+      garageExp: Number(row.garageExp) || 0,
+      profit: Number(row.profit) || 0,
+    }));
 
-    // Calculate totals
-    const totalWorkTimeSum = exportData.reduce((acc, cur) => acc + cur.work_time, 0);
-    const totalRateSum = exportData.reduce((acc, cur) => acc + cur.rate, 0);
-    const totalRentSum = exportData.reduce((acc, cur) => acc + cur.total_rent, 0);
-    const totalExpSum = exportData.reduce((acc, cur) => acc + cur.total_exp, 0);
-    const totalProfitSum = exportData.reduce((acc, cur) => acc + cur.profit, 0);
+    const ws = XLSX.utils.json_to_sheet(exportData);
 
-    const totalRow = {
-      index: "মোট",
-      date: "",
-      vehicle_no: "",
-      work_place: "",
-      load_point: "",
-      unload_point: "",
-      work_time: totalWorkTimeSum,
-      rate: totalRateSum,
-      total_rent: totalRentSum,
-      total_exp: totalExpSum,
-      profit: totalProfitSum,
-    };
+    // Force numeric columns
+    Object.keys(ws).forEach((cell) => {
+      if (cell.startsWith('!')) return;
 
-    const finalData = [...exportData, totalRow];
+      const cellData = ws[cell];
+      if (['garageVara', 'garageExp', 'profit'].includes(cellData.v)) {
+        cellData.t = 'n';
+      }
+    });
 
-    const finalSheet = XLSX.utils.json_to_sheet(finalData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, finalSheet, "Trip Data");
-    XLSX.writeFile(workbook, "GarageProfitLoss_data.xlsx");
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "GarageProfitLoss");
+
+    XLSX.writeFile(wb, "Garage_Profit_Loss.xlsx");
   };
 
 
-  // pdf function
- const exportPDF = () => {
-  const doc = new jsPDF();
-  const tableColumn = ["#", "Date", "Equipment No", "Work Place", "Load", "Unload", "Work Time", "Rate", "Total Rent", "Total Expense", "Profit"];
-  const tableRows = exportData.map((row) => [
-    row.index,
-    row.date,
-    row.vehicle_no,
-    row.work_place,
-    row.load_point,
-    row.unload_point,
-    row.work_time,
-    row.rate,
-    row.total_rent,
-    row.total_exp,
-    row.profit,
-  ]);
-
-  // Total Row
-  const totalWorkTimeSum = exportData.reduce((acc, cur) => acc + cur.work_time, 0);
-  const totalRateSum = exportData.reduce((acc, cur) => acc + cur.rate, 0);
-  const totalRentSum = exportData.reduce((acc, cur) => acc + cur.total_rent, 0);
-  const totalExpSum = exportData.reduce((acc, cur) => acc + cur.total_exp, 0);
-  const totalProfitSum = exportData.reduce((acc, cur) => acc + cur.profit, 0);
-  tableRows.push([
-    "মোট", "", "", "", "", "", totalWorkTimeSum, totalRateSum, totalRentSum, totalExpSum, totalProfitSum
-  ]);
-
-  autoTable(doc, { head: [tableColumn], body: tableRows, styles: { font: "helvetica", fontSize: 8 } });
-  doc.save("GarageProfitLoss_data.pdf");
-};
-
-
-  // print function
-  // Print all pages
+  // Print
   const printTable = () => {
-    let printHtml = "<table border='1' style='border-collapse: collapse; width: 100%; text-align: center;'>";
-    printHtml += "<thead><tr><th>#</th><th>তারিখ</th><th>ইকুইপমেন্ট</th><th>কাজের জায়গা</th><th>লোড</th><th>আনলোড</th><th>কাজের সময়</th><th>রেট</th><th>ট্রিপের ভাড়া</th><th>চলমান খরচ</th><th>লাভ</th></tr></thead>";
-    printHtml += "<tbody>";
-    exportData.forEach((row) => {
-      printHtml += `<tr>
-        <td>${row.index}</td>
-        <td>${row.date}</td>
-        <td>${row.vehicle_no}</td>
-        <td>${row.work_place}</td>
-        <td>${row.load_point}</td>
-        <td>${row.unload_point}</td>
-        <td>${row.work_time}</td>
-        <td>${row.rate}</td>
-        <td>${toNumber(row.total_rent)}</td>
-        <td>${(row.total_exp)}</td>
-        <td>${row.profit}</td>
+    let html = "<table border='1' style='border-collapse: collapse; width:100%; text-align:center'>";
+    html += "<tr><th>তারিখ</th><th>কাস্টমার</th><th>কাস্টমার ভাড়া আদায়</th><th>গ্যারেজ ব্যয়</th><th>লাভ</th></tr>";
+
+    filteredData.forEach((row) => {
+      html += `<tr>
+          <td>${row.date}</td>
+          <td>${row.customer_name}</td>
+          <td>${row.garageVara}</td>
+          <td>${row.garageExp}</td>
+          <td>${row.profit}</td>
       </tr>`;
     });
-    printHtml += "</tbody></table>";
-    const WinPrint = window.open("", "", "width=900,height=650");
-    WinPrint.document.write(`<html><head><title>প্রিন্ট</title></head><body>${printHtml}</body></html>`);
-    WinPrint.document.close();
-    WinPrint.focus();
-    WinPrint.print();
-    WinPrint.close();
+
+    const win = window.open("", "", "width=900,height=600");
+    win.document.write(html);
+    win.print();
+    win.close();
   };
 
-  // table columns
+  // Table Columns
   const columns = [
-    { title: "#", dataIndex: "index", key: "index" },
+    { title: "তারিখ", dataIndex: "date", render: (t) => tableFormatDate(t) },
+    { title: "কাস্টমার", dataIndex: "customer_name" },
+    { title: "মাস - বছর", dataIndex: "month_name" },
     {
-      title: "তারিখ", dataIndex: "date", key: "date",
-      render: (text) => tableFormatDate(text)
+      title: "কাস্টমার ভাড়া আদায়",
+      dataIndex: "garageVara",
+      render: (v) => <p className="text-gray-800">{v}</p>,
     },
-    { title: "কাস্টমার", dataIndex: "customer_name", key: "customer_name" },
     {
-      title: "মাস - বছর",
-      dataIndex: "month_name",
-      key: "month_name",
-      render: (_, record) => record.month_name || "N/A",
+      title: "গ্যারেজ ব্যয়",
+      dataIndex: "garageExp",
+      render: (v) => <p className="text-gray-800">{v}</p>,
     },
-    // {
-    //   title: "লোড", dataIndex: "load_point", key: "load_point",
-    //   render: (_, record) => record.load_point || "N/A",
-    // },  
-    { title: "কাস্টমার ভাড়া আদায়", dataIndex: "amount", key: "amount" },
-    { title: "গ্যারেজ ব্যয়", dataIndex: "amount", key: "amount" },
-    { title: "লাভ", dataIndex: "profit", key: "profit" },
+    {
+      title: "লাভ",
+      dataIndex: "profit",
+      render: (p) => (
+        <b className={p >= 0 ? "text-green-700" : "text-red-700"}>{p}</b>
+      ),
+    },
   ];
 
   return (
     <main>
       <div className="w-full max-w-7xl mx-auto bg-white p-4 rounded-xl shadow-md">
-        {/* হেডার */}
+
+        {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold flex items-center gap-2">
-            <FaTruck /> গ্যারেজ লাভ-ক্ষতি
+            <FaTruck /> গ্যারেজ লাভ-ক্ষতি রিপোর্ট
           </h1>
-          <Button onClick={() => setShowFilter((prev) => !prev)} icon={<FaFilter />}>
-            ফিল্টার
+          <Button onClick={() => setShowFilter(!showFilter)} icon={<FaFilter />}>
+            Filter
           </Button>
         </div>
-        {/* Export & Search */}
+
+        {/* Export + Search */}
         <div className="md:flex justify-between items-center mb-5">
           <div className="flex flex-wrap md:flex-row gap-1 md:gap-3 text-primary font-semibold rounded-md">
-            {/* <CSVLink data={csvData} filename="GarageProfitLoss_data.csv">
-              <button className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-cyan-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer">CSV</button>
-            </CSVLink> */}
             <button
               onClick={exportExcel}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-green-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer" > <FaFileExcel className="" /> এক্সেল </button>
@@ -245,47 +248,58 @@ const GarageProfitLoss = () => {
             )}
           </div>
         </div>
-
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="flex-1 min-w-0">
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                selectsStart
-                startDate={startDate}
-                endDate={endDate}
-                dateFormat="dd/MM/yyyy"
-                placeholderText="শুরুর তারিখ"
-                locale="en-GB"
-                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-                isClearable
-              />
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শুরুর তারিখ"
+              locale="en-GB"
+              className="w-full p-2 border border-gray-300 rounded text-sm"
+              isClearable
+            />
 
-            <div className="flex-1 min-w-0">
-              <DatePicker
-                selected={endDate}
-                onChange={(date) => setEndDate(date)}
-                selectsEnd
-                startDate={startDate}
-                endDate={endDate}
-                minDate={startDate}
-                dateFormat="dd/MM/yyyy"
-                placeholderText="শেষ তারিখ"
-                locale="en-GB"
-                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
-                isClearable
-              />
-            </div>
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="শেষ তারিখ"
+              locale="en-GB"
+              className="w-full p-2 border border-gray-300 rounded text-sm"
+              isClearable
+            />
+            <select
+              value={filterMonth}
+              onChange={(e) => {
+                setFilterMonth(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border px-3 py-2 rounded-md w-full"
+            >
+              <option value="">-- মাস নির্বাচন করুন --</option>
 
-            <div className="">
+              {uniqueMonthList.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+
+
+            <div className="w-md">
               <button
                 onClick={() => {
                   setStartDate("");
                   setEndDate("");
                   setCurrentPage(1);
+                  setFilterMonth("");
                   setShowFilter(false);
                 }}
                 className="bg-primary text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
@@ -296,46 +310,40 @@ const GarageProfitLoss = () => {
           </div>
         )}
 
-        {/* AntD টেবিল */}
+        {/* Table */}
         <Table
           columns={columns}
-          dataSource={filteredIncome.map((trip, index) => {
-            // const totalWorkTime = trip.work_time || 0;
-            // const totalRate = trip.rate || 0;
-            const totalRent = Number(trip.total_rent || 0);
-            const totalExp = Number(trip.total_exp || 0);
-            return {
-              key: trip.id || index,
-              ...trip,
-              index: index + 1,
-              profit: parseFloat(totalRent) - parseFloat(totalExp),
-            };
-          })}
+          dataSource={filteredData.map((item, i) => ({ key: i, ...item }))}
+          pagination={{
+            pageSize: 10,
+            current: currentPage,
+            onChange: setCurrentPage,
+          }}
+          summary={() => {
+            let totalIncome = 0;
+            let totalExp = 0;
+            let totalProfit = 0;
 
-          pagination={{ pageSize: 10, current: currentPage, onChange: setCurrentPage }}
-          summary={(pageData) => {
-            let totalWorkTimeSum = 0;
-            let totalRateSum = 0;
-            let totalRentSum = 0;
-            let totalExpSum = 0;
-            let totalProfitSum = 0;
-
-            pageData.forEach(({ total_rent, total_exp, profit, work_time, rate }) => {
-              totalWorkTimeSum += Number(work_time || 0);
-              totalRateSum += Number(rate || 0);
-              totalRentSum += Number(total_rent || 0);
-              totalExpSum += Number(total_exp || 0);
-              totalProfitSum += Number(profit || 0);
+            filteredData.forEach((i) => {
+              totalIncome += i.garageVara;
+              totalExp += i.garageExp;
+              totalProfit += i.profit;
             });
 
             return (
               <Table.Summary.Row>
-                <Table.Summary.Cell index={0} colSpan={6} className="text-right font-bold">মোট</Table.Summary.Cell>
-                <Table.Summary.Cell index={6} className="font-bold">{totalWorkTimeSum}</Table.Summary.Cell>
-                <Table.Summary.Cell index={7} className="font-bold">{totalRateSum}</Table.Summary.Cell>
-                <Table.Summary.Cell index={8} className="font-bold">{totalRentSum}</Table.Summary.Cell>
-                <Table.Summary.Cell index={9} className="font-bold">{totalExpSum}</Table.Summary.Cell>
-                <Table.Summary.Cell index={10} className="font-bold">{totalProfitSum}</Table.Summary.Cell>
+                <Table.Summary.Cell index={0} colSpan={3}>
+                  <b>মোট</b>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={3}>
+                  <b>{totalIncome}</b>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={4}>
+                  <b>{totalExp}</b>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={5}>
+                  <b>{totalProfit}</b>
+                </Table.Summary.Cell>
               </Table.Summary.Row>
             );
           }}

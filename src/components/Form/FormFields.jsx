@@ -52,14 +52,13 @@ export const InputField = ({
                 id={name}
                 selected={field.value ? new Date(field.value) : null}
                 onChange={(date) => field.onChange(date)}
-            //     onChange={(date) => {
-            //   field.onChange(date ? date.toISOString() : null);
-            // }}
+                //     onChange={(date) => {
+                //   field.onChange(date ? date.toISOString() : null);
+                // }}
                 dateFormat="dd-MM-yyyy"
                 placeholderText={placeholder || `Select ${label || name}`}
-                className={`mt-1 text-sm border border-gray-300 px-3 py-2 rounded outline-none ${
-                  icon ? "pr-12" : ""
-                } ${readOnly ? "bg-gray-200" : "bg-white"} w-full`}
+                className={`mt-1 text-sm border border-gray-300 px-3 py-2 rounded outline-none ${icon ? "pr-12" : ""
+                  } ${readOnly ? "bg-gray-200" : "bg-white"} w-full`}
                 readOnly={readOnly}
                 ref={(el) => {
                   if (inputRef) inputRef(el);
@@ -70,9 +69,9 @@ export const InputField = ({
           />
 
           {/* {icon && ( */}
-            <span className="absolute inset-y-0 right-0 flex items-center justify-center  px-3 rounded-r cursor-pointer">
-              <FiCalendar/>
-            </span>
+          <span className="absolute inset-y-0 right-0 flex items-center justify-center  px-3 rounded-r cursor-pointer">
+            <FiCalendar />
+          </span>
           {/* )} */}
         </div>
 
@@ -110,9 +109,8 @@ export const InputField = ({
             ref(el);
             if (inputRef) inputRef(el);
           }}
-          className={`remove-date-icon mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded outline-none ${
-            icon ? "pr-10" : ""
-          } ${readOnly ? "bg-gray-200" : "bg-white"}`}
+          className={`remove-date-icon mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded outline-none ${icon ? "pr-10" : ""
+            } ${readOnly ? "bg-gray-200" : "bg-white"}`}
         />
         {icon && icon}
       </div>
