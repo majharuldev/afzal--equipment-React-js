@@ -156,7 +156,7 @@ const GarageCustomerLedger = () => {
         SL: index+1,
         Date: item.date,
         month: item.month_name,
-        Customer: item.customer || "--",
+        Customer: item.customer_name || "--",
         "Rent": item.due_amount ? toNumber(item.due_amount) : "--",
         // Advance: item.advance ? toNumber(item.advance) : "--",
         "Pay Amount": item.rec_amount ? toNumber(item.rec_amount) : "--",
@@ -177,144 +177,99 @@ const GarageCustomerLedger = () => {
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Vendor Ledger");
+    XLSX.utils.book_append_sheet(wb, ws, "garage Ledger");
     const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([buffer], { type: "application/octet-stream" });
-    saveAs(blob, `Vendor_Ledger_${selectedVendor || "All"}.xlsx`);
+    saveAs(blob, `garage_Ledger_${selectedVendor || "All"}.xlsx`);
   };
 
-  // Export to PDF
-  const exportToPDF = () => {
-    const doc = new jsPDF("landscape");
-
-    // Title
-    doc.setFontSize(16);
-    doc.text(`Vendor Ledger: ${selectedVendor || "All Vendors"}`, 14, 15);
-
-    if (selectedVendor) {
-      doc.setFontSize(10);
-      doc.text(`Opening Balance: ${openingBalance}`, 14, 22);
-    }
-
-    const columns = [
-      "SL.",
-      "Date",
-      "Vendor",
-      "Load",
-      "Unload",
-      "Vehicle",
-      "Driver",
-      "Trip Rent",
-      "Advance",
-      "Pay Amount",
-      "Due",
-    ];
-
-    const rows = rowsWithRunningBalance.map((item, idx) => {
-      return [
-        idx + 1,
-        item.date || "",
-        item.vendor_name || "",
-        item.load_point || "--",
-        item.unload_point || "--",
-        item.vehicle_no || "--",
-        item.driver_name || "--",
-        item.trip_rent ? toNumber(item.trip_rent) : "--",
-        item.advance ? toNumber(item.advance) : "--",
-        item.pay_amount ? toNumber(item.pay_amount) : "--",
-        item.running_balance,
-      ];
-    });
-
-    // Add totals row
-    rows.push([
-      "",
-      "",
-      "TOTAL",
-      "",
-      "",
-      "",
-      "",
-      totals.rent,
-      totals.advance,
-      totals.pay_amount,
-      grandDue,
-    ]);
-
-    autoTable(doc, {
-      head: [columns],
-      body: rows,
-      startY: selectedVendor ? 25 : 20,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [17, 55, 91], textColor: [255, 255, 255] },
-    });
-    doc.save(`Vendor_Ledger_${selectedVendor || "All"}.pdf`);
-  };
 
   // print table
   const printTable = () => {
-    const content = document.getElementById("garageCustomer-ledger-table").innerHTML;
-    const style = `
-      <style>
-        table, th, td {
-          border: 1px solid black;
-          border-collapse: collapse;
-        }
-        th, td {
-          padding: 4px;
-          font-size: 12px;
-          text-align: left;
-        }
-        table {
-          width: 100%;
-          margin-bottom: 20px;
-        }
-        .print-header {
-          text-align: center;
-          margin-bottom: 15px;
-        }
-        .print-title {
-          font-size: 18px;
-          font-weight: bold;
-        }
-        .opening-balance-text {
-          font-size: 14px;
-          margin-bottom: 10px;
-        }
-        .totals-row {
-          font-weight: bold;
-          background-color: #f2f2f2;
-        }
-        .text-red-500 {
-          color: #ef4444; /* Tailwind's red-500 */
-        }
-      </style>
-    `;
-    const printWindow = window.open("", "", "width=900,height=700");
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Print Vendor Ledger</title>
-          ${style}
-        </head>
-        <body>
-          <div class="print-header">
-            <div class="print-title">Vendor Ledger: ${selectedVendor || "All Vendors"
-      }</div>
-            ${selectedVendor
-        ? `<div class="opening-balance-text">Opening Balance: ${openingBalance.toFixed(
-          2
-        )}</div>`
-        : ""
+  const table = document.querySelector("#garage-ledger-table table");
+  if (!table) {
+    alert("Table not found!");
+    return;
+  }
+
+  const tableHTML = table.outerHTML;
+
+  const style = `
+    <style>
+      @page { size: A4 portrait; margin: 20px; }
+
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
       }
-          </div>
-          ${content}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-  };
+
+      th, td {
+        padding: 4px;
+        font-size: 12px;
+        text-align: left;
+      }
+
+      table {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .print-header {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+
+      .print-title {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .opening-balance-text {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .text-red-500 {
+        color: #ef4444;
+      }
+
+      .totals-row {
+        font-weight: bold;
+        background: #f2f2f2;
+      }
+    </style>
+  `;
+
+  const printWindow = window.open("", "", "width=900,height=700");
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Garage Customer Ledger</title>
+        ${style}
+      </head>
+      <body>
+        <div class="print-header">
+          <div class="print-title">Garage Customer Ledger: ${selectedVendor || "All Customers"}</div>
+          ${
+            selectedVendor
+              ? `<div class="opening-balance-text">Opening Balance: ${openingBalance.toFixed(
+                  2
+                )}</div>`
+              : ""
+          }
+        </div>
+
+        ${tableHTML}
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+};
+
 
   return (
     <div className="md:p-2">
@@ -428,7 +383,7 @@ const GarageCustomerLedger = () => {
               </div>
             )}
           </div>
-          <div id="vendor-ledger-table" className="overflow-x-auto">
+          <div id="garage-ledger-table" className="overflow-x-auto">
             <table className="min-w-full text-sm text-left text-gray-900">
               <thead className="bg-gray-100">
                 <tr className="font-bold bg-gray-100">

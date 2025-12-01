@@ -16,7 +16,33 @@ const AdvanceSalaryForm = () => {
   const userId = user?.id;
   const { id } = useParams();
   const navigate = useNavigate()
-  console.log(user)
+  
+    // month yeayr options
+    const currentYear = new Date().getFullYear();
+const months = [
+  { num: "01", name: "জানুয়ারি" },
+  { num: "02", name: "ফেব্রুয়ারি" },
+  { num: "03", name: "মার্চ" },
+  { num: "04", name: "এপ্রিল" },
+  { num: "05", name: "মে" },
+  { num: "06", name: "জুন" },
+  { num: "07", name: "জুলাই" },
+  { num: "08", name: "আগস্ট" },
+  { num: "09", name: "সেপ্টেম্বর" },
+  { num: "10", name: "অক্টোবর" },
+  { num: "11", name: "নভেম্বর" },
+  { num: "12", name: "ডিসেম্বর" },
+];
+    const monthYearOptions = [];
+
+    for (let y = currentYear; y <= currentYear + 10; y++) {
+        months.forEach((m) => {
+            monthYearOptions.push({
+                value: `${y}-${m.num}`,
+                label: `${y}-${m.name}`
+            });
+        });
+    }
 
   // Fetch employees & user info
   useEffect(() => {
@@ -141,11 +167,18 @@ const AdvanceSalaryForm = () => {
           {/* Salary Month */}
           <div className="md:flex justify-between gap-3">
             <div className="w-[50%]">
-              <InputField
+              {/* <InputField
                 name="month"
                 label="মাস (YYYY-MM)"
                 placeholder="2025-09"
                 required
+              /> */}
+              <SelectField
+                name="month"
+                label="মাস(YYYY-MM)"
+                placeholder="মাস-বছর নির্বাচন করুন"
+                required
+                options={monthYearOptions}
               />
             </div>
           </div>
