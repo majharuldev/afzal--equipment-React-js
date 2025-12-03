@@ -122,7 +122,7 @@ const Office = () => {
   const totalPages = Math.ceil(office.length / itemsPerPage);
 
 
-  if (loading) return <p className="text-center mt-16">Loading office...</p>;
+  // if (loading) return <p className="text-center mt-16">Loading office...</p>;
   return (
     <div className="">
       <Toaster />

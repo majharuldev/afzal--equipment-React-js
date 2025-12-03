@@ -3,14 +3,15 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { FaPen, FaTrashAlt, FaPlus, FaUsers } from "react-icons/fa";
-import { PlusOutlined, EditOutlined, FileExcelOutlined, FilePdfOutlined, PrinterOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, FileExcelOutlined, FilePdfOutlined, PrinterOutlined, DeleteOutlined } from "@ant-design/icons";
 
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
 import api from "../../utils/axiosConfig";
-import { Button, Input, Modal, Select, Spin, Table } from "antd";
+import { Button, Input, Modal, Select, Space, Spin, Table } from "antd";
+import { FiDelete } from "react-icons/fi";
 
 const RoutePricing = () => {
   const [routePricing, setRoutePricing] = useState([]);
@@ -107,24 +108,24 @@ const RoutePricing = () => {
   };
 
   // equipment vehicle fetch
-    useEffect(() => {
-      const fetchVehicles = async () => {
-        try {
-          const res = await api.get("/vehicle");
-          setVehicles(res.data);
-        } catch (error) {
-          console.log("Vehicle Load Error:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchVehicles();
-    }, []);
-    // equipment category options
-    const vehicleOptions = vehicles.map(v => ({
-      value: v.vehicle_category,
-      label: v.vehicle_category,
-    }));
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const res = await api.get("/vehicle");
+        setVehicles(res.data);
+      } catch (error) {
+        console.log("Vehicle Load Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVehicles();
+  }, []);
+  // equipment category options
+  const vehicleOptions = vehicles.map(v => ({
+    value: v.vehicle_category,
+    label: v.vehicle_category,
+  }));
 
   const handleEdit = (item) => {
     setFormData({
@@ -186,7 +187,7 @@ const RoutePricing = () => {
     doc.save("RoutePricing.pdf");
     toast.success("PDF downloaded!");
   };
-  
+
 
   // Print Table (filtered)
   const printTripsTable = () => {
@@ -252,7 +253,7 @@ const RoutePricing = () => {
     printWindow.close();
   };
 
-// filtered
+  // filtered
   const filteredData = routePricing.filter(item =>
     item.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.vehicle_category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -273,19 +274,27 @@ const RoutePricing = () => {
     {
       title: "অ্যাকশন",
       render: (item) => (
-        <Button
-          icon={<EditOutlined />}
-          onClick={() => handleEdit(item)}
-          type="primary"
-        >
-          সম্পাদনা
-        </Button>
+        <Space>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(item)}
+            type="primary"
+          >
+
+          </Button>
+          <Button
+            icon={<FaTrashAlt />}
+            onClick={() => handleEdit(item)}
+            type="primary"
+          >
+          </Button>
+        </Space>
       ),
     },
   ];
 
 
- if (loading) return <Spin tip="লোড হচ্ছে..." className="mt-10" />;
+  //  if (loading) return <Spin tip="লোড হচ্ছে..." className="mt-10" />;
 
   // Pagination
   const itemsPerPage = 10;
@@ -367,17 +376,17 @@ const RoutePricing = () => {
         </div>
 
         {/* Table */}
-      <Table
-        dataSource={filteredData}
-        columns={columns}
-        rowKey="id"
-        pagination={{ pageSize: 10 }}
-        loading={loading}
-      />
+        <Table
+          dataSource={filteredData}
+          columns={columns}
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
+          loading={loading}
+        />
       </div>
 
       {/* Add/Edit Modal */}
-       {/* Modal */}
+      {/* Modal */}
       <Modal
         title={editId ? "রুট মূল্য সম্পাদনা" : "নতুন রুট মূল্য"}
         open={isModalOpen}

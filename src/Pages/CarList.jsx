@@ -356,7 +356,7 @@ const CarList = () => {
          {/* search */}
          <div className="mt-3 md:mt-0">
             <Input
-              placeholder="ভেন্ডর খুজন..."
+              placeholder="খুজন..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);

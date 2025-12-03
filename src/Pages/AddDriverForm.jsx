@@ -335,7 +335,7 @@ const DriverForm = () => {
             {/* NID & লাইসেন্স */}
             <div className="md:flex justify-between gap-3 mt-3">
               <div className="w-full">
-                <InputField name="nid" label="NID নম্বর" required={!id} />
+                <InputField name="nid" label="এনআইডি নম্বর" required={!id} />
               </div>
               <div className="mt-2 md:mt-0 w-full">
                 <InputField name="lincense" label="লাইসেন্স নম্বর" required={!id} />

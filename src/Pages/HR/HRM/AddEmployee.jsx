@@ -313,46 +313,46 @@ const AddEmployeeForm = () => {
       .catch((err) => console.error("Employee fetch error:", err));
   }, [id, reset]);
 
-// submit function
+  // submit function
   const onSubmit = async (data) => {
-  try {
-    setLoading(true);
-    const formData = new FormData();
+    try {
+      setLoading(true);
+      const formData = new FormData();
 
-    // সব fields যোগ করুন except image
-    for (const key in data) {
-      if (key !== "image") {
-        formData.append(key, data[key] ?? "");
+      // সব fields যোগ করুন except image
+      for (const key in data) {
+        if (key !== "image") {
+          formData.append(key, data[key] ?? "");
+        }
       }
-    }
 
-    // শুধুমাত্র নতুন image থাকলে image field যোগ করুন
-    if (data.image && data.image instanceof File) {
-      formData.append("image", data.image);
-    }
+      // শুধুমাত্র নতুন image থাকলে image field যোগ করুন
+      if (data.image && data.image instanceof File) {
+        formData.append("image", data.image);
+      }
 
-    const url = id ? `/employee/${id}` : `/employee`;
-    const response = await api.post(url, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+      const url = id ? `/employee/${id}` : `/employee`;
+      const response = await api.post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    if (response.data.status === "Success") {
-      toast.success(
-        id ? "Employee updated successfully!" : "Employee added successfully!"
-      );
-      navigate("/tramessy/HR/HRM/employee-list");
-    } else {
-      toast.error("Server Error: " + (response.data.message || "Unknown issue"));
+      if (response.data.status === "Success") {
+        toast.success(
+          id ? "Employee updated successfully!" : "Employee added successfully!"
+        );
+        navigate("/tramessy/HR/HRM/employee-list");
+      } else {
+        toast.error("Server Error: " + (response.data.message || "Unknown issue"));
+      }
+    } catch (error) {
+      console.error(error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Unknown error";
+      toast.error("Server Error: " + errorMessage);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-    const errorMessage =
-      error.response?.data?.message || error.message || "Unknown error";
-    toast.error("Server Error: " + errorMessage);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="">
@@ -372,7 +372,7 @@ const AddEmployeeForm = () => {
             </div>
 
             <div className="w-full">
-              <InputField name="nid" label="Nid" required={!id} type="number" />
+              <InputField name="nid" label="এনআইডি" required={!id} type="number" />
             </div>
             <div className="w-full">
               <InputField name="mobile" label="মোবাইল" required={!id} />
@@ -384,17 +384,17 @@ const AddEmployeeForm = () => {
             <div className="w-full relative">
               <SelectField
                 name="blood_group"
-                label="Blood Group"
+                label="রক্তের গ্রুপ"
                 required={!id}
                 options={[
-                  { value: "A+", label: "A+" },
-                  { value: "A-", label: "A-" },
-                  { value: "B+", label: "B+" },
-                  { value: "B-", label: "B-" },
-                  { value: "AB+", label: "AB+" },
-                  { value: "AB-", label: "AB-" },
-                  { value: "O+", label: "O+" },
-                  { value: "O-", label: "O-" },
+                  { value: "A+", label: "এ–পজিটিভ (A+)" },
+                  { value: "A-", label: "এ–নেগেটিভ (A-)" },
+                  { value: "B+", label: "বি–পজিটিভ (B+)" },
+                  { value: "B-", label: "বি–নেগেটিভ (B-)" },
+                  { value: "AB+", label: "এবি–পজিটিভ (AB+)" },
+                  { value: "AB-", label: "এবি–নেগেটিভ (AB-)" },
+                  { value: "O+", label: "ও–পজিটিভ (O+)" },
+                  { value: "O-", label: "ও–নেগেটিভ (O-)" },
                 ]}
               />
             </div>

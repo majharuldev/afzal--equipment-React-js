@@ -106,8 +106,6 @@ const Fuel = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-16">ডেটা লোড হচ্ছে...</p>;
-
   // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -596,6 +594,7 @@ const Fuel = () => {
         <Table
           columns={columns}
           dataSource={currentfuel}
+          loading={loading}
           rowKey="id"
           pagination={{
             current: currentPage,

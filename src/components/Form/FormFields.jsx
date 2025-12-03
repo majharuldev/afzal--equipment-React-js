@@ -26,7 +26,7 @@ export const InputField = ({
 
   const error = errors[name]?.message;
 
-  // ✅ If type="date" → Use react-datepicker
+  //  If type="date" → Use react-datepicker
   if (type === "date") {
     return (
       <div className="mb-4">
@@ -45,7 +45,7 @@ export const InputField = ({
             control={control}
             defaultValue={defaultValue || null}
             rules={{
-              required: required ? `${label || name} is required` : false,
+              required: required ? `${label || name} অবশ্যই দিতে হবে` : false,
             }}
             render={({ field }) => (
               <DatePicker
@@ -82,7 +82,7 @@ export const InputField = ({
 
   // If not date → Default Input Logic
   const { ref, ...rest } = register(name, {
-    required: required ? `${label || name} is required` : false,
+    required: required ? `${label || name} অবশ্যই দিতে হবে` : false,
   });
 
   return (
@@ -100,7 +100,7 @@ export const InputField = ({
         <input
           id={name}
           type={type}
-          placeholder={placeholder || `Enter ${label || name}`}
+          placeholder={placeholder || `${label || name}`}
           defaultValue={defaultValue}
           value={value}
           readOnly={readOnly}
@@ -148,7 +148,7 @@ export const SelectField = ({
       <Controller
         name={name}
         control={control}
-        rules={{ required: required ? `${label || name} is required` : false }}
+        rules={{ required: required ? `${label || name} অবশ্যই দিতে হবে` : false }}
         render={({ field: { onChange, value, ref } }) => (
           <CreatableSelect
             inputRef={ref}
@@ -163,7 +163,7 @@ export const SelectField = ({
               }
             }}
             options={options}
-            placeholder={placeholder || `Select ${label}`}
+            placeholder={ `${label}`}
             defaultValue={defaultValue}
             className="text-sm hide-scrollbar"
             classNamePrefix="react-select"

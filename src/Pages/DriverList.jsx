@@ -56,7 +56,7 @@ const CarList = () => {
     );
   });
 
-  if (loading) return <p className="text-center mt-16">Loading drivers...</p>;
+  // if (loading) return <p className="text-center mt-16">ড্রাইভার লোড হচ্ছে...</p>;
 
   // delete by id
   const handleDelete = async (id) => {

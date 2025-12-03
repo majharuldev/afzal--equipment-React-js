@@ -350,7 +350,7 @@ const PurchaseForm = () => {
               <div className="w-full">
                 <SelectField
                   name="vehicle_no"
-                  label="গাড়ি নম্বর"
+                  label="ইকুইপমেন্ট/গাড়ি নম্বর"
                   required={!isEditMode}
                   options={vehicleOptions}
                   control={control}

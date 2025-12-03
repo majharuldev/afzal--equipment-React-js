@@ -726,7 +726,7 @@ const PurchaseList = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-16">Loading data...</p>;
+  // if (loading) return <p className="text-center mt-16">Loading data...</p>;
   // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -982,7 +982,7 @@ const PurchaseList = () => {
     { title: "পণ্যের আইডি", dataIndex: "id" },
     { title: "সরবরাহকারী", dataIndex: "supplier_name" },
     { title: "ড্রাইভার", dataIndex: "driver_name" },
-    { title: "গাড়ি", dataIndex: "vehicle_no" },
+    { title: "ইকুইপমেন্ট/গাড়ি", dataIndex: "vehicle_no" },
     { title: "ক্যাটাগরি", dataIndex: "category" },
     {
       title: "আইটেম", dataIndex: "item_name",
@@ -1008,7 +1008,6 @@ const PurchaseList = () => {
           <div key={i}>{item.unit_price}</div>
         ));
       }
-
     },
     { title: "সার্ভিস চার্জ", dataIndex: "service_charge" },
     { title: "মোট", dataIndex: "purchase_amount" },

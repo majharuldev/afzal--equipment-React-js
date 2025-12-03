@@ -133,7 +133,7 @@ const OfficialProducts = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-16">Loading data...</p>;
+  // if (loading) return <p className="text-center mt-16">Loading data...</p>;
   // pagination
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -510,7 +510,7 @@ const OfficialProducts = () => {
                   setVehicleFilter("");
                   setShowFilter(false);
                 }}
-                className="bg-gradient-to-r from-primary to-[#0a6807] text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="bg-primary text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 <FaFilter /> ক্লিয়ার
               </button>
