@@ -464,7 +464,7 @@ const TripList = () => {
       ),
     },
     {
-      title: "কাজের জায়গা",
+      title: "প্রোজেক্ট নাম",
       dataIndex: "work_place",
       key: "work_place",
     },
@@ -839,7 +839,7 @@ const TripList = () => {
               <p>{selectedTrip.driver_mobile || "—"}</p>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">কাজের স্থান:</p>
+              <p className="font-semibold text-gray-900">প্রোজেক্ট নাম:</p>
               <p>{selectedTrip.work_place || "—"}</p>
             </div>
 
@@ -999,6 +999,10 @@ const TripList = () => {
             <div>
               <p className="font-semibold text-gray-900">মন্তব্য:</p>
               <p>{selectedTrip.remarks || "—"}</p>
+            </div>
+              <div>
+              <p className="font-semibold text-gray-900">বিষয়:</p>
+              <p>{selectedTrip.trip_count|| "—"}</p>
             </div>
             <div>
               <p className="font-semibold text-gray-900">লগ রেফারেন্স:</p>

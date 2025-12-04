@@ -130,7 +130,7 @@ const Bill = () => {
     // Footer totals যোগ করা
     XLSX.utils.sheet_add_aoa(
       worksheet,
-      [["", "", "", "মোট", totaWork, totalRate, totalRent]],
+      [["", "", "", "মোট", totalWork, totalRate, totalRent]],
       { origin: -1 }
     )
 

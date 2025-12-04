@@ -325,7 +325,7 @@ const EmployeeList = () => {
   };
 
   const columns = [
-    { title: "ক্রমিক", key: "index", render: (_, __, index) => index + 1 },
+   { title: "আইডি নম্বর", key: "employee_id", render: (_, __, record) => record.employee_id },
     {
       title: "ছবি",
       dataIndex: "image",
@@ -437,6 +437,7 @@ const EmployeeList = () => {
               <p><span className="font-semibold">জন্ম তারিখ:</span> {tableFormatDate(selectedEmployee.birth_date)}</p>
               <p><span className="font-semibold">জাতীয় পরিচয়পত্র নং:</span> {selectedEmployee.nid}</p>
               <p><span className="font-semibold">বেতন:</span> {selectedEmployee.salary}</p>
+                 <p><span className="font-semibold">তৈরী করেছেন:</span> {selectedEmployee.created_by}</p>
               <p><span className="font-semibold">স্ট্যাটাস:</span> {selectedEmployee.status}</p>
             </div>
 

@@ -535,7 +535,7 @@ const VendorList = () => {
       });
   }, []);
 
-  if (loading) return <p className="text-center mt-16">Loading vendor...</p>;
+  // if (loading) return <p className="text-center mt-16">Loading vendor...</p>;
 
   // Export Excel
   const exportExcel = () => {

@@ -49,10 +49,12 @@ const CarList = () => {
       driver.driver_name?.toLowerCase().includes(term) ||
       driver.driver_mobile?.toLowerCase().includes(term) ||
       driver.nid?.toLowerCase().includes(term) ||
+      driver.driver_id?.toLowerCase().includes(term) ||
       driver.emergency_contact?.toLowerCase().includes(term) ||
       driver.address?.toLowerCase().includes(term) ||
       driver.license?.toLowerCase().includes(term) ||
-      driver.status?.toLowerCase().includes(term)
+      driver.status?.toLowerCase().includes(term) ||
+       driver.created_by?.toLowerCase().includes(term)
     );
   });
 
@@ -224,7 +226,7 @@ const CarList = () => {
 
   // table columns
   const columns = [
-    { title: "ক্রমিক", key: "id", render: (_, __, index) => index + 1 },
+    { title: "আইডি নম্বর", key: "driver_id", render: (_, __, record) => record.driver_id },
     { title: "নাম", dataIndex: "driver_name", key: "driver_name" },
     { title: "মোবাইল", dataIndex: "driver_mobile", key: "driver_mobile" },
     {
@@ -381,10 +383,12 @@ const CarList = () => {
             <p><strong>মোবাইল:</strong> {selectedDriver.driver_mobile}</p>
             <p><strong>জরুরি যোগাযোগ:</strong> {selectedDriver.emergency_contact}</p>
             <p><strong>ঠিকানা:</strong> {selectedDriver.address}</p>
-            <p><strong>NID:</strong> {selectedDriver.nid}</p>
+            <p><strong>এনআইডি:</strong> {selectedDriver.nid}</p>
+            <p><strong>আইডি  নম্বর:</strong> {selectedDriver.driver_id}</p>
             <p><strong>লাইসেন্স:</strong> {selectedDriver.license}</p>
             <p><strong>লাইসেন্স মেয়াদ শেষ:</strong> {selectedDriver.license_expire_date}</p>
             <p><strong>স্ট্যাটাস:</strong> {selectedDriver.status}</p>
+            <p><strong>তৈরী করেছেন:</strong> {selectedDriver.created_by}</p>
             <p><strong>নোট:</strong> {selectedDriver.note || "N/A"}</p>
           </div>
         )}

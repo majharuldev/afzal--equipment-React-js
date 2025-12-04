@@ -2,12 +2,13 @@ import BtnSubmit from "../../components/Button/BtnSubmit";
 import { FiCalendar } from "react-icons/fi";
 import { FormProvider, useForm } from "react-hook-form";
 import { InputField, SelectField } from "../../components/Form/FormFields";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import useRefId from "../../hooks/useRef";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../utils/axiosConfig";
+import { AuthContext } from "../../providers/AuthProvider";
 
 const CustomerForm = () => {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,7 @@ const CustomerForm = () => {
   const { id } = useParams(); // Update হলে আইডি আসবে
   const { handleSubmit, reset, register, setValue } = methods;
   const generateRefId = useRefId();
+  const {user} = useContext(AuthContext)
 
   // যদি Update মোড হয়, তাহলে ডাটা লোড করবো
   useEffect(() => {
@@ -42,7 +44,7 @@ const CustomerForm = () => {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      const payload = { ...data };
+      const payload = { ...data, created_by: user.name };
 
     // ref_id only generate if not in update mode
     if (!id) {

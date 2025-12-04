@@ -114,7 +114,7 @@
 
 // export default OfficeForm;
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { InputField } from "../../../components/Form/FormFields";
 import BtnSubmit from "../../../components/Button/BtnSubmit";
@@ -124,11 +124,12 @@ import useRefId from "../../../hooks/useRef";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../utils/axiosConfig";
+import { AuthContext } from "../../../providers/AuthProvider";
 
 const OfficeForm = () => {
   const [loading, setLoading] = useState(false);
   const [editData, setEditData] = useState(null);
-
+const {user} = useContext(AuthContext)
   const navigate = useNavigate();
   const { id } = useParams(); // dynamic id
   const methods = useForm();
@@ -159,7 +160,7 @@ const OfficeForm = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const payload = { ...data };
+      const payload = { ...data, created_by:user?.name };
 
     // ref_id only generate if not in update mode
     if (!id) {

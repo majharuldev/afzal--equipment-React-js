@@ -2,7 +2,7 @@
 import { useForm, FormProvider, useWatch, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import api from "../utils/axiosConfig";
@@ -11,6 +11,7 @@ import FormSkeleton from "../components/Form/FormSkeleton";
 import { IoMdClose } from "react-icons/io";
 import axios from "axios";
 import { Input } from "antd";
+import { AuthContext } from "../providers/AuthProvider";
 
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,7 @@ export default function AddTripForm() {
   const { id } = useParams();
   const dateRef = useRef(null);
   const { TextArea } = Input;
-
+  const {user} = useContext(AuthContext)
   // ড্রপডাউন অপশনগুলির জন্য স্টেট
   const [vehicle, setVehicle] = useState([]);
   const [driver, setDriver] = useState([]);
@@ -133,7 +134,7 @@ export default function AddTripForm() {
     d_amount,
     additional_cost,
     trans_cost,
-    trans_cost_type 
+    trans_cost_type
   ] = watch([
     "fuel_cost",
     "toll_cost",
@@ -151,12 +152,12 @@ export default function AddTripForm() {
     "additional_cost",
     "trans_cost",
     "trans_cost_type",
-    
+
   ]);
 
   // মোট হিসাব করা
   useEffect(() => {
-     const transCostValue = selectedTransport === "own_transport" && trans_cost_type === "own_trans_cost" ? toNumber(trans_cost) : 0;
+    const transCostValue = selectedTransport === "own_transport" && trans_cost_type === "own_trans_cost" ? toNumber(trans_cost) : 0;
     // মোট খরচ হিসাব
     const totalExp =
       (toNumber(driverCommision) || 0) +
@@ -170,7 +171,7 @@ export default function AddTripForm() {
       (toNumber(chadaCost) || 0) +
       (toNumber(fuelCost) || 0) +
       // (toNumber(trans_cost) || 0) +
-       (transCostValue || 0) +
+      (transCostValue || 0) +
       (toNumber(additional_cost) || 0) +
       (toNumber(othersCost) || 0);
 
@@ -523,16 +524,24 @@ export default function AddTripForm() {
       { value: "23", label: "২৩ টন" },
     ],
     Payloader: [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "910", label: "৯১০" },
+      { value: "920", label: "৯২০" },
+      { value: "935", label: "৯৩৫" },
+      { value: "950", label: "৯৫০" },
+      { value: "966", label: "৯৬৬" },
+      { value: "970", label: "৯৭০" },
+      { value: "1010", label: "১০১০" },
+      { value: "1015", label: "১০১৫" }
     ],
     "Chain Dozer": [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "D2", label: "D2" },
+      { value: "D3", label: "D3" },
+      { value: "D4", label: "D4" },
+      { value: "D5", label: "D5" },
+      { value: "D6", label: "D6" },
+      { value: "D7", label: "D7" },
+      { value: "D8", label: "D8" },
+      { value: "D9", label: "D9" },
     ],
     "Dump Truck": [
       { value: "120", label: "১২০ সিএফসি" },
@@ -574,10 +583,14 @@ export default function AddTripForm() {
       { value: "long_boom", label: "লং বুম" },
     ],
     "Chain Dozer": [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "6 feet", label: "৬ ফিট" },
+      { value: "7 feet", label: "৭ ফিট" },
+      { value: "9 feet", label: "৯ ফিট" },
+      { value: "8 feet", label: "৮ ফিট" },
+      { value: "12 feet", label: "১২ ফিট" },
+      { value: "13 feet", label: "১৩ ফিট" },
+      { value: "14 feet", label: "১৪ ফিট" },
+      { value: "15 feet", label: "১৫ ফিট" },
     ],
     "Dump Truck": [
       { value: "6_caka", label: "৬ চাক" },
@@ -595,23 +608,27 @@ export default function AddTripForm() {
       { value: "9m", label: "৯ মিটার" },
     ],
     "Road Roller": [
-      { value: "13", label: "১৩ টন" },
-      { value: "14", label: "১৪ টন" },
-      { value: "15", label: "১৫ টন" },
-      { value: "16", label: "১৬ টন" },
-      { value: "17", label: "১৭ টন" },
-      { value: "18", label: "১৮ টন" },
-      { value: "19", label: "১৯ টন" },
-      { value: "20", label: "২০ টন" },
-      { value: "21", label: "২১ টন" },
-      { value: "22", label: "২২ টন" },
-      { value: "23", label: "২৩ টন" },
+      { value: "13 ton", label: "১৩ টন" },
+      { value: "14 ton", label: "১৪ টন" },
+      { value: "15 ton", label: "১৫ টন" },
+      { value: "16 ton", label: "১৬ টন" },
+      { value: "17 ton", label: "১৭ টন" },
+      { value: "18 ton", label: "১৮ টন" },
+      { value: "19 ton", label: "১৯ টন" },
+      { value: "20 ton", label: "২০ টন" },
+      { value: "21 ton", label: "২১ টন" },
+      { value: "22 ton", label: "২২ টন" },
+      { value: "23 ton", label: "২৩ টন" },
     ],
     Payloader: [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "10 feet", label: "১০ ফিট" },
+      { value: "11 feet", label: "১১ ফিট" },
+      { value: "12 feet", label: "১২ ফিট" },
+      { value: "13 feet", label: "১৩ ফিট" },
+      { value: "14 feet", label: "১৪ ফিট" },
+      { value: "15 feet", label: "১৫ ফিট" },
+      { value: "16 feet", label: "১৬ ফিট" },
+      { value: "17 feet", label: "১৭ ফিট" },
     ],
     Trailer: [
       { value: "20", label: "২০ ফিট" },
@@ -690,6 +707,8 @@ export default function AddTripForm() {
           formData.append(key, value);
         }
       });
+         // created_by যোগ করা (FormData তে)
+    formData.append("created_by", user?.name);
 
       const url = id
         ? `/trip/${id}`
@@ -942,7 +961,7 @@ export default function AddTripForm() {
 
                 }
                </div> */}
-                <InputField name="work_place" label="কাজের জায়গা" />
+                <InputField name="work_place" label="প্রোজেক্ট নাম" />
                 <InputField name="challan" label="চালান নম্বর" />
               </div>
               <div>
@@ -1015,10 +1034,17 @@ export default function AddTripForm() {
                   />
                 </div>
               </div>
-              <div className="w-[50%]">
-                {/* < name="remarks" label="মন্তব্য" /> */}
-                <label className="block text-gray-700 text-sm font-medium mb-1"> মন্তব্য </label>
-                <TextArea name="remarks" label="মন্তব্য" />
+              <div className="flex gap-5">
+                <div className="w-full">
+                  {/* < name="remarks" label="মন্তব্য" /> */}
+                  <label className="block text-gray-700 text-sm font-medium mb-1"> মন্তব্য </label>
+                  <TextArea name="remarks" label="মন্তব্য" />
+                </div>
+                <div className="w-full">
+                  {/* < name="remarks" label="মন্তব্য" /> */}
+                  <label className="block text-gray-700 text-sm font-medium mb-1"> বিষয় </label>
+                  <TextArea name="trip_count" label="বিষয়" />
+                </div>
               </div>
             </div>
 

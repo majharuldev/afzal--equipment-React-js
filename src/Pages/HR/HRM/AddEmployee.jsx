@@ -260,7 +260,7 @@
 // export default AddEmployee;
 
 
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import BtnSubmit from "../../../components/Button/BtnSubmit";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { InputField, SelectField } from "../../../components/Form/FormFields";
@@ -270,6 +270,7 @@ import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../utils/axiosConfig";
+import { AuthContext } from "../../../providers/AuthProvider";
 
 const AddEmployeeForm = () => {
   const { id } = useParams(); // update এর জন্য id
@@ -280,7 +281,7 @@ const AddEmployeeForm = () => {
   const methods = useForm();
   const [existingImage, setExistingImage] = useState(null);
   const { handleSubmit, control, register, reset, setValue } = methods;
-
+  const { user } = useContext(AuthContext)
   const dateRef = useRef(null);
   const joinDateRef = useRef(null);
 
@@ -330,6 +331,7 @@ const AddEmployeeForm = () => {
       if (data.image && data.image instanceof File) {
         formData.append("image", data.image);
       }
+      formData.append("created_by", user.name)
 
       const url = id ? `/employee/${id}` : `/employee`;
       const response = await api.post(url, formData, {
@@ -483,43 +485,46 @@ const AddEmployeeForm = () => {
               />
             </div>
             <div className="w-full">
-              <label className="text-gray-700 text-sm font-medium">ছবি</label>
-              <Controller
-                name="image"
-                control={control}
-                rules={{ required: !id }}
-                render={({ field: { onChange, ref }, fieldState: { error } }) => (
-                  <div className="relative">
-                    <label
-                      htmlFor="image"
-                      className="border p-2 rounded w-full block bg-white text-gray-500 text-sm cursor-pointer"
-                    >
-                      {previewImage ? "ছবি নির্বাচিত" : "ছবি নির্বাচন করুন"}
-                    </label>
-                    <input
-                      id="image"
-                      type="file"
-                      accept="image/*"
-                      ref={ref}
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          setPreviewImage(URL.createObjectURL(file));
-                          onChange(file);
-                        } else {
-                          setPreviewImage(null);
-                          onChange(null);
-                        }
-                      }}
-                    />
-                    {error && <span className="text-red-600 text-sm">{error.message}</span>}
-                  </div>
-                )}
-              />
+              <InputField name="employee_id" label="আইডি নম্বর" required={false} />
             </div>
           </div>
-
+          {/* image */}
+          <div className="w-full">
+            <label className="text-gray-700 text-sm font-medium">ছবি</label>
+            <Controller
+              name="image"
+              control={control}
+              rules={{ required: !id }}
+              render={({ field: { onChange, ref }, fieldState: { error } }) => (
+                <div className="relative">
+                  <label
+                    htmlFor="image"
+                    className="border p-2 rounded w-full block bg-white text-gray-500 text-sm cursor-pointer"
+                  >
+                    {previewImage ? "ছবি নির্বাচিত" : "ছবি নির্বাচন করুন"}
+                  </label>
+                  <input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    ref={ref}
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setPreviewImage(URL.createObjectURL(file));
+                        onChange(file);
+                      } else {
+                        setPreviewImage(null);
+                        onChange(null);
+                      }
+                    }}
+                  />
+                  {error && <span className="text-red-600 text-sm">{error.message}</span>}
+                </div>
+              )}
+            />
+          </div>
           {/* Preview */}
           {previewImage && (
             <div className="mt-3 relative flex justify-end">

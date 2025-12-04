@@ -84,7 +84,7 @@ const OfficialProducts = () => {
     }
     const term = searchTerm.toLowerCase();
     return (
-      dt.id?.toString().toLowerCase().includes(term) ||
+      dt.priority?.toString().toLowerCase().includes(term) ||
       dt.supplier_name?.toLowerCase().includes(term) ||
       dt.vehicle_no?.toLowerCase().includes(term) ||
       dt.driver_name?.toLowerCase().includes(term)
@@ -325,9 +325,11 @@ const OfficialProducts = () => {
       render: (date) => tableFormatDate(date),
     },
     {
-      title: 'প্রোডাক্ট আইডি',
-      dataIndex: 'id',
-      key: 'id',
+      title: "চালান নম্বর", dataIndex: "priority", render: (_, record) => (
+        <div>
+          {record.priority ? record.priority : "N/A"}
+        </div>
+      )
     },
     {
       title: 'সাপ্লায়ার নাম',

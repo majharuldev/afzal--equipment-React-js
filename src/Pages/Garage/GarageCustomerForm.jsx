@@ -56,7 +56,7 @@ const GarageCustomerForm = () => {
 
             const payload = {
                 ...data,
-                created_by: user?.name || "system",
+                created_by: user?.name,
             };
 
             //  Generate ref_id only when adding new

@@ -236,6 +236,7 @@ import { AuthContext } from "../providers/AuthProvider";
 import useAdmin from "../hooks/useAdmin";
 import FormSkeleton from "../components/Form/FormSkeleton";
 import api from "../utils/axiosConfig";
+import { toNumber } from "../hooks/toNumber";
 
 const FuelForm = () => {
   const navigate = useNavigate();
@@ -551,7 +552,7 @@ const FuelForm = () => {
                 <h4 className="text-lg font-semibold text-primary">আইটেমসমূহ</h4>
                 {fields.map((field, index) => {
                   const quantity = watch(`items.${index}.quantity`) || 0;
-                  const unitPrice = parseFloat(watch(`items.${index}.unit_price`)) || 0;
+                  const unitPrice = toNumber(watch(`items.${index}.unit_price`)) || 0;
                   const total = quantity * unitPrice;
 
                   return (
@@ -604,7 +605,7 @@ const FuelForm = () => {
                 <InputField name="remarks" label="মন্তব্য" />
               </div>
               <div className="w-full">
-                <InputField name="priority" label="অগ্রাধিকার" />
+                <InputField type="number" name="priority" label="চালান নম্বর" />
               </div>
             </div>
 

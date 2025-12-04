@@ -83,6 +83,11 @@ const Customer = () => {
       key: "opening_balance",
     },
     {
+      title: "তৈরি করেছেন",
+      dataIndex: "created_by",
+      key: "created_by",
+    },
+    {
       title: "অবস্থা",
       dataIndex: "status",
       key: "status",

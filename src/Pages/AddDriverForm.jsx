@@ -53,7 +53,7 @@
 //   return (
 //     <div className="">
 //       <Toaster />
-      
+
 //       <div className="mx-auto p-6  rounded-md border border-gray-200 shadow">
 //         <h3 className=" pb-4 text-primary font-semibold ">
 //         Create Driver
@@ -226,7 +226,7 @@
 // export default AddDriverForm;
 
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoMdClose } from "react-icons/io";
@@ -237,13 +237,14 @@ import BtnSubmit from "../components/Button/BtnSubmit";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../utils/axiosConfig";
+import { AuthContext } from "../providers/AuthProvider";
 
 const DriverForm = () => {
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [initialData, setInitialData] = useState(null);
   const driverDateRef = useRef(null);
-
+  const { user } = useContext(AuthContext)
   const methods = useForm();
   const { handleSubmit, register, reset, control, setValue } = methods;
 
@@ -256,10 +257,10 @@ const DriverForm = () => {
       api
         .get(`/driver/${id}`)
         .then((res) => {
-            const driver = res.data;
-            setInitialData(driver);
-            reset(driver); // form fields set
-            // if (driver.license_image) setPreviewImage(driver.license_image);
+          const driver = res.data;
+          setInitialData(driver);
+          reset(driver); // form fields set
+          // if (driver.license_image) setPreviewImage(driver.license_image);
         })
         .catch((err) => {
           console.error(err);
@@ -277,24 +278,27 @@ const DriverForm = () => {
       //     formData.append(key, data[key]);
       //   }
       // }
-
+      const payload = {
+        ...data,
+        created_by: user?.name,
+      };
       let response;
       if (id) {
         response = await api.put(
           `/driver/${id}`,
-          data
+          payload
         );
       } else {
         response = await api.post(
           `/driver`,
-          data
+          payload
         );
       }
 
       const resData = response.data;
-        toast.success(id ? "ড্রাইভার সফলভাবে আপডেট হয়েছে" : "ড্রাইভার সফলভাবে যোগ হয়েছে");
-        reset();
-        navigate("/tramessy/HR/DriverList");
+      toast.success(id ? "ড্রাইভার সফলভাবে আপডেট হয়েছে" : "ড্রাইভার সফলভাবে যোগ হয়েছে");
+      reset();
+      navigate("/tramessy/HR/DriverList");
     } catch (error) {
       console.error(error);
       toast.error("সার্ভার সমস্যা: " + (error.response?.data?.message || error.message));
@@ -371,6 +375,9 @@ const DriverForm = () => {
 
             {/* স্ট্যাটাস ও ওপেনিং ব্যালান্স */}
             <div className="md:flex justify-between gap-3 mt-3">
+              <div className="w-full">
+                <InputField name="driver_id" label="আইডি নম্বর" required={false} />
+              </div>
               <div className="w-full">
                 <InputField name="opening_balance" label="ওপেনিং ব্যালান্স" required={!id} />
               </div>

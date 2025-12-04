@@ -88,6 +88,10 @@ const Office = () => {
       title: "শুরুর ব্যালেন্স",
       dataIndex: "opening_balance",
     },
+     {
+      title: "তৈরী করেছেন",
+      dataIndex: "created_by",
+    },
     {
       title: "কার্যকলাপ",
       render: (_, record) => (

@@ -78,7 +78,7 @@ const Fuel = () => {
     }
     const term = searchTerm.toLowerCase();
     return (
-      dt.id?.toString().toLowerCase().includes(term) ||
+      dt.priority?.toString().toLowerCase().includes(term) ||
       dt.supplier_name?.toLowerCase().includes(term) ||
       dt.vehicle_no?.toLowerCase().includes(term) ||
       dt.driver_name?.toLowerCase().includes(term)
@@ -386,6 +386,13 @@ const Fuel = () => {
       render: (date) => tableFormatDate(date),
     },
     {
+      title: "চালান নম্বর", dataIndex: "priority", render: (_, record) => (
+        <div>
+          {record.priority ? record.priority : "N/A"}
+        </div>
+      )
+    },
+    {
       title: "সাপ্লায়ার নাম",
       dataIndex: "supplier_name",
       key: "supplier_name",
@@ -624,8 +631,8 @@ const Fuel = () => {
         {selectedfuel && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div className="flex justify-between p-2">
-              <span className="font-medium">প্রোডাক্ট আইডি:</span>
-              <span>{selectedfuel.id}</span>
+              <span className="font-medium">চালান নম্বর:</span>
+              <span>{selectedfuel.priority}</span>
             </div>
             <div className="flex justify-between p-2">
               <span className="font-medium">সরবরাহকারীর নাম:</span>
@@ -637,7 +644,7 @@ const Fuel = () => {
             </div>
             <div className="flex justify-between p-2">
               <span className="font-medium">ইকুইপমেন্ট ক্যাটাগরি:</span>
-              <span>{selectedfuel.vehicle_category}</span>
+              <span>{selectedfuel.vehicle_category || "N/A"}</span>
             </div>
             <div className="flex justify-between p-2">
               <span className="font-medium">ইকুইপমেন্ট নম্বর:</span>
@@ -649,21 +656,31 @@ const Fuel = () => {
             </div>
             <div className="flex justify-between p-2">
               <span className="font-medium">আইটেমের নাম:</span>
-              <span>{selectedfuel.item_name}</span>
+              {selectedfuel.items.map(item=>
+               ( <span>{item.item_name }</span>)
+              )}
             </div>
             <div className="flex justify-between p-2">
               <span className="font-medium">পরিমাণ:</span>
-              <span>{selectedfuel.quantity}</span>
+              {selectedfuel.items.map(item=>
+               ( <span>{item.quantity}</span>)
+              )}
             </div>
             <div className="flex justify-between p-2">
               <span className="font-medium">একক মূল্য:</span>
-              <span>{selectedfuel.unit_price}</span>
+             {selectedfuel.items.map(item=>
+               ( <span>{item.unit_price }</span>)
+              )}
             </div>
             <div className="flex justify-between p-2">
               <span className="font-medium">মোট:</span>
-              <span>{selectedfuel.fuel_amount}</span>
+              <span>{selectedfuel.purchase_amount}</span>
             </div>
             <div className="col-span-2 flex flex-col items-center p-2">
+              <div className="flex justify-between p-2">
+              <span className="font-medium">তৈরি করেছেন:</span>
+              <span>{selectedfuel.created_by}</span>
+            </div>
               <span className="font-medium mb-2">বিলের ছবি:</span>
               <img
                 src={`https://afzalcons.com/backend/uploads/purchase/${selectedfuel.image}`}

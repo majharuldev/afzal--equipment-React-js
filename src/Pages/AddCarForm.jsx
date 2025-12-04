@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { FiCalendar } from "react-icons/fi";
 import axios from "axios";
@@ -8,6 +8,7 @@ import { InputField, SelectField } from "../components/Form/FormFields";
 import useRefId from "../hooks/useRef";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../utils/axiosConfig";
+import { AuthContext } from "../providers/AuthProvider";
 const AddCarForm = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
@@ -19,6 +20,7 @@ const AddCarForm = () => {
   const fitnessDateRef = useRef(null);
   const insuranceDateRef = useRef(null);
   const navigate = useNavigate();
+  const {user} = useContext(AuthContext)
   // select driver from api
   const [drivers, setDrivers] = useState([]);
  useEffect(() => {
@@ -73,16 +75,24 @@ const AddCarForm = () => {
       { value: "23", label: "২৩ টন" },
     ],
     Payloader: [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "910", label: "৯১০" },
+      { value: "920", label: "৯২০" },
+      { value: "935", label: "৯৩৫" },
+      { value: "950", label: "৯৫০" },
+      { value: "966", label: "৯৬৬" },
+      { value: "970", label: "৯৭০" },
+      { value: "1010", label: "১০১০" },
+      { value: "1015", label: "১০১৫" }
     ],
     "Chain Dozer": [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "D2", label: "D2" },
+      { value: "D3", label: "D3" },
+      { value: "D4", label: "D4" },
+      { value: "D5", label: "D5" },
+      { value: "D6", label: "D6" },
+      { value: "D7", label: "D7" },
+      { value: "D8", label: "D8" },
+      { value: "D9", label: "D9" },
     ],
     "Dump Truck": [
       { value: "120", label: "১২০ সিএফসি" },
@@ -124,10 +134,14 @@ const AddCarForm = () => {
       { value: "long_boom", label: "লং বুম" },
     ],
     "Chain Dozer": [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "6 feet", label: "৬ ফিট" },
+      { value: "7 feet", label: "৭ ফিট" },
+      { value: "9 feet", label: "৯ ফিট" },
+      { value: "8 feet", label: "৮ ফিট" },
+      { value: "12 feet", label: "১২ ফিট" },
+      { value: "13 feet", label: "১৩ ফিট" },
+      { value: "14 feet", label: "১৪ ফিট" },
+      { value: "15 feet", label: "১৫ ফিট" },
     ],
     "Dump Truck": [
       { value: "6_caka", label: "৬ চাকা" },
@@ -158,10 +172,14 @@ const AddCarForm = () => {
       { value: "23", label: "২৩ টন" },
     ],
     Payloader: [
-      { value: "6m", label: "৬ মিটার" },
-      { value: "5m", label: "৫ মিটার" },
-      { value: "7m", label: "৭ মিটার" },
-      { value: "9m", label: "৯ মিটার" },
+      { value: "10 feet", label: "১০ ফিট" },
+      { value: "11 feet", label: "১১ ফিট" },
+      { value: "12 feet", label: "১২ ফিট" },
+      { value: "13 feet", label: "১৩ ফিট" },
+      { value: "14 feet", label: "১৪ ফিট" },
+      { value: "15 feet", label: "১৫ ফিট" },
+      { value: "16 feet", label: "১৬ ফিট" },
+      { value: "17 feet", label: "১৭ ফিট" },
     ],
     Trailer: [
       { value: "20", label: "২০ ফিট" },
@@ -223,6 +241,7 @@ const AddCarForm = () => {
           formData.append(key, data[key]);
         }
         formData.append("ref_id", generateRefId());
+        formData.append("created_by", user.name);
 
         response = await api.post(`/vehicle`, formData);
         toast.success("গাড়ির তথ্য সফলভাবে সংরক্ষিত হয়েছে!", { position: "top-right" });

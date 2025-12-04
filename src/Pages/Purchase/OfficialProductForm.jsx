@@ -380,7 +380,7 @@ const OfficialProductForm = () => {
                 <InputField name="remarks" label="মন্তব্য" />
               </div>
               <div className="w-full">
-                <InputField name="priority" label="অগ্রাধিকার" />
+                <InputField type="number" name="priority" label="চালান নম্বর" />
               </div>
             </div>
 

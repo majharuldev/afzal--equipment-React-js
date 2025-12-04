@@ -10,6 +10,8 @@ import { AuthContext } from "../../providers/AuthProvider";
 import { IoMdClose } from "react-icons/io";
 import FormSkeleton from "../../components/Form/FormSkeleton";
 import api from "../../utils/axiosConfig";
+import { number } from "prop-types";
+import { toNumber } from "../../hooks/toNumber";
 
 const PurchaseForm = () => {
   const navigate = useNavigate();
@@ -36,8 +38,8 @@ const PurchaseForm = () => {
   const selectedCategory = watch("category");
   const selectedVehicle = watch("vehicle_no");
   // মোট খরচ হিসাব
-  const quantity = parseFloat(watch("quantity") || 0);
-  const unitPrice = parseFloat(watch("unit_price") || 0);
+  const quantity = toNumber(watch("quantity") || 0);
+  const unitPrice = toNumber(watch("unit_price") || 0);
   const totalPrice = quantity * unitPrice;
 
   // ডাইনামিক আইটেম ফিল্ড
@@ -52,12 +54,12 @@ const PurchaseForm = () => {
 
   useEffect(() => {
     const totalItemsAmount = (items || []).reduce((sum, item) => {
-      const quantity = parseFloat(item.quantity) || 0;
-      const unitPrice = parseFloat(item.unit_price) || 0;
+      const quantity = toNumber(item.quantity) || 0;
+      const unitPrice = toNumber(item.unit_price) || 0;
       return sum + quantity * unitPrice;
     }, 0);
 
-    const grandTotal = totalItemsAmount + (parseFloat(serviceCharge) || 0);
+    const grandTotal = totalItemsAmount + (toNumber(serviceCharge) || 0);
     setValue("purchase_amount", grandTotal);
   }, [items, serviceCharge, setValue]);
 
@@ -189,16 +191,16 @@ const PurchaseForm = () => {
         }
       });
 
-    const createdByValue = user?.name || user?.email || "অজানা";
+    const createdByValue = user?.name || user?.email ;
       // আইটেম অ্যারে আলাদা করে নেওয়া
       const item_name = data.items.map((item) => item.item_name);
-      const quantity = data.items.map((item) => Number(item.quantity));
-      const unit_price = data.items.map((item) => Number(item.unit_price));
-      const total = data.items.map((item) => Number(item.quantity) * Number(item.unit_price));
+      const quantity = data.items.map((item) => toNumber(item.quantity));
+      const unit_price = data.items.map((item) => toNumber(item.unit_price));
+      const total = data.items.map((item) => toNumber(item.quantity) * toNumber(item.unit_price));
 
       // মোট পারচেজ অ্যামাউন্ট হিসাব
       const purchase_amount =
-        total.reduce((sum, val) => sum + val, 0) + Number(data.service_charge || 0);
+        total.reduce((sum, val) => sum + val, 0) + toNumber(data.service_charge || 0);
 
       // ফর্মডেটা তৈরি
       const formData = new FormData();
@@ -410,7 +412,7 @@ const PurchaseForm = () => {
 
                 {fields.map((field, index) => {
                   const quantity = watch(`items.${index}.quantity`) || 0;
-                  const unitPrice = parseFloat(watch(`items.${index}.unit_price`)) || 0;
+                  const unitPrice = toNumber(watch(`items.${index}.unit_price`)) || 0;
                   const total = quantity * unitPrice;
 
                   return (
@@ -532,7 +534,7 @@ const PurchaseForm = () => {
                 <InputField name="remarks" label="মন্তব্য" />
               </div>
               <div className="w-full">
-                <InputField name="priority" label="অগ্রাধিকার" />
+                <InputField type="number" name="priority" label="চালান নম্বর" />
               </div>
             </div>
             {/* {!isAdmin && <div className="mt-4">

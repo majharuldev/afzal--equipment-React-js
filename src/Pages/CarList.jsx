@@ -100,6 +100,7 @@ const CarList = () => {
     "Fitness date": dt.fitness_date,
     "Route Permit date": dt.route_per_date,
     "Tax date": dt.text_date,
+    CreatedBy: dt.created_by
   }));
 
   const exportExcel = () => {
@@ -495,6 +496,10 @@ const CarList = () => {
             <div className="border p-2 border-gray-200">
               <p className="font-semibold">ইনস্যুরেন্স তারিখ:</p>
               <p>{tableFormatDate(selectedCar.insurance_date) || "N/A"}</p>
+            </div>
+             <div className="border p-2 border-gray-200">
+              <p className="font-semibold">তৈরী করেছেন:</p>
+              <p>{tableFormatDate(selectedCar.created_by) || "N/A"}</p>
             </div>
           </div>
         )}
