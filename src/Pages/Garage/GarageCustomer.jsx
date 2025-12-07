@@ -7,6 +7,8 @@ import { Table, Modal, Button } from "antd";
 import { RiEditLine } from "react-icons/ri";
 import api from "../../utils/axiosConfig";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const GarageCustomer = () => {
   const [customer, setCustomer] = useState([]);
@@ -132,6 +134,48 @@ const GarageCustomer = () => {
     },
   ];
 
+  // excel
+  const exportExcel = () => {
+  try {
+    // ১. customer স্টেট থেকে ডাটা নেওয়া
+    const exportData = customer.map((item, index) => ({
+      "ক্রমিক": index + 1,
+      "তারিখ": tableFormatDate(item.date),
+      "নাম": item.customer_name,
+      "মোবাইল": item.customer_mobile,
+      "মাস": item.month_name,
+      "ইকুইপমেন্ট নম্বর": item.vehicle_no,
+      "ঠিকানা": item.address,
+      "ইকুইপমেন্ট সংখ্যা": item.vehicle_qty,
+      "পরিমাণ": item.amount,
+      "অবস্থা": item.status,
+      "তৈরি করেছেন": item.created_by
+    }));
+
+    // ২. worksheet + workbook তৈরি
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Garage Customer");
+
+    // ৩. Excel File Output তৈরি
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    // ৪. Download File
+    const file = new Blob([excelBuffer], {
+      type: "application/octet-stream",
+    });
+    saveAs(file, "GarageCustomer.xlsx");
+
+    toast.success("Excel ফাইল সফলভাবে ডাউনলোড হয়েছে!");
+  } catch (error) {
+    console.error("Excel export error:", error);
+    toast.error("Excel তৈরির সময় সমস্যা হয়েছে!");
+  }
+};
+
   return (
     <main>
       <Toaster />
@@ -140,7 +184,7 @@ const GarageCustomer = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">
             <FaUsers className="text-2xl" />
-            সকল গ্যারেজ কাস্টমার তথ্য
+            সকল ইয়ার্ড কাস্টমার তথ্য
           </h1>
           <div>
             <Link to="/tramessy/garage-CustomerForm">
@@ -154,7 +198,13 @@ const GarageCustomer = () => {
             </Link>
           </div>
         </div>
-        <div className="flex justify-end my-3">
+        <div className="flex justify-between my-3">
+           <button
+              onClick={exportExcel}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              এক্সেল
+            </button>
           {/* search */}
           <div className="mt-3 md:mt-0 ">
             <input
@@ -164,7 +214,7 @@ const GarageCustomer = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="ট্রিপ খুঁজুন..."
+              placeholder=" খুঁজুন..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}

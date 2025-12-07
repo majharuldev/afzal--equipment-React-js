@@ -334,11 +334,10 @@ const VendorPaymentForm = () => {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      // const formData = new FormData()
-      // for (const key in data) {
-      //   formData.append(key, data[key])
-      // }
-
+        const payload = {
+              ...data,
+              created_by: user.name,
+            }
       let paymentResponse
       let paymentData
 

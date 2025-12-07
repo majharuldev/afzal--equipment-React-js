@@ -17,6 +17,7 @@ import ExvatorBill from "./Exavtor"
 import RollerBill from "./Roller"
 import ChainDozerBill from "./ChainDozer"
 import { toNumber } from "../../hooks/toNumber"
+import Select from "react-select";
 
 pdfMake.vfs = pdfFonts.vfs
 
@@ -29,6 +30,8 @@ const Bill = () => {
   const [endDate, setEndDate] = useState("")
   const [vehicles, setVehicles] = useState([])
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [workPlaceList, setWorkPlaceList] = useState([]);
+  const [selectedWorkPlace, setSelectedWorkPlace] = useState("");
 
   // New states for customer search
   const [customerList, setCustomerList] = useState([])
@@ -38,12 +41,17 @@ const Bill = () => {
   const customerSearchRef = useRef(null)
 
   // fetch all trip data from server
-   useEffect(() => {
+  useEffect(() => {
     const fetchTrips = async () => {
       setLoading(true);
       try {
         const res = await api.get("/trip");
         setTrips(res.data);
+        // Generate unique work places
+        const places = [...new Set(
+          res.data.map(t => t.work_place).filter(Boolean)
+        )];
+        setWorkPlaceList(places);
       } catch (error) {
         console.log("Error fetching trip data:", error);
       } finally {
@@ -74,7 +82,7 @@ const Bill = () => {
   }));
 
   // Fetch customer list for the search dropdown
-    useEffect(() => {
+  useEffect(() => {
     const fetchCustomers = async () => {
       try {
         const res = await api.get("/customer");
@@ -319,9 +327,11 @@ const Bill = () => {
   }
 
   // Date filter
-    const filteredTrips = trips.filter((t) => {
+  const filteredTrips = trips.filter((t) => {
     const matchCategory =
       !selectedCategory || t.vehicle_category === selectedCategory;
+
+    const projectName = (!selectedWorkPlace || t.work_place === selectedWorkPlace)
 
     const matchCustomer =
       !selectedCustomer ||
@@ -337,12 +347,12 @@ const Bill = () => {
       start && end
         ? tripDate >= start && tripDate <= end
         : start
-        ? tripDate === start
-        : end
-        ? tripDate === end
-        : true;
+          ? tripDate === start
+          : end
+            ? tripDate === end
+            : true;
 
-    return matchCategory && matchCustomer && matchDate;
+    return matchCategory && matchCustomer && matchDate && projectName;
   });
 
 
@@ -400,7 +410,7 @@ const Bill = () => {
               <div>বরাবর</div>
               <div><strong>${customerName}</strong></div>
               <div><strong>প্রজেক্ট: ${selectedData[0]?.work_place}</strong></div>
-              <div><strong>বিষয়:</strong></div>
+              <div><strong>বিষয়:${selectedData[0]?.trip_count}</strong></div>
             </div>
            
           </div>
@@ -448,8 +458,8 @@ const Bill = () => {
     newWindow.print()
   }
 
-// Submit function
-   const handleSubmit = async () => {
+  // Submit function
+  const handleSubmit = async () => {
     const selectedData = filteredTrips.filter(
       (dt, i) => selectedRows[dt.id] && dt.status === "Pending"
     );
@@ -575,7 +585,7 @@ const Bill = () => {
         </div>
 
         {/* export and search */}
-        {!(selectedCategory === "Exvator" || selectedCategory === "Chain Dozer" || selectedCategory === "Road Roller" || selectedCategory === "Dump Truck" )&&<div className="md:flex justify-between items-center">
+        {!(selectedCategory === "Exvator" || selectedCategory === "Chain Dozer" || selectedCategory === "Road Roller" || selectedCategory === "Dump Truck") && <div className="md:flex justify-between items-center">
           <div className="flex flex-wrap md:flex-row gap-1 md:gap-3 text-primary font-semibold rounded-md">
             <button
               onClick={exportToExcel}
@@ -648,6 +658,15 @@ const Bill = () => {
               }}
               className="text-sm"
             />
+              <div className="mb-3 ">
+              <Select
+                options={workPlaceList.map(w => ({ label: w, value: w }))}
+                onChange={(e) => setSelectedWorkPlace(e ? e.value : "")}
+                placeholder="Search Work Place..."
+                isClearable
+                isSearchable
+              />
+            </div>
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
@@ -665,7 +684,7 @@ const Bill = () => {
           </div>
         )}
 
-        {!(selectedCategory === "Exvator" || selectedCategory === "Chain Dozer" || selectedCategory === "Road Roller" || selectedCategory === "Dump Truck" )&&<div className="mt-5 overflow-x-auto">
+        {!(selectedCategory === "Exvator" || selectedCategory === "Chain Dozer" || selectedCategory === "Road Roller" || selectedCategory === "Dump Truck") && <div className="mt-5 overflow-x-auto">
           <table className="min-w-full text-sm text-left text-gray-900">
             <thead className="capitalize text-sm">
               <tr>
@@ -786,10 +805,10 @@ const Bill = () => {
             </button>
           </div>
         </div>}
-{selectedCategory === "Dump Truck" && <DumpTruck trips={filteredTrips} />}
-{selectedCategory=== "Exvator" && <ExvatorBill trips={filteredTrips}/>}
-{selectedCategory=== "Road Roller" && <RollerBill trips={filteredTrips}/>}
-{selectedCategory=== "Chain Dozer" && <ChainDozerBill trips={filteredTrips}/>}
+        {selectedCategory === "Dump Truck" && <DumpTruck trips={filteredTrips} />}
+        {selectedCategory === "Exvator" && <ExvatorBill trips={filteredTrips} />}
+        {selectedCategory === "Road Roller" && <RollerBill trips={filteredTrips} />}
+        {selectedCategory === "Chain Dozer" && <ChainDozerBill trips={filteredTrips} />}
       </div>
     </div>
   )

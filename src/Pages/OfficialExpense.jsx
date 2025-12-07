@@ -701,7 +701,7 @@
 // export default OfficialExpense;
 
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useContext } from "react"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
@@ -720,8 +720,10 @@ import BtnSubmit from "../components/Button/BtnSubmit"
 import Pagination from "../components/Shared/Pagination"
 import api from "../utils/axiosConfig"
 import { toNumber } from "../hooks/toNumber"
+import { AuthContext } from "../providers/AuthProvider"
 
 const OfficialExpense = () => {
+  const {user} = useContext(AuthContext)
   const [expenses, setExpenses] = useState([])
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true)
@@ -895,6 +897,7 @@ const OfficialExpense = () => {
     try {
       const payload = {
         ...formData,
+        created_by: user.name,
         date: dayjs(formData.date).format("YYYY-MM-DD"),
       }
 
@@ -939,26 +942,6 @@ const OfficialExpense = () => {
     return matchesSearch && matchesDate;
   })
 
-  // CSV এক্সপোর্ট
-  const exportCSV = () => {
-    const csvContent = [
-      ["সিরিয়াল", "তারিখ", "গ্রহীতা", "পরিমাণ", "ক্যাটাগরি", "মন্তব্য"],
-      ...filteredData.map((item, i) => [
-        i + 1,
-        item.date,
-        item.paid_to,
-        item.pay_amount,
-        item.payment_category,
-        item.particulars,
-      ]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n")
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    saveAs(blob, "সাধারণ_খরচ.csv")
-  }
-
   // এক্সেল এক্সপোর্ট
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
@@ -969,6 +952,7 @@ const OfficialExpense = () => {
       "Payment Category": item.payment_category,
       "Particulars": item.particulars,
       Status: item.status,
+      CreatedBy: item.created_by
     }))
 
     const ws = XLSX.utils.json_to_sheet(data)
@@ -1009,6 +993,7 @@ const OfficialExpense = () => {
         <th>ক্যাটাগরি</th>
         <th>মন্তব্য</th>
         <th>স্ট্যাটাস</th>
+        <th>তৈরি করেছেন</th>
       </tr>
     </thead>
   `;
@@ -1025,6 +1010,7 @@ const OfficialExpense = () => {
           <td>${item.payment_category || ""}</td>
           <td>${item.particulars || ""}</td>
            <td>${item.status || ""}</td>
+           <td>${item.created_by || ""}</td>
         </tr>
       `
       )
@@ -1201,7 +1187,8 @@ const OfficialExpense = () => {
                 <th className="px-3 py-3 text-left text-sm font-semibold">ক্যাটাগরি</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">মন্তব্য</th>
                 <th className="px-3 py-2">স্ট্যাটাস</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">একশন</th>
+                <th className="px-3 py-2">তৈরি করেছেন</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">অ্যাকশন</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -1242,6 +1229,7 @@ const OfficialExpense = () => {
                     <td className="px-3 py-3 text-sm">{item.amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
                     <td className="px-3 py-3 text-sm">{item.particulars}</td>
+                   
                     <td
                       className={`px-3 py-2 font-semibold ${item.status === "Paid"
                         ? "text-green-600"
@@ -1250,6 +1238,7 @@ const OfficialExpense = () => {
                     >
                       {item.status}
                     </td>
+                     <td className="px-3 py-3 text-sm">{item.created_by}</td>
                     <td className="px-3 py-3 text-sm action_column flex gap-2 items-center">
                       <button
                         onClick={() => showModal(item)}

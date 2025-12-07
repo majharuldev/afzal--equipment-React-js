@@ -3,7 +3,7 @@ import { useForm, FormProvider, useWatch, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { InputField, SelectField } from "../components/Form/FormFields";
+import TextAreaField, { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import api from "../utils/axiosConfig";
 import { toNumber } from "../hooks/toNumber";
@@ -83,6 +83,7 @@ export default function AddTripForm() {
       trip_id: "",
       trans_cost: "",
       trans_cost_type: "",
+      trip_count: ""
     },
   });
 
@@ -310,6 +311,7 @@ export default function AddTripForm() {
               advance: toNumber(tripData.advance) || 0,
               due_amount: toNumber(tripData.due_amount) || 0,
               driver_adv: toNumber(tripData.driver_adv) || 0,
+              
             };
             reset(parsedTripData);
             if (tripData.image) {
@@ -1035,16 +1037,28 @@ export default function AddTripForm() {
                 </div>
               </div>
               <div className="flex gap-5">
-                <div className="w-full">
-                  {/* < name="remarks" label="মন্তব্য" /> */}
+                {/* <div className="w-full">
+                  
                   <label className="block text-gray-700 text-sm font-medium mb-1"> মন্তব্য </label>
                   <TextArea name="remarks" label="মন্তব্য" />
                 </div>
                 <div className="w-full">
-                  {/* < name="remarks" label="মন্তব্য" /> */}
+                
                   <label className="block text-gray-700 text-sm font-medium mb-1"> বিষয় </label>
                   <TextArea name="trip_count" label="বিষয়" />
-                </div>
+                </div> */}
+                <TextAreaField
+                    name="remarks"
+                    label="মন্তব্য"
+                    required={false}
+                    placeholder="বিবরণ..."
+                  />
+                  <TextAreaField
+                    name="trip_count"
+                    label="বিষয়"
+                    required={false}
+                    placeholder="বিষয়..."
+                  />
               </div>
             </div>
 

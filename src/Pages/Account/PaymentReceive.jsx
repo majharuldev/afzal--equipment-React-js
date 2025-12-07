@@ -7,10 +7,13 @@ import { tableFormatDate } from "../../components/Shared/formatDate";
 import api from "../../utils/axiosConfig";
 import { IoMdClose } from "react-icons/io";
 import toast from "react-hot-toast";
+import * as XLSX from "xlsx";
+
 
 const PaymentReceive = () => {
   const [payment, setPayment] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPaymentId, setSelectedPaymentId] = useState(null);
@@ -30,6 +33,18 @@ const PaymentReceive = () => {
         setLoading(false);
       });
   }, []);
+  const filteredPayment = payment.filter((item) => {
+  const search = searchTerm.toLowerCase();
+  return (
+    item.customer_name?.toLowerCase().includes(search) ||
+    item.branch_name?.toLowerCase().includes(search) ||
+    item.bill_ref?.toLowerCase().includes(search) ||
+    item.cash_type?.toLowerCase().includes(search) ||
+    String(item.amount)?.includes(search) ||
+    item.created_by?.toLowerCase().includes(search) ||
+    item.status?.toLowerCase().includes(search)
+  );
+});
 
    // delete by id
   const handleDelete = async (id) => {
@@ -54,14 +69,43 @@ const PaymentReceive = () => {
     }
   };
 
+  const exportExcel = () => {
+  // Convert data with numeric amount
+  const formattedPayment = filteredPayment.map((item) => ({
+    ...item,
+    amount: Number(item.amount), // ensure numeric
+  }));
+
+  // Create worksheet
+  const ws = XLSX.utils.json_to_sheet(formattedPayment);
+
+  // Format amount column as number in Excel
+  const amountColumnIndex = Object.keys(formattedPayment[0]).indexOf("amount");
+
+  if (amountColumnIndex !== -1) {
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let row = range.s.r + 1; row <= range.e.r; row++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: row, c: amountColumnIndex });
+      if (ws[cellAddress]) {
+        ws[cellAddress].t = "n"; // n = number
+      }
+    }
+  }
+
+  // Create workbook and export
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "PaymentReceive");
+  XLSX.writeFile(wb, "payment_receive.xlsx");
+};
+
 
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentPayment = payment.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(payment.length / itemsPerPage);
+  const currentPayment = filteredPayment.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredPayment.length / itemsPerPage);
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
   };
@@ -88,6 +132,39 @@ const PaymentReceive = () => {
                 <FaPlus />যোগ করুন
               </button>
             </Link>
+          </div>
+        </div>
+        <div className="flex justify-between my-3">
+           <button
+              onClick={exportExcel}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              এক্সেল
+            </button>
+          {/* search */}
+          <div className="mt-3 md:mt-0 ">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder=" খুঁজুন..."
+              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-10 top-[10.9rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-5 overflow-x-auto rounded-xl">

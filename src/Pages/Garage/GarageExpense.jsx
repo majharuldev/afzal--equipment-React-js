@@ -272,6 +272,7 @@ const handleCancel = () => {
       Amount: item.pay_amount,
       Category: item.payment_category,
       Remarks: item.remarks,
+      "Created By" : item.created_by
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -365,7 +366,7 @@ const printColumns = columns.filter(col => col.key !== "action");
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-black flex items-center gap-3">
             <FaTruck className="text-black text-2xl" />
-            গ্যারেজ খরচ
+            ইয়ার্ড খরচ
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             {/* <Link to="/tramessy/AddSallaryExpenseForm"> */}

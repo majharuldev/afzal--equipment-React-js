@@ -59,6 +59,7 @@ const exportToExcel = () => {
     Amount: Number(dt.amount || 0),
     Cash_Type: dt.cash_type || "",
     Status: dt.status || "",
+    "CreatedBy": dt.created_by
   }));
 
   // Add total at the end
@@ -74,6 +75,7 @@ const exportToExcel = () => {
     Amount: totalAmount,
     Cash_Type: "",
     Status: "",
+    CreatedBy: ""
   });
 
   // Create worksheet & workbook
@@ -90,6 +92,7 @@ const exportToExcel = () => {
     { wch: 12 }, // Amount
     { wch: 12 }, // Cash Type
     { wch: 10 }, // Status
+    {wch: 10}
   ];
   worksheet["!cols"] = colWidths;
 
@@ -114,6 +117,7 @@ const exportToExcel = () => {
         <td>${dt.amount}</td>
         <td>${dt.cash_type}</td>
         <td>${dt.status}</td>
+        <td>${dt.created_by}</td>
       </tr>
     `
     ).join("");
@@ -154,6 +158,7 @@ const exportToExcel = () => {
               <th>Amount</th>
               <th>Cash Type</th>
               <th>Status</th>
+              <th>Created By</th>
             </tr>
           </thead>
           <tbody>
@@ -289,7 +294,7 @@ const exportToExcel = () => {
                 <th className="px-2 py-3">বিল রেফারেন্স</th>
                 <th className="px-2 py-3">পরিমাণ</th>
                 <th className="px-2 py-3">ক্যাশের ধরন</th>
-                {/* <th className="px-2 py-3">Created By</th> */}
+                <th className="px-2 py-3">Created By</th>
                 <th className="px-2 py-3">অবস্থা</th>
                 <th className="px-2 py-3">কার্যকলাপ</th>
               </tr>
@@ -328,7 +333,7 @@ const exportToExcel = () => {
                     <td className="p-2">{dt.bill_ref}</td>
                     <td className="p-2">{dt.amount}</td>
                     <td className="p-2">{dt.cash_type}</td>
-                    {/* <td className="p-2">{dt.created_by}</td> */}
+                    <td className="p-2">{dt.created_by}</td>
                     <td className="p-2">{dt.status}</td>
                     <td className="px-2 action_column">
                       <div className="flex gap-1">

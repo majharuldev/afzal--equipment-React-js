@@ -128,7 +128,7 @@ for (let y = currentYear; y <= currentYear + 10; y++) {
 
             <div className="mx-auto p-6 rounded-b-md rounded-t-md shadow border border-gray-300">
                 <h3 className=" pb-4 text-primary font-semibold ">
-                    {isEdit ? "কাস্টমার তথ্য আপডেট করুন" : "নতুন কাস্টমার তথ্য যোগ করুন"}
+                    {isEdit ? "ইয়ার্ড কাস্টমার তথ্য আপডেট করুন" : "নতুন ইয়ার্ড কাস্টমার তথ্য যোগ করুন"}
                 </h3>
                 <FormProvider {...methods}>
                     <form onSubmit={handleSubmit(onSubmit)}>

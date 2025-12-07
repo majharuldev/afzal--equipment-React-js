@@ -175,3 +175,46 @@ export const SelectField = ({
     </div>
   );
 };
+
+
+// text area
+const TextAreaField = ({
+  name,
+  label,
+  required = false,
+  placeholder = ""
+}) => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
+  return (
+    <div className="mb-4 w-full">
+      {label && (
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-gray-700"
+        >
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+
+      <textarea
+        id={name}
+        rows={2}
+        {...register(name, {
+          required: required ? `${label || name} is required` : false,
+        })}
+        placeholder={placeholder || `Enter ${label || name}`} // 👈 placeholder
+        className="w-full border border-gray-300 p-2 rounded text-sm"
+      />
+
+      {errors[name] && (
+        <p className="text-xs text-red-500 mt-1">{errors[name]?.message}</p>
+      )}
+    </div>
+  );
+};
+
+export default TextAreaField;

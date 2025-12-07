@@ -275,7 +275,7 @@ export default function DumpTruckBill({ trips }) {
                   <div>বরাবর</div>
                   <div><strong>${customerName}</strong></div>
                   <div><strong>প্রজেক্ট: ${selectedData[0]?.work_place}</strong></div>
-                  <div><strong>বিষয়:</strong></div>
+                  <div><strong>বিষয়:${selectedData[0]?.trip_count}</strong></div>
                 </div>
                
               </div>
