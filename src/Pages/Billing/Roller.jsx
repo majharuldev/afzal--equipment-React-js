@@ -204,6 +204,7 @@ export default function RollerBill({ trips }) {
     const excelData = selectedData.map((dt, idx) => ({
       SL: idx + 1,
       Date: tableFormatDate(dt.date),
+      "Project Name": dt.work_place,
       Vehicle: dt.vehicle_no,
       Remarks: dt.remarks,
       "Month": toNumber(dt.work_time),
@@ -376,7 +377,7 @@ export default function RollerBill({ trips }) {
             <tr>
               <th className="border border-gray-700 px-2 py-1">ক্রমিক</th>
               <th className="border border-gray-700 px-2 py-1">তারিখ</th>
-
+              <th className="border border-gray-700 px-2 py-1">প্রোজেক্ট নাম</th>
               <th className="border border-gray-700 px-2 py-1">গাড়ি নং</th>
               <th className="border border-gray-700 px-2 py-1">বিবরণ</th>
               <th className="border border-gray-700 px-2 py-1">মাস</th>
@@ -390,6 +391,7 @@ export default function RollerBill({ trips }) {
               <tr key={index} className="hover:bg-gray-50 transition-all">
                 <td className="border border-gray-700 p-1 font-bold">{index + 1}.</td>
                 <td className="border border-gray-700 p-1">{tableFormatDate(dt.date)}</td>
+                <td className="border border-gray-700 p-1">{dt.work_place}</td>
                 <td className="border border-gray-700 p-1">{dt.vehicle_no}</td>
                 <td className="border border-gray-700 p-1">{dt.remarks}</td>
                 <td className="border border-gray-700 p-1">{dt.work_time} দিন</td>

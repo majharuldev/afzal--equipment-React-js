@@ -226,7 +226,7 @@ const CarList = () => {
 
   // table columns
   const columns = [
-    { title: "আইডি নম্বর", key: "driver_id", render: (_, __, record) => record.driver_id },
+    { title: "আইডি নম্বর", dataIndex: "driver_id", key: "driver_id", render: (_, record) => record.driver_id },
     { title: "নাম", dataIndex: "driver_name", key: "driver_name" },
     { title: "মোবাইল", dataIndex: "driver_mobile", key: "driver_mobile" },
     {

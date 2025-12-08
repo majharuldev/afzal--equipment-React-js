@@ -204,6 +204,7 @@ export default function ChainDozerBill({ trips }) {
         const excelData = selectedData.map((dt, idx) => ({
             SL: idx + 1,
             Date: tableFormatDate(dt.date),
+            "Project name" : dt.work_place,
             Vehicle: dt.vehicle_no,
             Remarks: dt.remarks,
             "Rent Hour": toNumber(dt.work_time),
@@ -391,7 +392,7 @@ export default function ChainDozerBill({ trips }) {
                         <tr>
                             <th className="border border-gray-700 px-2 py-1">ক্রমিক</th>
                             <th className="border border-gray-700 px-2 py-1">তারিখ</th>
-
+                            <th className="border border-gray-700 px-2 py-1">প্রোজেক্ট নাম</th>
                             <th className="border border-gray-700 px-2 py-1">গাড়ি নং</th>
                             <th className="border border-gray-700 px-2 py-1">বিবরণ</th>
                             <th className="border border-gray-700 px-2 py-1">ঘণ্টা</th>
@@ -406,6 +407,7 @@ export default function ChainDozerBill({ trips }) {
                             <tr key={index} className="hover:bg-gray-50 transition-all">
                                 <td className="border border-gray-700 p-1 font-bold">{index + 1}.</td>
                                 <td className="border border-gray-700 p-1">{tableFormatDate(dt.date)}</td>
+                                <td className="border border-gray-700 p-1">{dt.work_place}</td>
                                 <td className="border border-gray-700 p-1">{dt.vehicle_no}</td>
                                 <td className="border border-gray-700 p-1">{dt.remarks}</td>
                                 <td className="border border-gray-700 p-1">{dt.work_time}</td>
@@ -441,7 +443,7 @@ export default function ChainDozerBill({ trips }) {
                     </tbody>
                     <tfoot>
                         <tr className="font-bold">
-                            <td colSpan={2} className="border border-black px-2 py-1 text-right">
+                            <td colSpan={3} className="border border-black px-2 py-1 text-right">
                                 মোট
                             </td>
                             <td className="border border-black px-2 py-1">{"totalVehicle"}</td>
@@ -455,7 +457,7 @@ export default function ChainDozerBill({ trips }) {
                         </tr>
                         {/* মোট বিলের টাকা + যাতায়াত ভাড়া যোগ করুন */}
                         <tr className="font-bold">
-                            <td colSpan={6} className="border border-black px-2 py-1 text-right">
+                            <td colSpan={7} className="border border-black px-2 py-1 text-right">
                                 মোট বিলের টাকা + যাতায়াত ভাড়া
                             </td>
                             <td className="border border-black px-2 py-1"></td>

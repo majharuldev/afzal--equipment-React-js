@@ -32,6 +32,8 @@ const Bill = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [workPlaceList, setWorkPlaceList] = useState([]);
   const [selectedWorkPlace, setSelectedWorkPlace] = useState("");
+  const [bisoy, setBisoy] = useState([])
+  const [selectBisoy, setSelectBisoy] = useState("")
 
   // New states for customer search
   const [customerList, setCustomerList] = useState([])
@@ -51,7 +53,11 @@ const Bill = () => {
         const places = [...new Set(
           res.data.map(t => t.work_place).filter(Boolean)
         )];
+        const bisoy = [...new Set(
+          res.data.map(t => t.trip_count).filter(Boolean)
+        )];
         setWorkPlaceList(places);
+        setBisoy(bisoy)
       } catch (error) {
         console.log("Error fetching trip data:", error);
       } finally {
@@ -332,7 +338,7 @@ const Bill = () => {
       !selectedCategory || t.vehicle_category === selectedCategory;
 
     const projectName = (!selectedWorkPlace || t.work_place === selectedWorkPlace)
-
+    const matchBisoy = (!selectBisoy || t.trip_count === selectBisoy)
     const matchCustomer =
       !selectedCustomer ||
       (t.customer ?? "")
@@ -352,7 +358,7 @@ const Bill = () => {
             ? tripDate === end
             : true;
 
-    return matchCategory && matchCustomer && matchDate && projectName;
+    return matchCategory && matchCustomer && matchDate && projectName && matchBisoy;
   });
 
 
@@ -612,8 +618,8 @@ const Bill = () => {
         </div>}
 
         {showFilter && (
-          <div className="flex gap-4 border border-gray-300 rounded-md p-5 my-5">
-            <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap gap-4 border border-gray-300 rounded-md p-5 my-5">
+            <div className="">
               <DatePicker
                 selected={startDate}
                 onChange={(date) => setStartDate(date)}
@@ -627,7 +633,7 @@ const Bill = () => {
                 isClearable
               />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="">
               <DatePicker
                 selected={endDate}
                 onChange={(date) => setEndDate(date)}
@@ -658,13 +664,24 @@ const Bill = () => {
               }}
               className="text-sm"
             />
-              <div className="mb-3 ">
+              <div className=" ">
               <Select
                 options={workPlaceList.map(w => ({ label: w, value: w }))}
                 onChange={(e) => setSelectedWorkPlace(e ? e.value : "")}
-                placeholder="Search Work Place..."
+                placeholder="সার্চ প্রজেক্ট নাম..."
                 isClearable
                 isSearchable
+                className="w-full"
+              />
+            </div>
+             <div className=" ">
+              <Select
+                options={bisoy.map(w => ({ label: w, value: w }))}
+                onChange={(e) => setSelectBisoy(e ? e.value : "")}
+                placeholder="সার্চ বিষয় ..."
+                isClearable
+                isSearchable
+                className="w-full"
               />
             </div>
             <div className="mt-3 md:mt-0 flex gap-2">
@@ -675,8 +692,10 @@ const Bill = () => {
                   setEndDate("")
                   setSelectedCustomer("")
                   setShowFilter(false)
+                  setSelectBisoy("")
+                  setSelectedWorkPlace("")
                 }}
-                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="bg-primary text-white px-4 py-2  rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 <FaFilter /> মুছে ফেলুন
               </button>
@@ -690,7 +709,6 @@ const Bill = () => {
               <tr>
                 <th className="border border-gray-700 px-2 py-1">ক্রমিক</th>
                 <th className="border border-gray-700 px-2 py-1">তারিখ</th>
-
                 <th className="border border-gray-700 px-2 py-1">গাড়ি নং</th>
                 <th className="border border-gray-700 px-2 py-1">চালান নং</th>
                 <th className="border border-gray-700 px-2 py-1">ঘণ্টা/দিন</th>

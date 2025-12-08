@@ -325,7 +325,7 @@ const EmployeeList = () => {
   };
 
   const columns = [
-   { title: "আইডি নম্বর", key: "employee_id", render: (_, __, record) => record.employee_id },
+   { title: "আইডি নম্বর", dataIndex: "employee_id", key: "employee_id", render: (_, record) => record.employee_id },
     {
       title: "ছবি",
       dataIndex: "image",
