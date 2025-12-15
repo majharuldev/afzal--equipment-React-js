@@ -8,6 +8,7 @@ import api from "../../utils/axiosConfig";
 import { IoMdClose } from "react-icons/io";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
+import { Space } from "antd";
 
 
 const PaymentReceive = () => {
@@ -98,6 +99,99 @@ const PaymentReceive = () => {
   XLSX.writeFile(wb, "payment_receive.xlsx");
 };
 
+// print
+const PrintTable = () => {
+  const printWindow = window.open("", "_blank");
+
+  const rows = filteredPayment
+    .map(
+      (item, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${tableFormatDate(item.date)}</td>
+        <td>${item.customer_name || ""}</td>
+        <td>${item.branch_name || ""}</td>
+        <td>${item.bill_ref || ""}</td>
+        <td>${item.amount || ""}</td>
+        <td>${item.cash_type || ""}</td>
+        <td>${item.created_by || ""}</td>
+        <td>${item.status || ""}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  const html = `
+    <html>
+      <head>
+        <title>Payment Receive</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+          h2 {
+            text-align: center;
+            margin-bottom: 15px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+          }
+          th, td {
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: left;
+          }
+          th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+          }
+          @media print {
+            body {
+              margin: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Payment Receive List</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ক্রমিক</th>
+              <th>তারিখ</th>
+              <th>গ্রাহকের নাম</th>
+              <th>শাখার নাম</th>
+              <th>বিল রেফারেন্স</th>
+              <th>পরিমাণ</th>
+              <th>ক্যাশের ধরন</th>
+              <th>তৈরি করেছেন</th>
+              <th>অবস্থা</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+
+        <script>
+          window.onload = function () {
+            window.print();
+            window.onafterprint = () => window.close();
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+};
+
+
 
   // pagination
   const [currentPage, setCurrentPage] = useState([1]);
@@ -135,12 +229,20 @@ const PaymentReceive = () => {
           </div>
         </div>
         <div className="flex justify-between my-3">
-           <button
+          <Space>
+             <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               এক্সেল
             </button>
+             <button
+              onClick={PrintTable}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              প্রিন্ট
+            </button>
+          </Space>
           {/* search */}
           <div className="mt-3 md:mt-0 ">
             <input
@@ -171,7 +273,7 @@ const PaymentReceive = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
               <tr>
-                <th className="px-2 py-3">SL.</th>
+                <th className="px-2 py-3">ক্রমিক</th>
                 <th className="px-2 py-3">তারিখ</th>
                 <th className="px-2 py-3">গ্রাহকের নাম</th>
                 <th className="px-2 py-3">শাখার নাম</th>

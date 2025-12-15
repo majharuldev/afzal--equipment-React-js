@@ -368,7 +368,7 @@ const AddCarForm = () => {
                   { value: "SHA", label: "শ" },
                   { value: "LA", label: "ল" },
                   { value: "RA", label: "র" },
-                  { value: "RO", label: "র" },
+                  // { value: "RO", label: "র" },
                   { value: "HA", label: "হ" },
                 ]}
               />

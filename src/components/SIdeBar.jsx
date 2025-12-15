@@ -164,9 +164,13 @@ const Sidebar = () => {
       label: <Link to="/tramessy/HR/Payroll/Advance-Salary">অগ্রিম বেতন</Link>,
     },
     {
-      key: "salary-sheet",
-      label: <Link to="/tramessy/HR/Payroll/salary-sheet">বেতন শীট</Link>,
+      key: "generate-salary",
+      label: <Link to="/tramessy/HR/Payroll/generate-salary">বেতন তৈরি করুন</Link>,
     },
+    // {
+    //   key: "salary-sheet",
+    //   label: <Link to="/tramessy/HR/Payroll/salary-sheet">বেতন শীট</Link>,
+    // },
   ],
 }
   ]},

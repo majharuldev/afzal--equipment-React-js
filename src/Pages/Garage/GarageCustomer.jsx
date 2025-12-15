@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { FaPen, FaTrashAlt, FaUsers, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { Table, Modal, Button } from "antd";
+import { Table, Modal, Button, Space } from "antd";
 import { RiEditLine } from "react-icons/ri";
 import api from "../../utils/axiosConfig";
 import { tableFormatDate } from "../../components/Shared/formatDate";
@@ -31,6 +31,20 @@ const GarageCustomer = () => {
         setLoading(false);
       });
   }, []);
+
+  // filter
+  const filteredCustomer = customer.filter((item) => {
+  const term = searchTerm.toLowerCase();
+
+  return (
+    item.customer_name?.toLowerCase().includes(term) ||
+    item.customer_mobile?.toLowerCase().includes(term) ||
+    item.vehicle_no?.toLowerCase().includes(term) ||
+    item.month_name?.toLowerCase().includes(term) ||
+    item.address?.toLowerCase().includes(term) ||
+    item.status?.toLowerCase().includes(term)
+  );
+});
 
   // গ্রাহক ডিলিট
   const handleDelete = async (id) => {
@@ -138,7 +152,7 @@ const GarageCustomer = () => {
   const exportExcel = () => {
   try {
     // ১. customer স্টেট থেকে ডাটা নেওয়া
-    const exportData = customer.map((item, index) => ({
+    const exportData = filteredCustomer.map((item, index) => ({
       "ক্রমিক": index + 1,
       "তারিখ": tableFormatDate(item.date),
       "নাম": item.customer_name,
@@ -176,6 +190,111 @@ const GarageCustomer = () => {
   }
 };
 
+// print
+const printTable = () => {
+  const printWindow = window.open("", "_blank");
+
+  if (!printWindow) {
+    alert("Popup blocked! Please allow popup for printing.");
+    return;
+  }
+
+  const rows = filteredCustomer
+    .map(
+      (item, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${tableFormatDate(item.date)}</td>
+        <td>${item.customer_name || "-"}</td>
+        <td>${item.customer_mobile || "-"}</td>
+        <td>${item.month_name || "-"}</td>
+        <td>${item.vehicle_no || "-"}</td>
+        <td>${item.address || "-"}</td>
+        <td>${item.vehicle_qty || "-"}</td>
+        <td>${item.amount || "-"}</td>
+        <td>${item.status || "-"}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  const html = `
+    <html>
+      <head>
+        <title>-</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+
+          h2 {
+            text-align: center;
+            margin-bottom: 15px;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+
+          th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            font-size: 12px;
+            text-align: left;
+          }
+
+          th {
+            background-color: #f2f2f2;
+          }
+
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+        <h2>Garage Customer List</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ক্রমিক</th>
+              <th>তারিখ</th>
+              <th>নাম</th>
+              <th>মোবাইল</th>
+              <th>মাস</th>
+              <th>ইকুইপমেন্ট নম্বর</th>
+              <th>ঠিকানা</th>
+              <th>ইকুইপমেন্ট সংখ্যা</th>
+              <th>পরিমাণ</th>
+              <th>অবস্থা</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+
+        <script>
+          window.onload = function () {
+            window.print();
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+};
+
   return (
     <main>
       <Toaster />
@@ -199,12 +318,20 @@ const GarageCustomer = () => {
           </div>
         </div>
         <div className="flex justify-between my-3">
-           <button
+           <Space>
+            <button
               onClick={exportExcel}
               className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
             >
               এক্সেল
             </button>
+            <button
+              onClick={printTable}
+              className="py-1 px-5 hover:bg-primary bg-white hover:text-white rounded shadow transition-all duration-300 cursor-pointer"
+            >
+              প্রিন্ট
+            </button>
+           </Space>
           {/* search */}
           <div className="mt-3 md:mt-0 ">
             <input
@@ -235,7 +362,7 @@ const GarageCustomer = () => {
         {/* টেবিল */}
         <Table
           columns={columns}
-          dataSource={customer}
+          dataSource={filteredCustomer}
           rowKey="id"
           loading={loading}
           pagination={{ pageSize: 10 }}

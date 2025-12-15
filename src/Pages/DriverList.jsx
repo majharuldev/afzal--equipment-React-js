@@ -61,32 +61,25 @@ const CarList = () => {
   // if (loading) return <p className="text-center mt-16">ড্রাইভার লোড হচ্ছে...</p>;
 
   // delete by id
-  const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/driver/${id}`
-      );
+ const handleDelete = async (id) => {
+  try {
+    const response = await api.delete(`/driver/${id}`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete driver");
-      }
-      // Remove driver from local list
-      setDrivers((prev) => prev.filter((driver) => driver.id !== id));
-      toast.success("ড্রাইভার সফলভাবে মুছে ফেলা হয়েছে", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      setIsOpen(false);
-      setSelectedDriverId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("ড্রাইভার মুছে ফেলার সময় সমস্যা হয়েছে!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    if (response.status !== 200) {
+      throw new Error("Failed to delete driver");
     }
-  };
+
+    setDrivers((prev) => prev.filter((driver) => driver.id !== id));
+
+    toast.success("ড্রাইভার সফলভাবে মুছে ফেলা হয়েছে");
+
+    setIsDeleteOpen(false);
+    setSelectedDriverId(null);
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("ড্রাইভার মুছে ফেলার সময় সমস্যা হয়েছে!");
+  }
+};
   // view driver by id
   const handleView = async (id) => {
     try {
@@ -378,18 +371,40 @@ const CarList = () => {
         width={700}
       >
         {selectedDriver && (
-          <div className="space-y-2">
-            <p><strong>নাম:</strong> {selectedDriver.driver_name}</p>
-            <p><strong>মোবাইল:</strong> {selectedDriver.driver_mobile}</p>
-            <p><strong>জরুরি যোগাযোগ:</strong> {selectedDriver.emergency_contact}</p>
-            <p><strong>ঠিকানা:</strong> {selectedDriver.address}</p>
-            <p><strong>এনআইডি:</strong> {selectedDriver.nid}</p>
-            <p><strong>আইডি  নম্বর:</strong> {selectedDriver.driver_id}</p>
-            <p><strong>লাইসেন্স:</strong> {selectedDriver.license}</p>
-            <p><strong>লাইসেন্স মেয়াদ শেষ:</strong> {selectedDriver.license_expire_date}</p>
-            <p><strong>স্ট্যাটাস:</strong> {selectedDriver.status}</p>
-            <p><strong>তৈরী করেছেন:</strong> {selectedDriver.created_by}</p>
-            <p><strong>নোট:</strong> {selectedDriver.note || "N/A"}</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border p-2 border-gray-200">
+              <p className="font-semibold">ড্রাইভারের নাম:</p>
+              <p>{selectedCar.driver_name}</p>
+            </div>
+          
+            <div className="border p-2 border-gray-200">
+              <p className="font-semibold">মোবাইল:</p>
+              <p>{selectedCar.driver_mobile}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+              <p><strong>জরুরি যোগাযোগ:</strong> {selectedDriver.emergency_contact}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+             <p><strong>ঠিকানা:</strong> {selectedDriver.address}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+              <p><strong>এনআইডি:</strong> {selectedDriver.nid}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+              <p><strong>লাইসেন্স:</strong> {selectedDriver.license}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+              <p><strong>স্ট্যাটাস:</strong> {selectedDriver.status}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+           <p><strong>লাইসেন্স মেয়াদ শেষ:</strong> {selectedDriver.license_expire_date}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+              <p><strong>তৈরী করেছেন:</strong> {selectedDriver.created_by}</p>
+            </div>
+            <div className="border p-2 border-gray-200">
+              <p><strong>নোট:</strong> {selectedDriver.note || "N/A"}</p>
+            </div>
           </div>
         )}
       </Modal>

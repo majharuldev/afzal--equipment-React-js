@@ -132,7 +132,7 @@ const CarList = () => {
       v.vehicle_name,
       v.vehicle_category,
       v.vehicle_size,
-      `${record.reg_serial} ${v.registration_zone} ${v.registration_number}`,
+      `${v.reg_serial} ${v.registration_zone} ${v.registration_number}`,
       v.status,
     ]);
 
@@ -161,66 +161,73 @@ const CarList = () => {
     doc.save("vehicles_data.pdf");
   };
 
-  const printTable = () => {
-    const printWindow = window.open("", "");
-    const printContent = `
-      <html>
-        <head>
-          <title>Vehicle List</title>
-          <style>
-            body { font-family: Arial, sans-serif; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #11375B; color: white; }
-            tr:nth-child(even) { background-color: #f2f2f2; }
-            thead th {
-          color: #000000 !important;
-          background-color: #ffffff !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-          </style>
-        </head>
-        <body>
-          <h2>Vehicle List</h2>
-          <table>
-            <thead>
+  // print
+ const printTable = () => {
+  const printWindow = window.open("about:blank", "_blank");
+
+  if (!printWindow) {
+    alert("Popup blocked! Please allow popups.");
+    return;
+  }
+
+  const printContent = `
+    <html>
+      <head>
+        <title>Vehicle List</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 6px; font-size: 12px; }
+          th { background: #f2f2f2; }
+        </style>
+      </head>
+      <body>
+        <h2>Vehicle List</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>অপারেটর/ড্রাইভার</th>
+              <th>ইকুইপমেন্ট নাম</th>
+              <th>ইকুইপমেন্ট ক্যাটাগরি</th>
+              <th>ইকুইপমেন্ট সাইজ</th>
+              <th>ইকুইপমেন্ট নম্বর</th>
+              <th>স্ট্যাটাস</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredCarList
+              .map(
+                (vehicle, index) => `
               <tr>
-                <th>#</th>
-                <th>Driver Name</th>
-                <th>Equipment Name</th>
-                <th>Equipment Category</th>
-                <th>Equipment Size</th>
-                <th>Equipment No</th>
-                <th>Status</th>
+                <td>${index + 1}</td>
+                <td>${vehicle.driver_name || "-"}</td>
+                <td>${vehicle.vehicle_name || "-"}</td>
+                <td>${vehicle.vehicle_category || "-"}</td>
+                <td>${vehicle.vehicle_size || "-"}</td>
+                <td>${vehicle.reg_serial || ""}-${vehicle.reg_zone || ""} ${vehicle.reg_no || ""}</td>
+                <td>${vehicle.status || "-"}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${filteredCarList
-                .map(
-                  (vehicle, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${vehicle.driver_name || "-"}</td>
-                  <td>${vehicle.vehicle_name || "-"}</td>
-                  <td>${vehicle.vehicle_category || "-"}</td>
-                  <td>${vehicle.vehicle_size || "-"}</td>
-                  <td>${record.reg_serial} ${vehicle.reg_zone} ${vehicle.reg_no}</td>
-                  <td>${vehicle.status || "-"}</td>
-                </tr>
-              `
-                )
-                .join("")}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-    
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.print();
-  };
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+
+        <script>
+          window.onload = function () {
+            window.print();
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+};
+
 
   const handleViewCar = async (id) => {
     try {

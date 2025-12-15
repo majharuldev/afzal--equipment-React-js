@@ -80,6 +80,7 @@ import DailyIncome from "../Pages/DailyIncome";
 import HelperList from "../Pages/HR/Helper";
 import HelperForm from "../Pages/Reports/HelperForm";
 import GarageProfitLoss from "../Pages/Garage/GarageProfitLoss";
+import GenerateSalary from "../Pages/HR/Payroll/GenerateSalary";
 
 export const router = createBrowserRouter([
   {
@@ -395,13 +396,13 @@ export const router = createBrowserRouter([
         element: <AdvanceSalaryForm />,
       },
       {
-        path: "/tramessy/HR/payroll/salary-sheet",
+        path: "/tramessy/HR/payroll/salary-sheet/:id",
         element: <SalarySheet />,
       },
-      // {
-      //   path: "/tramessy/HRM/payroll/generate-salary-form",
-      //   element: <GenerateSalaryForm />,
-      // },
+      {
+        path: "/tramessy/HR/payroll/generate-salary",
+        element: <GenerateSalary />,
+      },
       // {
       //   path: "/tramessy/HR/HRM/Leave",
       //   element: <Leave />,

@@ -652,27 +652,27 @@ const PaymentList = () => {
         <div className="fixed inset-0 z-50  flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
             <h2 className="text-xl font-bold mb-4 text-[#11375B]">
-              Update Payment
+                পেমেন্ট আপডেট করুন
             </h2>
             <FormProvider {...methods}>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <InputField
                   name="due_amount"
-                  label="Due Amount"
+                  label="বকেয়া পরিমাণ"
                   required
                   readOnly
                 />
-                <InputField name="pay_amount" label="Pay Amount" required />
-                <InputField name="note" label="Note" />
+                <InputField name="pay_amount" label="পরিশোধের পরিমাণ" required />
+                <InputField name="note" label="মন্তব্য" />
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
                     className="bg-gray-200 px-4 rounded mt-4 hover:bg-primary hover:text-white cursor-pointer transition-all duration-300"
                   >
-                    Cancel
+                    বাতিল
                   </button>
-                  <BtnSubmit>Submit</BtnSubmit>
+                  <BtnSubmit>সংরক্ষণ করুন</BtnSubmit>
                 </div>
               </form>
             </FormProvider>

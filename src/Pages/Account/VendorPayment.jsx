@@ -9,6 +9,8 @@ import api from "../../utils/axiosConfig";
 import { FaFileExcel, FaPrint } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
 import toast, { Toaster } from "react-hot-toast";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver"; 
 
 const VendorPayment = () => {
   const [payment, setPayment] = useState([]);
@@ -59,7 +61,8 @@ const exportToExcel = () => {
     Amount: Number(dt.amount || 0),
     Cash_Type: dt.cash_type || "",
     Status: dt.status || "",
-    "CreatedBy": dt.created_by
+    "Created By": dt.created_by,
+    Note: dt.note
   }));
 
   // Add total at the end
@@ -75,7 +78,8 @@ const exportToExcel = () => {
     Amount: totalAmount,
     Cash_Type: "",
     Status: "",
-    CreatedBy: ""
+    created: "",
+    Note: ""
   });
 
   // Create worksheet & workbook
@@ -92,7 +96,8 @@ const exportToExcel = () => {
     { wch: 12 }, // Amount
     { wch: 12 }, // Cash Type
     { wch: 10 }, // Status
-    {wch: 10}
+    {wch: 10},
+      {wch: 10}
   ];
   worksheet["!cols"] = colWidths;
 
@@ -106,9 +111,15 @@ const exportToExcel = () => {
 
   // handle print
   const handlePrint = () => {
-    const WindowPrint = window.open("", "", "width=900,height=650");
-    const printTableRows = filteredPayments.map(
-      (dt, index) => `
+  const totalAmount = filteredPayments.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
+
+  const WindowPrint = window.open("", "", "width=900,height=650");
+  
+  const printTableRows = filteredPayments.map(
+    (dt, index) => `
       <tr>
         <td>${index + 1}</td>
         <td>${tableFormatDate(dt.date)}</td>
@@ -118,19 +129,20 @@ const exportToExcel = () => {
         <td>${dt.cash_type}</td>
         <td>${dt.status}</td>
         <td>${dt.created_by}</td>
+        <td>${dt.note}</td>
       </tr>
     `
-    ).join("");
+  ).join("");
 
-    const totalRow = `
+  const totalRow = `
     <tr style="font-weight:bold; background:#f9f9f9;">
       <td colspan="4" style="text-align:right;">Total:</td>
       <td>${totalAmount}</td>
-      <td colspan="2"></td>
+      <td colspan="4"></td>
     </tr>
   `;
 
-    WindowPrint.document.write(`
+  WindowPrint.document.write(`
     <html>
       <head>
         <title>Vendor Payment Report</title>
@@ -140,10 +152,6 @@ const exportToExcel = () => {
           table { width: 100%; border-collapse: collapse; }
           th, td { border: 1px solid #000; padding: 6px; text-align: left; font-size: 12px; }
           th { background: #f0f0f0; }
-          @media print {
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; }
-          }
         </style>
       </head>
       <body>
@@ -151,14 +159,15 @@ const exportToExcel = () => {
         <table>
           <thead>
             <tr>
-              <th>SL.</th>
-              <th>Date</th>
-              <th>Vendor Name</th>
-              <th>BillRef</th>
-              <th>Amount</th>
-              <th>Cash Type</th>
-              <th>Status</th>
-              <th>Created By</th>
+              <th>ক্রমিক</th>
+              <th>তারিখ</th>
+              <th>ভেন্ডর নাম</th>
+              <th>বিল রেফারেন্স</th>
+              <th>পরিমাণ</th>
+              <th>ক্যাশের ধরন</th>
+              <th>অবস্থা</th>
+              <th>তৈরি করেছেন</th>
+              <th>নোট</th>
             </tr>
           </thead>
           <tbody>
@@ -171,13 +180,13 @@ const exportToExcel = () => {
       </body>
     </html>
   `);
-    WindowPrint.document.close();
-    WindowPrint.focus();
-    setTimeout(() => {
-      WindowPrint.print();
-      WindowPrint.close();
-    }, 500);
-  };
+  WindowPrint.document.close();
+  WindowPrint.focus();
+  setTimeout(() => {
+    WindowPrint.print();
+    WindowPrint.close();
+  }, 500);
+};
 
   // delete by id
   const handleDelete = async (id) => {
@@ -288,13 +297,14 @@ const exportToExcel = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-gray-700 capitalize text-xs">
               <tr>
-                <th className="px-2 py-3">SL.</th>
+                <th className="px-2 py-3">ক্রমিক</th>
                 <th className="px-2 py-3">তারিখ</th>
-                <th className="px-2 py-3"> ভেন্ডর  নাম</th>
+                <th className="px-2 py-3">ভেন্ডর নাম</th>
                 <th className="px-2 py-3">বিল রেফারেন্স</th>
                 <th className="px-2 py-3">পরিমাণ</th>
                 <th className="px-2 py-3">ক্যাশের ধরন</th>
-                <th className="px-2 py-3">Created By</th>
+                <th className="px-2 py-3">নোট</th>
+                <th className="px-2 py-3">তৈরি করেছেন</th>
                 <th className="px-2 py-3">অবস্থা</th>
                 <th className="px-2 py-3">কার্যকলাপ</th>
               </tr>
@@ -333,6 +343,7 @@ const exportToExcel = () => {
                     <td className="p-2">{dt.bill_ref}</td>
                     <td className="p-2">{dt.amount}</td>
                     <td className="p-2">{dt.cash_type}</td>
+                    <td className="p-2">{dt.note}</td>
                     <td className="p-2">{dt.created_by}</td>
                     <td className="p-2">{dt.status}</td>
                     <td className="px-2 action_column">

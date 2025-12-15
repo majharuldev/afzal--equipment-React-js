@@ -7,12 +7,15 @@ import { Link } from "react-router-dom";
 import { Table, Modal, Button } from "antd";
 import { RiEditLine } from "react-icons/ri";
 import api from "../../utils/axiosConfig";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const Customer = () => {
   const [customer, setCustomer] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("")
 
   // গ্রাহক ডাটা ফেচ
   useEffect(() => {
@@ -27,6 +30,18 @@ const Customer = () => {
         setLoading(false);
       });
   }, []);
+
+  // filtered
+  const filteredCustomer = customer.filter((c) => {
+  const term = searchTerm.toLowerCase();
+  return (
+    c.customer_name?.toLowerCase().includes(term) ||
+    c.mobile?.toLowerCase().includes(term) ||
+    c.email?.toLowerCase().includes(term) ||
+    c.address?.toLowerCase().includes(term)
+  );
+});
+
 
   // গ্রাহক ডিলিট
   const handleDelete = async (id) => {
@@ -123,6 +138,109 @@ const Customer = () => {
     },
   ];
 
+  // excel
+  const exportOfficeToExcel = () => {
+  const excelData = filteredCustomer.map((c, index) => ({
+    SL: index + 1,
+    Name: c.customer_name,
+    Mobile: c.mobile,
+    Email: c.email,
+    Address: c.address,
+    Rate: c.rate,
+    "Opening Balance": c.opening_balance,
+    Status: c.status,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Customer List");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const data = new Blob([excelBuffer], {
+    type: "application/octet-stream",
+  });
+
+  saveAs(data, "customer_list.xlsx");
+};
+
+// print
+const printOfficeTable = () => {
+  const printWindow = window.open("about:blank", "_blank");
+
+  if (!printWindow) {
+    alert("Popup blocked! Please allow popups.");
+    return;
+  }
+
+  const html = `
+    <html>
+      <head>
+        <title>Customer List</title>
+        <style>
+          body { font-family: Arial; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            font-size: 12px;
+            text-align: left;
+          }
+          th { background: #f2f2f2; }
+        </style>
+      </head>
+      <body>
+        <h2>Customer List</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ক্রমিক</th>
+              <th>নাম</th>
+              <th>মোবাইল</th>
+              <th>ইমেইল</th>
+              <th>ঠিকানা</th>
+              <th>রেট</th>
+              <th>শুরুর ব্যালেন্স</th>
+              <th>অবস্থা</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredCustomer
+              .map(
+                (c, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${c.customer_name || "-"}</td>
+                <td>${c.mobile || "-"}</td>
+                <td>${c.email || "-"}</td>
+                <td>${c.address || "-"}</td>
+                <td>${c.rate || "-"}</td>
+                <td>${c.opening_balance || "-"}</td>
+                <td>${c.status || "-"}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+
+        <script>
+          window.onload = function () {
+            window.print();
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+};
+
   return (
     <main>
       <Toaster />
@@ -145,11 +263,55 @@ const Customer = () => {
             </Link>
           </div>
         </div>
+{/* export button & search */}
+         <div className="md:flex justify-between items-center mb-5">
+          <div className="flex gap-1 md:gap-3 text-gray-700 flex-wrap">
+            <button
+              onClick={exportOfficeToExcel}
+              className="py-1 px-5 bg-white shadow font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer"
+            >
+              Excel
+            </button>
+
+            <button
+              onClick={printOfficeTable}
+              className="py-1 px-5 bg-white shadow font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer"
+            >
+              Print
+            </button>
+          </div>
+          {/* search */}
+          <div className="mt-3 md:mt-0">
+            {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search Office..."
+              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+            {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-10 top-[10.8rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
+          </div>
+        </div>
 
         {/* টেবিল */}
         <Table
           columns={columns}
-          dataSource={customer}
+          dataSource={filteredCustomer}
           rowKey="id"
           loading={loading}
           pagination={{ pageSize: 10 }}

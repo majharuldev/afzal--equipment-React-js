@@ -2,11 +2,13 @@ import { FormProvider, useForm } from "react-hook-form"
 import toast, { Toaster } from "react-hot-toast"
 import axios from "axios"
 import { FiCalendar } from "react-icons/fi"
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { InputField, SelectField } from "../../components/Form/FormFields"
 import BtnSubmit from "../../components/Button/BtnSubmit"
 import api from "../../utils/axiosConfig"
+import { AuthContext } from "../../providers/AuthProvider"
+
 
 const PaymentReceiveForm = () => {
   const [loading, setLoading] = useState(false)
@@ -15,7 +17,7 @@ const PaymentReceiveForm = () => {
   const dateRef = useRef(null)
   const methods = useForm()
   const { handleSubmit, reset, register, control } = methods
-
+const {user} = useContext(AuthContext)
   const [initialDataLoaded, setInitialDataLoaded] = useState(false)
 
   useEffect(() => {
@@ -84,12 +86,16 @@ useEffect(() => {
       // for (const key in data) {
       //   formData.append(key, data[key])
       // }
+      const payload = {
+        ...data,
+        created_by: user?.name
+      }
 
       let paymentResponse
       if (id) {
-        paymentResponse = await api.put(`/paymentRec/${id}`, data)
+        paymentResponse = await api.put(`/paymentRec/${id}`, payload)
       } else {
-        paymentResponse = await api.post(`/paymentRec`, data)
+        paymentResponse = await api.post(`/paymentRec`, payload)
       }
 
       const paymentData = paymentResponse.data
@@ -184,9 +190,9 @@ useEffect(() => {
               <div className="w-full">
                 <InputField name="remarks" label="মন্তব্য" />
               </div>
-              <div className="w-full">
+              {/* <div className="w-full">
                 <InputField name="created_by" label="তৈরি করেছেন" required={!id} />
-              </div>
+              </div> */}
               <div className="w-full">
                 <SelectField
                   name="status"
