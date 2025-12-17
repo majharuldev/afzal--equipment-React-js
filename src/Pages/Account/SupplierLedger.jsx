@@ -616,9 +616,9 @@ const totalPayment = filteredLedger.reduce(
   if (loading) return <p className="text-center mt-16">Loading data...</p>;
 
   return (
-    <main className="p-2 overflow-hidden">
+    <main className="p-2 ">
       <Toaster />
-      <div className="w-[22rem] md:w-full overflow-hidden max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 border border-gray-200">
+      <div className="w-[22rem] md:w-full  max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 border border-gray-200">
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 capitalize flex items-center gap-3">
@@ -629,7 +629,7 @@ const totalPayment = filteredLedger.reduce(
 
         {/* Export and Supplier Filter */}
         <div className="md:flex items-center justify-between mb-4">
-          <div className="flex gap-1 text-gray-700 md:gap-3 flex-wrap">
+          <div className="flex gap-2 text-gray-700 md:gap-3 flex-wrap">
             <button onClick={exportExcel} className="py-1 px-5 bg-white shadow font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer">
               এক্সেল
             </button>
@@ -640,7 +640,7 @@ const totalPayment = filteredLedger.reduce(
               প্রিন্ট
             </button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <button onClick={() => setShowFilter((prev) => !prev)} className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300">
               <FaFilter /> ফিল্টার
             </button>
@@ -648,7 +648,7 @@ const totalPayment = filteredLedger.reduce(
         </div>
 
         {showFilter && (
-          <div className="md:flex items-center gap-4 border border-gray-300 rounded-md p-5 mb-4">
+          <div className="md:flex items-center gap-4 border border-gray-300 rounded-md p-5 mb-4 space-y-2 lg:space-y-0">
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}

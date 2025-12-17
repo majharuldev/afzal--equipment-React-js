@@ -96,7 +96,7 @@ console.log(data, "data")
               <tbody>
                 <tr>
                   <td className="border-r border-black p-2 font-semibold bg-gray-100 w-32">কর্মী আইডি</td>
-                  <td className="border-r border-black p-2 w-40">{data.empId}</td>
+                  <td className="border-r border-black p-2 w-40">{data.id}</td>
                   <td className="border-r border-black p-2 font-semibold bg-gray-100 w-32">কর্মীর নাম</td>
                   <td className="p-2">{data.name}</td>
                 </tr>
@@ -122,9 +122,9 @@ console.log(data, "data")
                 </tr>
                 <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">মূল বেতন</td>
-                  <td className="border-r border-black p-2 text-right">{data?.salary}</td>
+                  <td className="border-r border-black p-2 text-right">{data?.basic}</td>
                   <td className="border-r border-black p-2 font-semibold">অগ্রিম</td>
-                  <td className="p-2 text-right">{data?.advance}</td>
+                  <td className="p-2 text-right">{data?.adv}</td>
                 </tr>
                 {/* <tr className="border-t border-black">
                   <td className="border-r border-black p-2 font-semibold">House Rent</td>
@@ -162,9 +162,9 @@ console.log(data, "data")
                 </tr> */}
                 <tr className="border-t border-r border-black bg-gray-100">
                   <td className="border-r border-black p-2 font-bold">মোট সংযোজন</td>
-                  <td className="border-r border-black p-2 text-right font-bold"> {data?.total}</td>
+                  <td className="border-r border-black p-2 text-right font-bold"> {data?.e_total}</td>
                   <td className="border-r border-black p-2 font-bold">মোট কর্তন</td>
-                  <td className=" border-black p-2 text-right font-bold">{data?.deductionTotal}.00</td>
+                  <td className=" border-black p-2 text-right font-bold">{data?.d_total}.00</td>
                 </tr>
               </tbody>
             </table>
@@ -176,12 +176,12 @@ console.log(data, "data")
               <tbody>
                 <tr className="border-t border-black">
                   <td className=" p-2 font-bold bg-gray-100 w-1/4">নেট বেতন</td>
-                  <td className="p-2 text-center font-bold text-lg"> {data.netPay} </td>
+                  <td className="p-2 text-center font-bold text-lg"> {data.net_pay} </td>
                   <td className="p-2"></td>
                 </tr>
                 <tr className="border-t border-black">
                   <td className=" p-2 font-bold bg-gray-100">কথায় বেতন:</td>
-                  <td className="p-2 font-semibold">{numberToWords(data.netPay).toUpperCase()}</td>
+                  <td className="p-2 font-semibold">{numberToWords(data.net_pay).toUpperCase()}</td>
                 </tr>
               </tbody>
             </table>
@@ -194,7 +194,7 @@ console.log(data, "data")
                 <div className="mb-2 font-semibold">বেতন পরিশোধ মাধ্যম:</div>
                 <div className="flex gap-8">
                   <label className="flex items-center gap-2">
-                    <input type="checkbox" className="w-4 h-4" defaultChecked />
+                    <input type="checkbox" className="w-4 h-4"  />
                     <span>নগদ</span>
                   </label>
                   <label className="flex items-center gap-2">

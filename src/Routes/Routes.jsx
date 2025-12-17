@@ -569,11 +569,15 @@ export const router = createBrowserRouter([
       },
       // Account
       {
-        path: "/tramessy/account/CashDispatch",
+        path: "/tramessy/account/fund-transfer",
         element: <CashDispatch />,
       },
       {
-        path: "/tramessy/account/CashDispatchForm",
+        path: "/tramessy/account/create-fund-transfer-form",
+        element: <CashDispatchForm />,
+      },
+      {
+        path: "/tramessy/account/update-fund-transfer-form/:id",
         element: <CashDispatchForm />,
       },
       {

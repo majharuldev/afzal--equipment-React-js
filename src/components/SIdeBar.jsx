@@ -1,6 +1,4 @@
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   DashboardOutlined,
   CarOutlined,
   UserOutlined,
@@ -116,7 +114,7 @@ const Sidebar = () => {
       icon: <SolutionOutlined />,
       label: "এইচআর",
       children: [
-        {
+        isAdmin && {
           key: "employee",
           label: <Link to="/tramessy/HR/HRM/employee-list">কর্মচারী</Link>,
           className: isActive("/tramessy/HR/HRM/employee-list")
@@ -144,7 +142,7 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "salary-expense",
           label: <Link to="/tramessy/HR/HRM/salary-expense">বেতন খরচ</Link>,
           className: isActive("/tramessy/salary-expense")
@@ -159,11 +157,11 @@ const Sidebar = () => {
       key: "attendance",
       label: <Link to="/tramessy/HR/Payroll/Attendance">উপস্থিতি</Link>,
     },
-    {
+    isAdmin && {
       key: "salary-advance",
       label: <Link to="/tramessy/HR/Payroll/Advance-Salary">অগ্রিম বেতন</Link>,
     },
-    {
+    isAdmin && {
       key: "generate-salary",
       label: <Link to="/tramessy/HR/Payroll/generate-salary">বেতন তৈরি করুন</Link>,
     },
@@ -225,7 +223,7 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "route-pricing",
           label: <Link to="/tramessy/route-pricing"> রুটভিত্তিক মূল্য </Link>,
           className: isActive("/tramessy/route-pricing")
@@ -254,21 +252,21 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "yard-recieve-amount",
           label: <Link to="/tramessy/yard-recieve-amount">ভাড়া উত্তোলন</Link>,
           className: isActive("/tramessy/yard-recieve-amount")
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "yard-customer-ledger",
           label: <Link to="/tramessy/yard-customer-ledger">ইয়ার্ড কাস্টমার লেজার</Link>,
           className: isActive("/tramessy/yard-customer-ledger")
             ? "ant-menu-item-selected"
             : "",
         },
-         {
+         isAdmin && {
           key: "yard-profit-loss",
           label: <Link to="/tramessy/yard-profit-loss">ইয়ার্ড লাভ/ক্ষতি</Link>,
           className: isActive("/tramessy/yard-profit-loss")
@@ -279,7 +277,7 @@ const Sidebar = () => {
       ],
     },
     // Business Model
-    {
+    isAdmin && {
       key: "business",
       icon: <FileTextOutlined />,
       label: "লাভ/ক্ষতি",
@@ -308,7 +306,7 @@ const Sidebar = () => {
       ],
     },
     // Reports
-    {
+    isAdmin && {
       key: "reports",
       icon: <FileDoneOutlined />,
       label: "রিপোর্টস",
@@ -366,14 +364,21 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
+          key: "fund-transfer",
+          label: <Link to="/tramessy/account/fund-transfer">ফান্ড ট্রান্সফার</Link>,
+          className: isActive("/tramessy/account/fund-transfer")
+            ? "ant-menu-item-selected"
+            : "",
+        },
+        isAdmin && {
           key: "payment-list",
           label: <Link to="/tramessy/account/PaymentList"> পেমেন্ট </Link>,
           className: isActive("/tramessy/account/PaymentList")
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "payment-receive",
           label: (
             <Link to="/tramessy/account/PaymentReceive">পেমেন্ট রিসিভ</Link>
@@ -382,7 +387,7 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "vendor-payment",
           label: (
             <Link to="/tramessy/account/VendorPayment">ভেন্ডর পেমেন্ট</Link>
@@ -391,7 +396,7 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "supplier-ledger",
           label: (
             <Link to="/tramessy/account/SupplierLedger">সাপ্লায়ার লেজার</Link>
@@ -400,7 +405,7 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "driver-ledger",
           label: (
             <Link to="/tramessy/account/DriverLedger">অপারেটর লেজার</Link>
@@ -409,7 +414,7 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "customer-ledger",
           label: (
             <Link to="/tramessy/account/CustomerLedger">কাস্টমার লেজার</Link>
@@ -418,14 +423,14 @@ const Sidebar = () => {
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "vendor-ledger",
           label: <Link to="/tramessy/account/vendor-ledger">ভেন্ডর লেজার</Link>,
           className: isActive("/tramessy/account/vendor-ledger")
             ? "ant-menu-item-selected"
             : "",
         },
-        {
+        isAdmin && {
           key: "office-ledger",
           label: <Link to="/tramessy/account/OfficeLedger">অফিস লেজার</Link>,
           className: isActive("/tramessy/account/OfficeLedger")
@@ -450,7 +455,7 @@ const Sidebar = () => {
       ],
     },
     // User Control
-    {
+ isAdmin && {
       key: "user-control",
       icon: <SettingOutlined />,
       label: " ইউজার কন্ট্রোল",

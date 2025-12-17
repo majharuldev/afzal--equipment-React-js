@@ -14,10 +14,12 @@ import {
   Legend
 } from "recharts";
 import useProfitLoseData from "../hooks/profitLoseHooks";
+import useAdmin from "../hooks/useAdmin";
 
 const Home = () => {
   const { data:monthlyData, loading: monthlyLoading } = useProfitLoseData("month");
   const { data:yearlyData, loading: yearlyLoading } = useProfitLoseData("year");
+  const isAdmin = useAdmin();
 
   if (monthlyLoading || yearlyLoading) {
     return <div className="bg-white p-4 rounded-lg shadow">চার্ট লোড হচ্ছে...</div>;
@@ -32,7 +34,7 @@ const Home = () => {
         <OverViewCard />
         <div>
           {/* Present Month Graph */}
-          <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+          {isAdmin && <div className="bg-white p-4 rounded-lg shadow-md mb-6">
             <h3 className="text-lg font-semibold mb-4">
               চলতি মাসের লাভ বনাম খরচ
             </h3>
@@ -58,12 +60,12 @@ const Home = () => {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
       <div>
         {/* Present Year Graph */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        {isAdmin && <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold mb-4">
            চলতি বছরের লাভ বনাম খরচ
           </h3>
@@ -88,7 +90,7 @@ const Home = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );

@@ -70,25 +70,20 @@ const GarageCustomerLedger = () => {
 
   // Get unique months from data for dropdown
   const availableMonths = [
-  ...new Set(
-    vendorData
-      .filter((item) => item.date)
-      .map((item) => {
-        const d = new Date(item.date);
-        const y = d.getFullYear();
-        const m = ("0" + (d.getMonth() + 1)).slice(-2);
-        return `${y}-${m}`; // 2025-03
-      })
-  ),
-].sort();
+    ...new Set(
+      vendorData
+        .filter((item) => item.month_name)
+        .map((item) => item.month_name)
+    ),
+  ];
 
 
   // Filter data based on selected vendor and month, then sort by date
   const filteredVendors = vendorData.filter((v) => {
     const matchesVendor = selectedVendor ? v.customer_name === selectedVendor : true;
-    const matchesMonth = selectedMonth
-      ? v.date && new Date(v.date).toISOString().slice(0, 7) === selectedMonth
-      : true;
+     const matchesMonth = selectedMonth
+    ? v.month_name === selectedMonth
+    : true;
     return matchesVendor && matchesMonth;
   }).sort((a, b) => {
     // Sort by date to ensure correct running balance calculation
@@ -153,7 +148,7 @@ const GarageCustomerLedger = () => {
     // Add transaction rows
     rowsWithRunningBalance.forEach((item, index) => {
       dataToExport.push({
-        SL: index+1,
+        SL: index + 1,
         Date: item.date,
         month: item.month_name,
         Customer: item.customer_name || "--",
@@ -186,15 +181,15 @@ const GarageCustomerLedger = () => {
 
   // print table
   const printTable = () => {
-  const table = document.querySelector("#garage-ledger-table table");
-  if (!table) {
-    alert("Table not found!");
-    return;
-  }
+    const table = document.querySelector("#garage-ledger-table table");
+    if (!table) {
+      alert("Table not found!");
+      return;
+    }
 
-  const tableHTML = table.outerHTML;
+    const tableHTML = table.outerHTML;
 
-  const style = `
+    const style = `
     <style>
       @page { size: A4 portrait; margin: 20px; }
 
@@ -240,9 +235,9 @@ const GarageCustomerLedger = () => {
     </style>
   `;
 
-  const printWindow = window.open("", "", "width=900,height=700");
+    const printWindow = window.open("", "", "width=900,height=700");
 
-  printWindow.document.write(`
+    printWindow.document.write(`
     <html>
       <head>
         <title>Garage Customer Ledger</title>
@@ -251,13 +246,12 @@ const GarageCustomerLedger = () => {
       <body>
         <div class="print-header">
           <div class="print-title">Garage Customer Ledger: ${selectedVendor || "All Customers"}</div>
-          ${
-            selectedVendor
-              ? `<div class="opening-balance-text">Opening Balance: ${openingBalance.toFixed(
-                  2
-                )}</div>`
-              : ""
-          }
+          ${selectedVendor
+        ? `<div class="opening-balance-text">Opening Balance: ${openingBalance.toFixed(
+          2
+        )}</div>`
+        : ""
+      }
         </div>
 
         ${tableHTML}
@@ -265,10 +259,10 @@ const GarageCustomerLedger = () => {
     </html>
   `);
 
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-};
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
 
 
   return (
@@ -330,7 +324,7 @@ const GarageCustomerLedger = () => {
                       <option value="">সমস্ত মাস</option>
 
                       {availableMonths.map((month, idx) => {
-                        const [year, m] = month.split("-");
+                        const [m, year] = month.split("-"); // "09", "2025"
                         const monthIndex = Number(m) - 1;
 
                         const monthName = new Date(2000, monthIndex, 1).toLocaleString("bn-BD", {

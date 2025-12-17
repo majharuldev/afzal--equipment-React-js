@@ -407,7 +407,7 @@ const OfficialProducts = () => {
 
   return (
     <div className="p-2">
-      <div className="w-[22rem] md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
+      <div className="w-[22rem] md:w-full overflow-visible  max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-md p-2 py-10 md:p-4 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
             <FaUserSecret className="text-gray-800 text-2xl" />
@@ -526,7 +526,14 @@ const OfficialProducts = () => {
             columns={columns}
             dataSource={currentPurchase}
             rowKey="id"
-            pagination={false}
+           pagination={{
+            current: currentPage,
+            pageSize: itemsPerPage,
+            total: filteredPurchase.length,
+            onChange: (page) => setCurrentPage(page),
+            showSizeChanger: false,
+            position: ['bottomCenter'],
+          }}
             loading={loading}
             scroll={{ x: 1000 }}
             locale={{
@@ -535,21 +542,6 @@ const OfficialProducts = () => {
           />
           
           {/* Ant Design Pagination */}
-          {currentPurchase.length > 0 && (
-            <div className="mt-4 flex justify-end">
-              <AntPagination
-                current={currentPage}
-                pageSize={itemsPerPage}
-                total={filteredPurchase.length}
-                onChange={(page) => setCurrentPage(page)}
-                showSizeChanger={false}
-                showQuickJumper
-                // showTotal={(total, range) => 
-                //   `দেখানো হচ্ছে ${range[0]}-${range[1]} of ${total} আইটেম`
-                // }
-              />
-            </div>
-          )}
         </div>
       </div>
       {/* view modal */}

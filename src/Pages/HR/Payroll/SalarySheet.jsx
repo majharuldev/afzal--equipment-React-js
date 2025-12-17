@@ -224,14 +224,13 @@ const SalarySheet = () => {
   // Excel export
   const exportExcel = () => {
     const excelData = filteredData.map((d, i) => ({
-      SL: i + 1,
-      Month: d.monthYear,
-      Name: d.name,
-      Designation: d.designation,
-      WorkingDay: toNumber(d.days),
-      Salary: toNumber(d.salary),
-      Advance: toNumber(d.advance),
-      NetPay: toNumber(d.netPay),
+      ক্রমিক: i + 1,
+      নাম: getEmployee[d.employee_id],
+      পদবি: d.designation,
+      কর্মদিবস: toNumber(d.working_day),
+      বেতন: toNumber(d.basic),
+      অ্যাডভান্স: toNumber(d.adv),
+      "নেট পে": toNumber(d.net_pay),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -259,33 +258,31 @@ const SalarySheet = () => {
     <table style="width:100%; border-collapse: collapse; font-size:12px;">
       <thead>
         <tr>
-          <th style="border:1px solid #333; padding:4px;">SL</th>
-          <th style="border:1px solid #333; padding:4px;">Month</th>
-          <th style="border:1px solid #333; padding:4px;">Name</th>
-          <th style="border:1px solid #333; padding:4px;">Designation</th>
-          <th style="border:1px solid #333; padding:4px;">Working Day</th>
-          <th style="border:1px solid #333; padding:4px;">Salary</th>
-          <th style="border:1px solid #333; padding:4px;">Advance</th>
-          <th style="border:1px solid #333; padding:4px;">Net Pay</th>
+          <th style="border:1px solid #333; padding:4px;">ক্রমিক</th>
+          <th style="border:1px solid #333; padding:4px;">নাম</th>
+          <th style="border:1px solid #333; padding:4px;">পদবি</th>
+          <th style="border:1px solid #333; padding:4px;">কর্মদিবস</th>
+          <th style="border:1px solid #333; padding:4px;">বেতন</th>
+          <th style="border:1px solid #333; padding:4px;">অ্যাডভান্স</th>
+          <th style="border:1px solid #333; padding:4px;">নেট পে</th>
         </tr>
       </thead>
       <tbody>
         ${filteredData.map((row, i) => `
           <tr>
             <td style="border:1px solid #333; padding:4px;">${i + 1}</td>
-            <td style="border:1px solid #333; padding:4px;">${row.monthYear}</td>
-            <td style="border:1px solid #333; padding:4px; text-align:left;">${row.name}</td>
+            <td style="border:1px solid #333; padding:4px; text-align:left;">${getEmployee[row.employee_id]}</td>
             <td style="border:1px solid #333; padding:4px;">${row.designation}</td>
-            <td style="border:1px solid #333; padding:4px;">${row.days}</td>
-            <td style="border:1px solid #333; padding:4px;">${row.salary?.toLocaleString()}</td>
-            <td style="border:1px solid #333; padding:4px;">${row.advance?.toLocaleString()}</td>
-            <td style="border:1px solid #333; padding:4px; font-weight:bold;">${row.netPay?.toLocaleString()}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.working_day}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.basic?.toLocaleString()}</td>
+            <td style="border:1px solid #333; padding:4px;">${row.adv?.toLocaleString()}</td>
+            <td style="border:1px solid #333; padding:4px; font-weight:bold;">${row.net_pay?.toLocaleString()}</td>
           </tr>
         `).join('')}
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="5" style="border:1px solid #333; padding:4px; font-weight:bold;">Grand Total</td>
+          <td colspan="4" style="border:1px solid #333; padding:4px; font-weight:bold;">Grand Total</td>
           <td style="border:1px solid #333; padding:4px;">${grandTotal.toLocaleString()}</td>
           <td style="border:1px solid #333; padding:4px;"></td>
           <td style="border:1px solid #333; padding:4px;">${grandNetPay.toLocaleString()}</td>
@@ -332,7 +329,7 @@ const SalarySheet = () => {
               onClick={() => setShowFilter((prev) => !prev)} // Toggle filter
               className=" text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> ফিল্টার
             </button>
           </div>
         </div>
@@ -348,13 +345,13 @@ const SalarySheet = () => {
               এক্সেল
             </button>
 
-            <button
+            {/* <button
               onClick={exportPDF}
               className="flex items-center gap-2 py-1 px-3 hover:bg-primary bg-white shadow  hover:text-white rounded transition-all duration-300 cursor-pointer"
             >
               <FaFilePdf className="" />
               পিডিএফ
-            </button>
+            </button> */}
 
             <button
               onClick={handlePrintTable}
@@ -403,9 +400,9 @@ const SalarySheet = () => {
                   setSelectedMonth("")
                   setShowFilter(false)
                 }}
-                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="w-36 bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Clear
+                <FaFilter /> মুছে ফেলুন
               </button>
             </div>
           </div>
@@ -428,7 +425,7 @@ const SalarySheet = () => {
                   কর্তন
                 </th>
                 {/* <th className="border border-gray-400 px-2 py-1">By CEO</th> */}
-                <th className="border border-gray-400 px-2 py-1">নেট পে(অর্ধেক)</th>
+                <th className="border border-gray-400 px-2 py-1">নেট পে</th>
                 <th className="border border-gray-400 px-2 py-1">অ্যাকশন</th>
               </tr>
               {/* Main header row */}
@@ -470,7 +467,7 @@ const SalarySheet = () => {
                     {/* <td className="border border-gray-400 px-2 py-1 font-semibold">
                       {row?.total?.toLocaleString()}
                     </td> */}
-                    <td className="border border-gray-400 px-2 py-1">{row?.advance?.toLocaleString()}</td>
+                    <td className="border border-gray-400 px-2 py-1">{row?.adv?.toLocaleString()}</td>
                     {/* <td className="border border-gray-400 px-2 py-1">{row?.monthly_deduction?.toLocaleString()}</td> */}
                     {/* <td className="border border-gray-400 px-2 py-1">{row?.deductionTotal?.toLocaleString()}</td> */}
                     {/* <td className="border border-gray-400 px-2 py-1">C</td> */}
@@ -500,7 +497,7 @@ const SalarySheet = () => {
             </tbody>
             <tfoot>
               <tr className=" font-bold text-center">
-                <td className="border border-gray-400 px-2 py-1" colSpan={5}>
+                <td className="border border-gray-400 px-2 py-1" colSpan={4}>
                   মোট
                 </td>
                 <td className="border border-gray-400 px-2 py-1">

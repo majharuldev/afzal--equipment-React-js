@@ -583,7 +583,7 @@ const PurchaseList = () => {
                 }}
                 className="bg-primary text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Clear
+                <FaFilter /> মুছে ফেলুন
               </button>
             </div>
           </div>

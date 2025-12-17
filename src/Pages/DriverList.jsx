@@ -374,12 +374,12 @@ const CarList = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="border p-2 border-gray-200">
               <p className="font-semibold">ড্রাইভারের নাম:</p>
-              <p>{selectedCar.driver_name}</p>
+              <p>{selectedDriver.driver_name}</p>
             </div>
           
             <div className="border p-2 border-gray-200">
               <p className="font-semibold">মোবাইল:</p>
-              <p>{selectedCar.driver_mobile}</p>
+              <p>{selectedDriver.driver_mobile}</p>
             </div>
             <div className="border p-2 border-gray-200">
               <p><strong>জরুরি যোগাযোগ:</strong> {selectedDriver.emergency_contact}</p>
