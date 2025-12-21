@@ -159,6 +159,7 @@ export default function AddTripForm() {
   // মোট হিসাব করা
   useEffect(() => {
     const transCostValue = selectedTransport === "own_transport" && trans_cost_type === "own_trans_cost" ? toNumber(trans_cost) : 0;
+    if (selectedTransport === "own_transport") {
     // মোট খরচ হিসাব
     const totalExp =
       (toNumber(driverCommision) || 0) +
@@ -177,7 +178,7 @@ export default function AddTripForm() {
       (toNumber(othersCost) || 0);
 
     setValue("total_exp", totalExp);
-
+    }
     // ড্যামারেজ মোট হিসাব
     const d_total = (toNumber(d_day) || 0) * (toNumber(d_amount) || 0);
     setValue("d_total", d_total);
