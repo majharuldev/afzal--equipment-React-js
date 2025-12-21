@@ -79,7 +79,6 @@ const HelperList = () => {
       নাম: Helper.Helper_name,
       মোবাইল: Helper.phone,
       ঠিকানা: Helper.address,
-      বেতন: toNumber(Helper.salary),
       অবস্থা: Helper.status,
     }));
 
@@ -100,7 +99,6 @@ const HelperList = () => {
           <th>নাম</th>
           <th>মোবাইল</th>
           <th>ঠিকানা</th>
-          <th>বেতন</th>
         </tr>
       </thead>
     `;
@@ -111,7 +109,6 @@ const HelperList = () => {
         <td>${helper.helper_name || ""}</td>
         <td>${helper.phone || ""}</td>
         <td>${helper.address || ""}</td>
-        <td>${helper.salary || ""}</td>
       </tr>
     `).join("");
 
@@ -221,11 +218,11 @@ const HelperList = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-200 text-gray-800 capitalize text-xs">
               <tr>
-                <th className="p-2">SL.</th>
+                <th className="p-2">#</th>
                 <th className="p-2">নাম</th>
                 <th className="p-2">মোবাইল</th>
                 <th className="p-2">ঠিকানা</th>
-                <th className="p-2">বেতন</th>
+                {/* <th className="p-2">বেতন</th> */}
                 <th className="p-2">অবস্থা</th>
                 <th className="p-2 action_column">একশন</th>
               </tr>
@@ -244,7 +241,7 @@ const HelperList = () => {
                     <td className="p-2">{helper.helper_name}</td>
                     <td className="p-2">{helper.phone}</td>
                     <td className="p-2">{helper.address}</td>
-                    <td className="p-2">{helper.salary}</td>
+                    {/* <td className="p-2">{helper.salary}</td> */}
                     <td className="p-2">
                       <span className="text-white bg-green-700 px-3 py-1 rounded-md text-xs font-semibold">
                         {helper.status}

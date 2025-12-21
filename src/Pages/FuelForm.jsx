@@ -477,7 +477,7 @@ const FuelForm = () => {
       <Toaster />
       <div className="mx-auto p-6  rounded-md shadow">
         <h3 className=" pb-4 text-primary font-semibold ">
-          {isEditMode ? "অফিসিয়াল পারচেজ আপডেট করুন" : "অফিসিয়াল পারচেজ যোগ করুন"}
+          {isEditMode ? "ফুয়েল আপডেট করুন" : "ফুয়েল যোগ করুন"}
         </h3>
         <FormProvider {...methods}>
           {isLoading ? (

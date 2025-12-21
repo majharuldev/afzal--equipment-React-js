@@ -93,19 +93,15 @@ const HelperForm = () => {
               <div className="w-full">
                 <InputField name="address" label="ঠিকানা" required />
               </div>
-              <div className="mt-2 md:mt-0 w-full">
+              {/* <div className="mt-2 md:mt-0 w-full">
                 <InputField
                   name="salary"
                   label="বেতন"
                   type="number"
                   required
                 />
-              </div>
-            </div>
-
-            {/* স্ট্যাটাস */}
-            <div className="md:flex justify-between gap-3">
-              <div className="w-full relative">
+              </div> */}
+               <div className="w-full relative">
                 <SelectField
                   name="status"
                   label="স্ট্যাটাস"
@@ -116,6 +112,11 @@ const HelperForm = () => {
                   ]}
                 />
               </div>
+            </div>
+
+            {/* স্ট্যাটাস */}
+            <div className="md:flex justify-between gap-3">
+             
               <div className="w-full"></div> {/* Layout এর জন্য ফাঁকা div */}
             </div>
 

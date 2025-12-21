@@ -84,6 +84,14 @@ const GenerateSalary = () => {
     setIsDeleteModalOpen(true);
   };
 
+  // Check if salary already generated for the month
+  const isSalaryAlreadyGenerated = (month) => {
+  return salarySheetApiData.some(
+    (sheet) => sheet.generate_month === month
+  );
+};
+
+
   // delete confirm
   const handleConfirmDelete = async () => {
     try {
@@ -267,7 +275,12 @@ const GenerateSalary = () => {
       toast.error("অনুগ্রহ করে একটি মাস নির্বাচন করুন");
       return;
     }
-
+  
+  //  already generated check
+  if (isSalaryAlreadyGenerated(generateSalaryMonth)) {
+    toast.error("এই মাসের বেতন ইতিমধ্যে তৈরি করা হয়েছে");
+    return;
+  }
     const dataToSend = generateSalaryForMonth(generateSalaryMonth);
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 

@@ -12,6 +12,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { toNumber } from "../../../hooks/toNumber";
 
 const Office = () => {
   const [office, setOffice] = useState([]);
@@ -253,7 +254,7 @@ const printOfficeTable = () => {
               onClick={exportOfficeToExcel}
               className="py-1 px-5 bg-white shadow font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer"
             >
-              Excel
+              এক্সেল
             </button>
 
             {/* <button
@@ -267,7 +268,7 @@ const printOfficeTable = () => {
               onClick={printOfficeTable}
               className="py-1 px-5 bg-white shadow font-semibold rounded hover:bg-primary hover:text-white transition-all cursor-pointer"
             >
-              Print
+              প্রিন্ট
             </button>
           </div>
           {/* search */}
@@ -280,7 +281,7 @@ const printOfficeTable = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search Office..."
+              placeholder="খুঁজুন..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}

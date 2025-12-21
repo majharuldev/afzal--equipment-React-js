@@ -116,14 +116,14 @@ const SupplierList = () => {
               <RiEditLine />
             </Button>
           </Link>
-          <Button
+          {/* <Button
             size="small"
             type="primary"
             className="!bg-white !text-primary"
             onClick={() => handleView(record.id)}
           >
             <FaEye />
-          </Button>
+          </Button> */}
           <Button
             size="small"
             type="primary"

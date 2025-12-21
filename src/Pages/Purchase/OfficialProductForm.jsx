@@ -387,12 +387,12 @@ const OfficialProductForm = () => {
             <div className="md:flex justify-between gap-3">
             <div className="w-full">
               <label className="text-gray-700 text-sm font-semibold">
-                বিল ইমেজ {!isEditMode && "(প্রয়োজনীয়)"}
+                বিল ইমেজ 
               </label>
               <Controller
                 name="bill_image"
                 control={control}
-                rules={isEditMode ? false : { required: "এই ফিল্ডটি প্রয়োজনীয়" }}
+                // rules={isEditMode ? false : { required: "এই ফিল্ডটি প্রয়োজনীয়" }}
                 render={({
                   field: { onChange, ref },
                   fieldState: { error },

@@ -353,7 +353,7 @@ const PurchaseForm = () => {
                 <SelectField
                   name="vehicle_no"
                   label="ইকুইপমেন্ট/গাড়ি নম্বর"
-                  required={!isEditMode}
+                  required={false}
                   options={vehicleOptions}
                   control={control}
                   defaultValue={watch("vehicle_no")}
@@ -381,7 +381,7 @@ const PurchaseForm = () => {
                   name="service_charge"
                   label="সার্ভিস চার্জ"
                   type="number"
-                  required={!isEditMode}
+                  required={false}
                 />
               </div>
 
@@ -459,7 +459,7 @@ const PurchaseForm = () => {
                     name="service_date"
                     label="সার্ভিস তারিখ"
                     type="date"
-                    required={!isEditMode}
+                    required={false}
                     inputRef={(e) => {
                       register("date").ref(e);
                       purChaseDateRef.current = e;
@@ -472,7 +472,7 @@ const PurchaseForm = () => {
                     name="next_service_date"
                     label="পরবর্তী সার্ভিস তারিখ"
                     type="date"
-                    required={!isEditMode}
+                    required={false}
                     inputRef={(e) => {
                       register("date").ref(e);
                       purChaseDateRef.current = e;
@@ -488,7 +488,7 @@ const PurchaseForm = () => {
                     name="service_date"
                     label="ডকুমেন্ট রিনিউ তারিখ"
                     type="date"
-                    required={!isEditMode}
+                    required={false}
                     inputRef={(e) => {
                       register("date").ref(e);
                       purChaseDateRef.current = e;
@@ -501,7 +501,7 @@ const PurchaseForm = () => {
                     name="next_service_date"
                     label="ডকুমেন্ট এক্সপায়ার তারিখ"
                     type="date"
-                    required={!isEditMode}
+                    required={false}
                     inputRef={(e) => {
                       register("date").ref(e);
                       purChaseDateRef.current = e;
@@ -562,12 +562,12 @@ const PurchaseForm = () => {
             <div className="md:flex justify-between gap-3">
               <div className="w-full">
                 <label className="text-gray-700 text-sm font-semibold">
-                  বিল ইমেজ {!isEditMode && "(প্রয়োজনীয়)"}
+                  বিল ইমেজ
                 </label>
                 <Controller
                   name="bill_image"
                   control={control}
-                  rules={isEditMode ? {} : { required: "এই ফিল্ডটি প্রয়োজনীয়" }}
+                  // rules={isEditMode ? {} : { required: "এই ফিল্ডটি প্রয়োজনীয়" }}
                   render={({
                     field: { onChange, ref },
                     fieldState: { error },
