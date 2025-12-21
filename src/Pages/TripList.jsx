@@ -879,7 +879,7 @@ const TripList = () => {
             </div>
             <div>
               <p className="font-semibold text-gray-900">ভেন্ডর ভাড়া:</p>
-              <p>{selectedTrip.transport_type === "vendor_trasport" ? selectedTrip.total_exp : "--"}</p>
+              <p>{selectedTrip.transport_type === "vendor_transport" ? selectedTrip.total_exp : "--"}</p>
             </div>
             <div>
               <p className="font-semibold text-gray-900">ভেন্ডর অগ্রিম:</p>
