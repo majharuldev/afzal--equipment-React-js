@@ -17,19 +17,40 @@
 // export default AdminRoute;
 
 
+// import { useContext } from "react";
+// import { Navigate } from "react-router-dom";
+// import { AuthContext } from "../providers/AuthProvider";
+
+// const AdminRoute = ({ children }) => {
+//   const { user, isAuthenticated } = useContext(AuthContext);
+//   if (!isAuthenticated) return <Navigate to="/tramessy/Login" />;
+
+//   if (user?.role === "admin") {
+//     return children;
+//   }
+
+//   return <Navigate to="/tramessy/login" replace />;
+// };
+
+// export default AdminRoute;
+
+
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import { AuthContext } from "../providers/AuthProvider";
 
 const AdminRoute = ({ children }) => {
   const { user, isAuthenticated } = useContext(AuthContext);
-  if (!isAuthenticated) return <Navigate to="/tramessy/Login" />;
 
-  if (user?.role === "admin") {
+  if (!isAuthenticated) {
+    return <Navigate to="/tramessy/Login" replace />;
+  }
+
+  if (user?.role === "Admin") {
     return children;
   }
 
-  return <Navigate to="/tramessy/login" replace />;
+  return <Navigate to="/tramessy" replace />;
 };
 
 export default AdminRoute;
