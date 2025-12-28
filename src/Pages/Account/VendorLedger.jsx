@@ -814,7 +814,7 @@ const VendorLedger = () => {
                     </span>
                     {selectedVendor && (
                       <p className="text-xs text-gray-600 font-normal">
-                        (Including Opening Balance)
+                        (আগের বকেয়া/ব্যালেন্সসহ)
                       </p>
                     )}
                   </td>

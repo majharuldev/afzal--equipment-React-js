@@ -498,8 +498,9 @@ const GenerateSalary = () => {
             <thead className="bg-gray-200 text-primary capitalize text-xs">
               <tr>
                 <th className="p-2">ক্রমিক</th>
-                <th className="p-2">তারিখ</th>
-                <th className="p-2">মাস</th>
+                 <th className="p-2"> বেতনের মাস</th>
+                <th className="p-2">  তৈরি তারিখ</th>
+               
                 <th className="p-2">তৈরি করেছেন</th>
                 {/* <th className="p-2">Status</th> */}
                 <th className="p-2">অ্যাকশন</th>
@@ -519,8 +520,9 @@ const GenerateSalary = () => {
                     className="hover:bg-gray-50 transition-all border border-gray-200"
                   >
                     <td className="p-2 font-bold">{indexOfFirstItem + index + 1}</td>
-                    <td className="p-2">{tableFormatDate(item.generate_date)}</td>
+                  
                     <td className="p-2">{item.generate_month}</td>
+                      <td className="p-2">{tableFormatDate(item.generate_date)}</td>
                     <td className="p-2">{item.generate_by}</td>
                     {/* <td className="p-2">{item.status}</td> */}
                     <td className="p-2 flex gap-2 items-center">

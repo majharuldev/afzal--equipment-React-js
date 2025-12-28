@@ -84,15 +84,17 @@ const VendorList = () => {
       "Mobile",
       "RentCategory",
       "WorkArea",
+      "opening_balance",
       "Status",
     ];
     const tableRows = filteredvendor.map(
-      ({ date, vendor_name, mobile, rent_category, work_area, status }) => [
+      ({ date, vendor_name, mobile, rent_category, work_area,opening_balance, status }) => [
         tableFormatDate(date),
         vendor_name,
         mobile,
         rent_category,
         work_area,
+        opening_balance,
         status,
       ]
     );
@@ -147,6 +149,7 @@ const VendorList = () => {
               <th>মোবাইল</th>
               <th>ভাড়া ক্যাটাগরি</th>
               <th>কাজের এলাকা</th>
+              <th>শুরুর ব্যালেন্স</th>
               <th>স্ট্যাটাস</th>
             </tr>
           </thead>
@@ -161,6 +164,7 @@ const VendorList = () => {
                 <td>${dt.mobile}</td>
                 <td>${dt.rent_category}</td>
                 <td>${dt.work_area}</td>
+                <td>${dt.opening_balance}</td>
                 <td>${dt.status}</td>
               </tr>`
         )
@@ -269,6 +273,11 @@ const VendorList = () => {
       title: 'কাজের এলাকা',
       dataIndex: 'work_area',
       key: 'work_area',
+    },
+    {
+      title: 'শুরুর ব্যালেন্স',
+      dataIndex: 'opening_balance',
+      key: 'opening_balance',
     },
     {
       title: 'স্ট্যাটাস',

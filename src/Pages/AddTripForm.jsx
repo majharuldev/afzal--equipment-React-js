@@ -596,8 +596,8 @@ export default function AddTripForm() {
       { value: "15 feet", label: "১৫ ফিট" },
     ],
     "Dump Truck": [
-      { value: "6_caka", label: "৬ চাক" },
-      { value: "10_caka", label: "১০ চাক" },
+      { value: "6_caka", label: "৬ চাকা" },
+      { value: "10_caka", label: "১০ চাকা" },
     ],
     Crane: [
       { value: "mobile_crane", label: "মোবাইল ক্রেন" },
@@ -1092,7 +1092,7 @@ export default function AddTripForm() {
                   <SelectField
                     name="trans_cost_type"
                     label="যাতায়াত ভাড়া নিজের/গ্রাহকের"
-                    required={!id}
+                    // required={!id}
                     options={[
                       { value: "own_trans_cost", label: "Own Trans cost" },
                       { value: "customer_trans_cost", label: "Customer Trans Cost" },

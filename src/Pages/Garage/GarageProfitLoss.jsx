@@ -207,7 +207,7 @@ const GarageProfitLoss = () => {
             <FaTruck /> গ্যারেজ লাভ-ক্ষতি রিপোর্ট
           </h1>
           <Button onClick={() => setShowFilter(!showFilter)} icon={<FaFilter />}>
-            Filter
+            ফিল্টার
           </Button>
         </div>
 
@@ -226,7 +226,7 @@ const GarageProfitLoss = () => {
           </div>
           {/* search */}
           <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
+            <span className="text-primary font-semibold pr-3">খুঁজুন: </span>
             <input type="text" value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)

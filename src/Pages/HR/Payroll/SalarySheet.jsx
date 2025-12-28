@@ -530,22 +530,22 @@ const SalarySheet = () => {
       {isConfirmModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white w-[380px] rounded-lg shadow-lg p-6">
-            <h2 className="text-lg font-bold text-gray-800 mb-3">Confirm Payment</h2>
+            <h2 className="text-lg font-bold text-gray-800 mb-3"> পেমেন্ট নিশ্চিত করুন </h2>
             <p className="text-sm text-gray-600 mb-5">
-              Are you sure you want to mark this salary as Paid?
+              আপনি কি নিশ্চিত যে এই বেতনটি পরিশোধিত হিসেবে চিহ্নিত করতে চান?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsConfirmModalOpen(false)}
                 className="px-4 py-2 border rounded hover:bg-gray-100"
               >
-                Cancel
+                বাতিল
               </button>
               <button
                 onClick={handleConfirmStatus}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
-                Confirm
+                নিশ্চিত
               </button>
             </div>
           </div>

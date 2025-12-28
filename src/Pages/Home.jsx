@@ -45,9 +45,9 @@ const Home = () => {
                   barCategoryGap="30%" // gap between categories
                   barGap={5} // gap between bars
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: -5 }} />
-                  <YAxis domain={[0, 'auto']} label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
+                  <CartesianGrid strokeDasharray="1 1" />
+                  <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: -1 }} />
+                   <YAxis domain={[0, 'auto']} />
                   <Tooltip
                     formatter={(value, name) => [
                       value,
@@ -77,8 +77,8 @@ const Home = () => {
                 barGap={5}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: -5 }}/>
-                <YAxis  domain={[0, 'auto']} label={{ value: 'টাকা', angle: -90, position: 'insideLeft' }} />
+                <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: 10 }}/>
+                <YAxis  domain={[0, 'auto']} label={{ value: 'টাকা', angle: 90, position: 'insideLeft' }} />
                 <Tooltip 
                  formatter={(value, name) => [
                     value,
@@ -90,6 +90,8 @@ const Home = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
+
+
         </div>}
       </div>
     </div>
