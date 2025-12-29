@@ -436,7 +436,7 @@ const StatisticsCard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">গড় ট্রিপ মান</p>
+              <p className="text-gray-600 text-sm">গড় অপারেশন মান</p>
               <p className="text-2xl font-bold text-gray-900">
                 {stats.avgTripValue.toFixed(0)} TK
               </p>

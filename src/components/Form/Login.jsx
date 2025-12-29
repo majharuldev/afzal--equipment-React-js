@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import bgImage from "../../assets/bannerImg.jpeg";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import ReusableForm from "./ReusableForm";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../providers/AuthProvider";
@@ -20,6 +20,7 @@ const Login = () => {
   const navigate = useNavigate();
     const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   // const handleLogin = async (data) => {
   //   const { email, password } = data;
@@ -123,14 +124,14 @@ if (res.success) {
               </div>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="পাসওয়ার্ড"
                   className="w-full md:w-80 text-sm px-4 py-2 border border-gray-300 rounded-md outline-none"
                   required
                 />
-                <span className="absolute right-0 bg-primary text-white px-4 py-[11px] rounded-r-md hover:bg-secondary transition-all duration-500 cursor-pointer">
-                  <FaLock />
+                <span onClick={() => setShowPassword(!showPassword)} className="absolute right-0 bg-primary text-white px-4 py-[11px] rounded-r-md hover:bg-secondary transition-all duration-500 cursor-pointer">
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
             </ReusableForm>

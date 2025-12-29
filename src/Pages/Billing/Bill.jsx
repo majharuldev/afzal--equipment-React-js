@@ -275,44 +275,52 @@ const Bill = () => {
   }
   // বাংলা সংখ্যাকে কথায় কনভার্ট করার ফাংশন
   const numberToBanglaWords = (num) => {
-    if (!num || isNaN(num)) return "শূন্য টাকা মাত্র";
+  if (num === 0 || isNaN(num)) return "শূন্য টাকা মাত্র";
 
-    const ones = ["", "এক", "দুই", "তিন", "চার", "পাঁচ", "ছয়", "সাত", "আট", "নয়"];
-    const tens = ["", "দশ", "বিশ", "ত্রিশ", "চল্লিশ", "পঞ্চাশ", "ষাট", "সত্তর", "আশি", "নব্বই"];
-    const teens = ["এগারো", "বারো", "তেরো", "চৌদ্দ", "পনেরো", "ষোল", "সতেরো", "আঠারো", "উনিশ"];
+  const bnNumbers = [
+    "", "এক", "দুই", "তিন", "চার", "পাঁচ", "ছয়", "সাত", "আট", "নয়",
+    "দশ", "এগারো", "বারো", "তেরো", "চৌদ্দ", "পনেরো", "ষোল", "সতেরো", "আঠারো", "উনিশ",
+    "বিশ", "একুশ", "বাইশ", "তেইশ", "চব্বিশ", "পঁচিশ", "ছাব্বিশ", "সাতাশ", "আটাশ", "ঊনত্রিশ",
+    "ত্রিশ", "একত্রিশ", "বত্রিশ", "তেত্রিশ", "চৌত্রিশ", "পঁয়ত্রিশ", "ছত্রিশ", "সাঁইত্রিশ", "আটত্রিশ", "ঊনচল্লিশ",
+    "চল্লিশ", "একচল্লিশ", "বিয়াল্লিশ", "তেতাল্লিশ", "চুয়াল্লিশ", "পঁয়তাল্লিশ", "ছেচল্লিশ", "সাতচল্লিশ", "আটচল্লিশ", "ঊনপঞ্চাশ",
+    "পঞ্চাশ", "একান্ন", "বায়ান্ন", "তিপ্পান্ন", "চুয়ান্ন", "পঞ্চান্ন", "ছাপ্পান্ন", "সাতান্ন", "আটান্ন", "ঊনষাট",
+    "ষাট", "একষট্টি", "বাষট্টি", "তেষট্টি", "চৌষট্টি", "পঁয়ষট্টি", "ছেষট্টি", "সাতষট্টি", "আটষট্টি", "ঊনসত্তর",
+    "সত্তর", "একাত্তর", "বাহাত্তর", "তিয়াত্তর", "চুয়াত্তর", "পঁচাত্তর", "ছিয়াত্তর", "সাতাত্তর", "আটাত্তর", "ঊনআশি",
+    "আশি", "একাশি", "বিরাশি", "তিরাশি", "চুরাশি", "পঁচাশি", "ছিয়াশি", "সাতাশি", "আটাশি", "ঊননব্বই",
+    "নব্বই", "একানব্বই", "বিরানব্বই", "তিরানব্বই", "চুরানব্বই", "পঁচানব্বই", "ছিয়ানব্বই", "সাতানব্বই", "আটানব্বই", "নিরানব্বই"
+  ];
 
-    const convertHundreds = (n) => {
-      let result = "";
-      if (n >= 100) {
-        result += ones[Math.floor(n / 100)] + " শত ";
-        n %= 100;
-      }
-      if (n >= 20) {
-        result += tens[Math.floor(n / 10)] + " ";
-        n %= 10;
-      } else if (n > 10) {
-        result += teens[n - 11] + " ";
-        return result;
-      }
-      if (n > 0) {
-        result += ones[n] + " ";
-      }
-      return result;
-    };
-
-    let result = "";
-    const crore = Math.floor(num / 10000000);
-    const lakh = Math.floor((num % 10000000) / 100000);
-    const thousand = Math.floor((num % 100000) / 1000);
-    const remainder = num % 1000;
-
-    if (crore > 0) result += convertHundreds(crore) + "কোটি ";
-    if (lakh > 0) result += convertHundreds(lakh) + "লক্ষ ";
-    if (thousand > 0) result += convertHundreds(thousand) + "হাজার ";
-    if (remainder > 0) result += convertHundreds(remainder);
-
-    return result.trim() + " টাকা মাত্র";
+  const convert = (n) => {
+    let str = "";
+    if (n >= 100) {
+      str += bnNumbers[Math.floor(n / 100)] + " শত ";
+      n %= 100;
+    }
+    if (n > 0) {
+      str += bnNumbers[n] + " ";
+    }
+    return str;
   };
+
+  let result = "";
+
+  const crore = Math.floor(num / 10000000);
+  num %= 10000000;
+
+  const lakh = Math.floor(num / 100000);
+  num %= 100000;
+
+  const thousand = Math.floor(num / 1000);
+  num %= 1000;
+
+  if (crore) result += convert(crore) + "কোটি ";
+  if (lakh) result += convert(lakh) + "লক্ষ ";
+  if (thousand) result += convert(thousand) + "হাজার ";
+  if (num) result += convert(num);
+
+  return result.trim() + " টাকা মাত্র";
+};
+
 
 
   const handleCheckBox = (tripId) => {
@@ -555,7 +563,7 @@ const Bill = () => {
   const handlePageClick = (number) => {
     setCurrentPage(number);
   };
-  if (loading) return <p className="text-center mt-16">Loading...</p>
+  if (loading) return <p className="text-center mt-16">লোড হচ্ছে...</p>
 
   return (
     <div className="p-2">

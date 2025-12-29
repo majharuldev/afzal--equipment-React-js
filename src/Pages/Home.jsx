@@ -46,7 +46,7 @@ const Home = () => {
                   barGap={5} // gap between bars
                 >
                   <CartesianGrid strokeDasharray="1 1" />
-                  <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: -1 }} />
+                  <XAxis dataKey="month" label={{ value: '', position: 'insideBottom', offset: -1 }} />
                    <YAxis domain={[0, 'auto']} />
                   <Tooltip
                     formatter={(value, name) => [
@@ -77,7 +77,7 @@ const Home = () => {
                 barGap={5}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" label={{ value: 'মাস', position: 'insideBottom', offset: 10 }}/>
+                <XAxis dataKey="month" label={{ value: '', position: 'insideBottom', offset: 10 }}/>
                 <YAxis  domain={[0, 'auto']} label={{ value: 'টাকা', angle: 90, position: 'insideLeft' }} />
                 <Tooltip 
                  formatter={(value, name) => [

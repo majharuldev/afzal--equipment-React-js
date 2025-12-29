@@ -178,9 +178,14 @@ const PurchaseForm = () => {
     label: supply.supplier_name,
   }));
 
+//   useEffect(() => {
+//   console.log("FORM ERRORS 👉", methods.formState.errors);
+// }, [methods.formState.errors]);
+
 
   // ফর্ম সাবমিশন হ্যান্ডেল (এডিট এবং অ্যাড উভয়ের জন্য)
   const onSubmit = async (data) => {
+    console.log(data, "da")
     try {
       // তারিখ ফিল্ডগুলো লোকালাইজ করা
       ["date", "service_date", "next_service_date"].forEach((field) => {
@@ -211,7 +216,7 @@ const PurchaseForm = () => {
       formData.append("purchase_amount", purchase_amount);
       formData.append("service_charge", data.service_charge || 0);
       formData.append("remarks", data.remarks || "");
-      formData.append("driver_name", data.driver_name || "");
+      // formData.append("driver_name", data.driver_name || "");
       formData.append("branch_name", data.branch_name || "");
       formData.append("vehicle_no", data.vehicle_no || "");
       formData.append("vehicle_category", data.vehicle_category || "");
@@ -321,10 +326,10 @@ const PurchaseForm = () => {
                   label="পারচেজ তারিখ"
                   type="date"
                   required={!isEditMode}
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    purChaseDateRef.current = e;
-                  }}
+                  // inputRef={(e) => {
+                  //   register("date").ref(e);
+                  //   purChaseDateRef.current = e;
+                  // }}
 
                 />
               </div>
@@ -389,7 +394,7 @@ const PurchaseForm = () => {
                 <InputField
                   name="driver_name"
                   label="ড্রাইভার নাম"
-                  required={!isEditMode}
+                  required={false}
                   // options={driverOptions}
                   control={control}
                 />
@@ -435,7 +440,7 @@ const PurchaseForm = () => {
 
                 <button
                   type="button"
-                  onClick={() => append({ item_name: "", quantity: 0, unit_price: 0, total: 0 })}
+                  onClick={() => append({ item_name: "", quantity: "", unit_price: "", total: 0 })}
                   className="bg-primary text-white px-3 py-1 rounded-md hover:bg-primary/80"
                 >
                   + আইটেম যোগ করুন
@@ -460,10 +465,10 @@ const PurchaseForm = () => {
                     label="সার্ভিস তারিখ"
                     type="date"
                     required={false}
-                    inputRef={(e) => {
-                      register("date").ref(e);
-                      purChaseDateRef.current = e;
-                    }}
+                    // inputRef={(e) => {
+                    //   register("date").ref(e);
+                    //   purChaseDateRef.current = e;
+                    // }}
 
                   />
                 </div>
@@ -473,10 +478,10 @@ const PurchaseForm = () => {
                     label="পরবর্তী সার্ভিস তারিখ"
                     type="date"
                     required={false}
-                    inputRef={(e) => {
-                      register("date").ref(e);
-                      purChaseDateRef.current = e;
-                    }}
+                    // inputRef={(e) => {
+                    //   register("date").ref(e);
+                    //   purChaseDateRef.current = e;
+                    // }}
 
                   />
                 </div>
@@ -489,10 +494,10 @@ const PurchaseForm = () => {
                     label="ডকুমেন্ট রিনিউ তারিখ"
                     type="date"
                     required={false}
-                    inputRef={(e) => {
-                      register("date").ref(e);
-                      purChaseDateRef.current = e;
-                    }}
+                    // inputRef={(e) => {
+                    //   register("date").ref(e);
+                    //   purChaseDateRef.current = e;
+                    // }}
 
                   />
                 </div>
@@ -502,10 +507,10 @@ const PurchaseForm = () => {
                     label="ডকুমেন্ট এক্সপায়ার তারিখ"
                     type="date"
                     required={false}
-                    inputRef={(e) => {
-                      register("date").ref(e);
-                      purChaseDateRef.current = e;
-                    }}
+                    // inputRef={(e) => {
+                    //   register("date").ref(e);
+                    //   purChaseDateRef.current = e;
+                    // }}
 
                   />
                 </div>
@@ -641,7 +646,7 @@ const PurchaseForm = () => {
               </div>
             )}
 
-            <BtnSubmit>{isEditMode ? "পারচেজ আপডেট করুন" : "সাবমিট করুন"}</BtnSubmit>
+            <BtnSubmit  type="submit" >{isEditMode ? "পারচেজ আপডেট করুন" : "সাবমিট করুন"}</BtnSubmit>
           </form>)}
         </FormProvider>
       </div>
