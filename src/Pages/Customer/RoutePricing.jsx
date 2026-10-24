@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { FaPen, FaTrashAlt, FaPlus, FaUsers } from "react-icons/fa";
 import { PlusOutlined, EditOutlined, FileExcelOutlined, FilePdfOutlined, PrinterOutlined, DeleteOutlined } from "@ant-design/icons";
-
+import CreatableSelect from "react-select/creatable";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -122,11 +122,21 @@ const RoutePricing = () => {
     fetchVehicles();
   }, []);
   // equipment category options
-  const vehicleOptions = vehicles.map(v => ({
-    value: v.vehicle_category,
-    label: v.vehicle_category,
-  }));
+  // const vehicleOptions = vehicles.map(v => ({
+  //   value: v.vehicle_category,
+  //   label: v.vehicle_category,
+  // }));
 
+  const vehicleOptions = [
+    ...new Set(
+      vehicles
+        .map((v) => v.vehicle_category)
+        .filter(Boolean)
+    ),
+  ].map((category) => ({
+    value: category,
+    label: category,
+  }));
   const handleEdit = (item) => {
     setFormData({
       customer_name: item.customer_name,
@@ -138,6 +148,17 @@ const RoutePricing = () => {
     });
     setEditId(item.id);
     setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/rate/${id}`);
+      toast.success("রুট মূল্য সফলভাবে ডিলিট হয়েছে!");
+      fetchRoutePricingData();
+    } catch (error) {
+      console.error(error);
+      toast.error("ডিলিট করতে সমস্যা হয়েছে!");
+    }
   };
 
   // Excel Export (filtered)
@@ -284,7 +305,7 @@ const RoutePricing = () => {
           </Button>
           <Button
             icon={<FaTrashAlt />}
-            onClick={() => handleEdit(item)}
+            onClick={() => handleDelete(item.id)}
             type="primary"
           >
           </Button>
@@ -422,7 +443,7 @@ const RoutePricing = () => {
             placeholder="লোড পয়েন্ট লিখুন"
           />
 
-          <label>আনলোড পয়েন্ট</label>
+          {/* <label>আনলোড পয়েন্ট</label>
           <Select
             showSearch
             value={formData.unload_point}
@@ -430,6 +451,51 @@ const RoutePricing = () => {
             options={unloadpoints.map((c) => ({ value: c.name, label: c.name }))}
             style={{ width: "100%" }}
             placeholder="আনলোড পয়েন্ট নির্বাচন করুন"
+          /> */}
+
+          <label>আনলোড পয়েন্ট</label>
+
+          <CreatableSelect
+            isClearable
+            isSearchable
+            value={
+              formData.unload_point
+                ? {
+                  value: formData.unload_point,
+                  label: formData.unload_point,
+                }
+                : null
+            }
+            onChange={(selectedOption) =>
+              setFormData({
+                ...formData,
+                unload_point: selectedOption ? selectedOption.value : "",
+              })
+            }
+            options={unloadpoints.map((c) => ({
+              value: c.name,
+              label: c.name,
+            }))}
+            placeholder="আনলোড পয়েন্ট নির্বাচন করুন বা নতুন নাম লিখুন"
+            formatCreateLabel={(inputValue) =>
+              `"${inputValue}" নতুন আনলোড পয়েন্ট তৈরি করুন`
+            }
+            styles={{
+              control: (base, state) => ({
+                ...base,
+                minHeight: "38px",
+                borderColor: state.isFocused ? "#1677ff" : "#d9d9d9",
+                borderRadius: "6px",
+                boxShadow: "none",
+                "&:hover": {
+                  borderColor: "#1677ff",
+                },
+              }),
+              menu: (base) => ({
+                ...base,
+                zIndex: 9999,
+              }),
+            }}
           />
 
           <label>গাড়ির সাইজ</label>

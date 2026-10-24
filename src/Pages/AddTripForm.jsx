@@ -19,7 +19,7 @@ export default function AddTripForm() {
   const { id } = useParams();
   const dateRef = useRef(null);
   const { TextArea } = Input;
-  const {user} = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
   // ড্রপডাউন অপশনগুলির জন্য স্টেট
   const [vehicle, setVehicle] = useState([]);
   const [driver, setDriver] = useState([]);
@@ -160,24 +160,24 @@ export default function AddTripForm() {
   useEffect(() => {
     const transCostValue = selectedTransport === "own_transport" && trans_cost_type === "own_trans_cost" ? toNumber(trans_cost) : 0;
     if (selectedTransport === "own_transport") {
-    // মোট খরচ হিসাব
-    const totalExp =
-      (toNumber(driverCommision) || 0) +
-      (toNumber(labourCost) || 0) +
-      (toNumber(parkingCost) || 0) +
-      (toNumber(nightGuardCost) || 0) +
-      (toNumber(tollCost) || 0) +
-      (toNumber(feriCost) || 0) +
-      (toNumber(policeCost) || 0) +
-      (toNumber(foodCost) || 0) +
-      (toNumber(chadaCost) || 0) +
-      (toNumber(fuelCost) || 0) +
-      // (toNumber(trans_cost) || 0) +
-      (transCostValue || 0) +
-      (toNumber(additional_cost) || 0) +
-      (toNumber(othersCost) || 0);
+      // মোট খরচ হিসাব
+      const totalExp =
+        (toNumber(driverCommision) || 0) +
+        (toNumber(labourCost) || 0) +
+        (toNumber(parkingCost) || 0) +
+        (toNumber(nightGuardCost) || 0) +
+        (toNumber(tollCost) || 0) +
+        (toNumber(feriCost) || 0) +
+        (toNumber(policeCost) || 0) +
+        (toNumber(foodCost) || 0) +
+        (toNumber(chadaCost) || 0) +
+        (toNumber(fuelCost) || 0) +
+        // (toNumber(trans_cost) || 0) +
+        (transCostValue || 0) +
+        (toNumber(additional_cost) || 0) +
+        (toNumber(othersCost) || 0);
 
-    setValue("total_exp", totalExp);
+      setValue("total_exp", totalExp);
     }
     // ড্যামারেজ মোট হিসাব
     const d_total = (toNumber(d_day) || 0) * (toNumber(d_amount) || 0);
@@ -312,7 +312,7 @@ export default function AddTripForm() {
               advance: toNumber(tripData.advance) || 0,
               due_amount: toNumber(tripData.due_amount) || 0,
               driver_adv: toNumber(tripData.driver_adv) || 0,
-              
+
             };
             reset(parsedTripData);
             if (tripData.image) {
@@ -434,28 +434,6 @@ export default function AddTripForm() {
     }
   }, [selectedVehicle, selectedTransport, setValue]);
 
-  // লোড পয়েন্ট, আনলোড পয়েন্ট, গাড়ির ক্যাটাগরি এবং সাইজের উপর ভিত্তি করে ফিক্সড রেট হিসাব
-  // useEffect(() => {
-  //   if (selectedLoadPoint && selectedUnloadPoint && selectedVehicleCategory && selectedVehicleSize && rates.length > 0) {
-  //     const foundRate = rates.find(
-  //       (rate) =>
-  //         rate.load_point === selectedLoadPoint &&
-  //         rate.unload_point === selectedUnloadPoint &&
-  //         rate.vehicle_category === selectedVehicleCategory &&
-  //         // rate.vehicle_size === selectedVehicleSize
-  //         rate.vehicle_size.toLowerCase().trim() === selectedVehicleSize.toLowerCase().trim()
-  //     );
-
-  //     if (foundRate) {
-  //       const rateValue = parseFloat(foundRate.rate) || 0;
-  //       setValue("total_rent", Number(rateValue), { shouldValidate: true });
-  //       setIsRateFound(true);
-  //     } else if (!id) {
-  //       setValue("total_rent", "", { shouldValidate: true });
-  //       setIsRateFound(false);
-  //     }
-  //   }
-  // }, [selectedLoadPoint, selectedUnloadPoint, selectedVehicleCategory, selectedVehicleSize, rates, setValue, id]);
 
   useEffect(() => {
     if (
@@ -710,8 +688,8 @@ export default function AddTripForm() {
           formData.append(key, value);
         }
       });
-         // created_by যোগ করা (FormData তে)
-    formData.append("created_by", user?.name);
+      // created_by যোগ করা (FormData তে)
+      formData.append("created_by", user?.name);
 
       const url = id
         ? `/trip/${id}`
@@ -1008,6 +986,7 @@ export default function AddTripForm() {
                       name="rate"
                       label="প্রতি ঘণ্টার দর"
                       type="number"
+                      step="any"
                       required={id ? false : true}
                     />
                   </div></>) : null}
@@ -1020,10 +999,19 @@ export default function AddTripForm() {
                   />
                 </div>
                   <div className="w-full">
+                    {/* <InputField
+                      name="rate"
+                      label="দর"
+                      type="number"
+                      required={id ? false : true}
+                    />
+                     */}
+
                     <InputField
                       name="rate"
                       label="দর"
                       type="number"
+                      step="any"
                       required={id ? false : true}
                     />
                   </div></>) : null}
@@ -1038,28 +1026,19 @@ export default function AddTripForm() {
                 </div>
               </div>
               <div className="flex gap-5">
-                {/* <div className="w-full">
-                  
-                  <label className="block text-gray-700 text-sm font-medium mb-1"> মন্তব্য </label>
-                  <TextArea name="remarks" label="মন্তব্য" />
-                </div>
-                <div className="w-full">
-                
-                  <label className="block text-gray-700 text-sm font-medium mb-1"> বিষয় </label>
-                  <TextArea name="trip_count" label="বিষয়" />
-                </div> */}
+
                 <TextAreaField
-                    name="remarks"
-                    label="মন্তব্য"
-                    required={false}
-                    placeholder="বিবরণ..."
-                  />
-                  <TextAreaField
-                    name="trip_count"
-                    label="বিষয়"
-                    required={false}
-                    placeholder="বিষয়..."
-                  />
+                  name="remarks"
+                  label="মন্তব্য"
+                  required={false}
+                  placeholder="বিবরণ..."
+                />
+                <TextAreaField
+                  name="trip_count"
+                  label="বিষয়"
+                  required={false}
+                  placeholder="বিষয়..."
+                />
               </div>
             </div>
 

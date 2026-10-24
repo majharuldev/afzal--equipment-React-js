@@ -1,3 +1,126 @@
+// import { Controller, useFormContext } from "react-hook-form";
+// import Select from "react-select";
+
+// import { parse } from "date-fns";
+// import "react-datepicker/dist/react-datepicker.css";
+// import { FiCalendar } from "react-icons/fi";
+// import DatePicker from "react-datepicker";
+
+// export const InputField = ({
+//   name,
+//   label,
+//   type,
+//   value,
+//   placeholder = "",
+//   defaultValue,
+//   required = false,
+//   inputRef,
+//   icon,
+//   readOnly = false,
+// }) => {
+//   const {
+//     control,
+//     register,
+//     formState: { errors },
+//   } = useFormContext();
+
+//   const error = errors[name]?.message;
+
+//   //  If type="date" → Use react-datepicker
+//   if (type === "date") {
+//     return (
+//       <div className="mb-4">
+//         {label && (
+//           <label
+//             htmlFor={name}
+//             className="block text-sm font-medium text-gray-700"
+//           >
+//             {label} {required && <span className="text-red-500">*</span>}
+//           </label>
+//         )}
+
+//         <div className="relative">
+//           <Controller
+//             name={name}
+//             control={control}
+//             defaultValue={defaultValue || null}
+//             rules={{
+//               required: required ? `${label || name} অবশ্যই দিতে হবে` : false,
+//             }}
+//             render={({ field }) => (
+//               <DatePicker
+//                 id={name}
+//                 selected={field.value ? new Date(field.value) : null}
+//                 onChange={(date) => field.onChange(date)}
+//                 //     onChange={(date) => {
+//                 //   field.onChange(date ? date.toISOString() : null);
+//                 // }}
+//                 dateFormat="dd-MM-yyyy"
+//                 placeholderText={placeholder || `Select ${label || name}`}
+//                 className={`mt-1 text-sm border border-gray-300 px-3 py-2 rounded outline-none ${icon ? "pr-12" : ""
+//                   } ${readOnly ? "bg-gray-200" : "bg-white"} w-full`}
+//                 readOnly={readOnly}
+//                 ref={(el) => {
+//                   if (inputRef) inputRef(el);
+//                 }}
+//                 wrapperClassName="w-full" //  important for full width
+//               />
+//             )}
+//           />
+
+//           {/* {icon && ( */}
+//           <span className="absolute inset-y-0 right-0 flex items-center justify-center  px-3 rounded-r cursor-pointer">
+//             <FiCalendar />
+//           </span>
+//           {/* )} */}
+//         </div>
+
+//         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+//       </div>
+//     );
+//   }
+
+//   // If not date → Default Input Logic
+//   const { ref, ...rest } = register(name, {
+//     required: required ? `${label || name} অবশ্যই দিতে হবে` : false,
+//   });
+
+//   return (
+//     <div className="mb-4">
+//       {label && (
+//         <label
+//           htmlFor={name}
+//           className="block text-sm font-medium text-gray-700"
+//         >
+//           {label} {required && <span className="text-red-500">*</span>}
+//         </label>
+//       )}
+
+//       <div className="relative">
+//         <input
+//           id={name}
+//           type={type}
+//           placeholder={placeholder || `${label || name}`}
+//           defaultValue={defaultValue}
+//           value={value}
+//           readOnly={readOnly}
+//           {...rest}
+//           ref={(el) => {
+//             ref(el);
+//             if (inputRef) inputRef(el);
+//           }}
+//           className={`remove-date-icon mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded outline-none ${icon ? "pr-10" : ""
+//             } ${readOnly ? "bg-gray-200" : "bg-white"}`}
+//         />
+//         {icon && icon}
+//       </div>
+
+//       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+//     </div>
+//   );
+// };
+
+
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
 
@@ -17,6 +140,10 @@ export const InputField = ({
   inputRef,
   icon,
   readOnly = false,
+  step,          // ✅ নতুন: number ইনপুটের step
+  min,
+  max,
+  ...restProps  // ✅ বাকি যেকোনো prop পাস করার জন্য
 }) => {
   const {
     control,
@@ -26,7 +153,7 @@ export const InputField = ({
 
   const error = errors[name]?.message;
 
-  //  If type="date" → Use react-datepicker
+  // If type="date" → Use react-datepicker
   if (type === "date") {
     return (
       <div className="mb-4">
@@ -52,27 +179,23 @@ export const InputField = ({
                 id={name}
                 selected={field.value ? new Date(field.value) : null}
                 onChange={(date) => field.onChange(date)}
-                //     onChange={(date) => {
-                //   field.onChange(date ? date.toISOString() : null);
-                // }}
                 dateFormat="dd-MM-yyyy"
                 placeholderText={placeholder || `Select ${label || name}`}
-                className={`mt-1 text-sm border border-gray-300 px-3 py-2 rounded outline-none ${icon ? "pr-12" : ""
-                  } ${readOnly ? "bg-gray-200" : "bg-white"} w-full`}
+                className={`mt-1 text-sm border border-gray-300 px-3 py-2 rounded outline-none ${
+                  icon ? "pr-12" : ""
+                } ${readOnly ? "bg-gray-200" : "bg-white"} w-full`}
                 readOnly={readOnly}
                 ref={(el) => {
                   if (inputRef) inputRef(el);
                 }}
-                wrapperClassName="w-full" //  important for full width
+                wrapperClassName="w-full"
               />
             )}
           />
 
-          {/* {icon && ( */}
           <span className="absolute inset-y-0 right-0 flex items-center justify-center  px-3 rounded-r cursor-pointer">
             <FiCalendar />
           </span>
-          {/* )} */}
         </div>
 
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
@@ -84,6 +207,9 @@ export const InputField = ({
   const { ref, ...rest } = register(name, {
     required: required ? `${label || name} অবশ্যই দিতে হবে` : false,
   });
+
+  // ✅ number টাইপ হলে ডিফল্ট step="any" দিয়ে দশমিক অনুমোদন
+  const resolvedStep = step !== undefined ? step : type === "number" ? "any" : undefined;
 
   return (
     <div className="mb-4">
@@ -104,13 +230,18 @@ export const InputField = ({
           defaultValue={defaultValue}
           value={value}
           readOnly={readOnly}
+          step={resolvedStep}   // ✅ এটা যোগ করুন
+          min={min}
+          max={max}
+          {...restProps}
           {...rest}
           ref={(el) => {
             ref(el);
             if (inputRef) inputRef(el);
           }}
-          className={`remove-date-icon mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded outline-none ${icon ? "pr-10" : ""
-            } ${readOnly ? "bg-gray-200" : "bg-white"}`}
+          className={`remove-date-icon mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded outline-none ${
+            icon ? "pr-10" : ""
+          } ${readOnly ? "bg-gray-200" : "bg-white"}`}
         />
         {icon && icon}
       </div>
@@ -119,6 +250,8 @@ export const InputField = ({
     </div>
   );
 };
+
+
 
 import CreatableSelect from "react-select/creatable";
 
