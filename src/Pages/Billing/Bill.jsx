@@ -342,13 +342,29 @@ const Bill = () => {
   }
 
   // Fixed calculation functions
+  // const calculateTotals = (trips) => {
+  //   const totalRent = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.total_rent) || 0), 0)
+  //   const totalWork = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.work_time) || 0), 0)
+  //   const totalRate = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.rate) || 0), 0)
+  //   const totalDemurrage = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.d_total) || 0), 0)
+  //   const grandTotal = totalRent + totalDemurrage
+  //   return { totalRent, totalDemurrage, grandTotal, totalRate, totalRent, totalWork }
+  // }
+
   const calculateTotals = (trips) => {
-    const totalRent = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.total_rent) || 0), 0)
-    const totalWork = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.work_time) || 0), 0)
-    const totalRate = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.rate) || 0), 0)
+    // মেইন টেবিলের লজিক অনুযায়ী total_rent কে work_time হিসেবে ধরা হচ্ছে
+    const totalWork = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.total_rent) || 0), 0)
+
+    // হার্ডকোড রেট ১৫ এর সাথে মোট সংখ্যা গুণ করা হচ্ছে
+    const totalRate = 15 * trips.length;
+
+    // মোট বিলের টাকা
+    const totalRent = trips.reduce((sum, dt) => sum + ((Number.parseFloat(dt.total_rent) || 0) * 15), 0)
+
     const totalDemurrage = trips.reduce((sum, dt) => sum + (Number.parseFloat(dt.d_total) || 0), 0)
-    const grandTotal = totalRent + totalDemurrage
-    return { totalRent, totalDemurrage, grandTotal, totalRate, totalRent, totalWork }
+    const grandTotal = totalRent + totalDemurrage // অথবা সরাসরি totalRent
+
+    return { totalRent, totalDemurrage, grandTotal, totalRate, totalWork }
   }
 
   // Date filter
@@ -452,17 +468,17 @@ const Bill = () => {
             </tr>
           </thead>
           <tbody>
-            ${selectedData.map((dt, i) => `
-              <tr>
-                <td>${i + 1}</td>
-                <td>${tableFormatDate(dt.date)}</td>
-                <td>${dt.vehicle_no}</td>
-                <td>${dt.challan}</td>
-                <td>${dt.work_time}</td>
-                <td>${dt.rate}</td>
-                <td>${(Number.parseFloat(dt.total_rent) || 0)}</td>
-              </tr>
-            `).join("")}
+           ${selectedData.map((dt, i) => `
+  <tr>
+    <td>${i + 1}</td>
+    <td>${tableFormatDate(dt.date)}</td>
+    <td>${dt.vehicle_no}</td>
+    <td>${dt.challan}</td>
+    <td>${dt.total_rent}</td> <!-- এখানে total_rent বসানো হলো -->
+    <td>${15}</td> <!-- এখানে হার্ডকোড ১৫ বসানো হলো -->
+    <td>${(Number.parseFloat(dt.total_rent) || 0) * 15}</td> <!-- ক্যালকুলেশন ঠিক করা হলো -->
+  </tr>
+`).join("")}
           </tbody>
           <tfoot>
             <tr>
